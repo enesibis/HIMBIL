@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800;900&family=Fredoka:wght@400;500;600;700&family=Quicksand:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#EDEAE3;font-family:system-ui,sans-serif}
+.dv-turn{padding:40px 44px 60px}
+.dv-thd{display:flex;align-items:baseline;gap:10px;margin:0 0 20px}
+.dv-tid{font:600 10px ui-monospace,Menlo,monospace;padding:3px 7px;background:#1a1a1a;color:#fff;border-radius:4px;text-decoration:none}
+.dv-tname{font:600 13px/1.2 system-ui,sans-serif;color:#1a1a1a}
+.dv-opts{display:flex;flex-wrap:wrap;gap:40px;align-items:flex-start}
+.dv-opt{flex:none;display:flex;flex-direction:column;gap:10px}
+.dv-oid{font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1a1a1a;border-radius:5px;text-decoration:none}
+.dv-olabel{display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 system-ui,sans-serif;color:rgba(0,0,0,.55)}
+.dv-next{margin:26px 0 0;font:12px/1.5 system-ui,sans-serif;color:rgba(0,0,0,.5);max-width:900px}
+@keyframes himPulseA{0%,100%{box-shadow:0 0 0 0 rgba(225,75,59,.45)}50%{box-shadow:0 0 0 16px rgba(225,75,59,0)}}
+@keyframes himPulseB{0%,100%{box-shadow:0 0 0 0 rgba(124,58,237,.4)}50%{box-shadow:0 0 0 16px rgba(124,58,237,0)}}
+@keyframes himPop{0%{opacity:0;transform:scale(.7)}60%{opacity:1;transform:scale(1.08)}100%{opacity:1;transform:scale(1)}}
+@keyframes himRise{0%{opacity:0;transform:translateY(16px)}100%{opacity:1;transform:translateY(0)}}
+@keyframes himShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@keyframes himBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes himRay{0%,100%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+@keyframes himGlow{0%,100%{opacity:.5}50%{opacity:1}}
+</style>
+</helmet>
+<section class="dv-turn" id="t1">
+<div class="dv-thd"><a class="dv-tid" href="#t1">1</a><span class="dv-tname">Hımbıl — uçtan uca akış (ana menü → oda → oyun → slam → sonuç), 2 görsel yön</span></div>
+<div class="dv-opts">
+
+<div class="dv-opt" id="1a">
+<div class="dv-olabel"><a class="dv-oid" href="#1a">1a</a>Sıcak Karnaval — kağıt oyunu, doygun kırmızı/hardal, Baloo 2</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="402,874">
+<div style="height:100%;background:radial-gradient(circle at 14% 6%, rgba(240,169,59,.22), transparent 42%),radial-gradient(circle at 92% 18%, rgba(225,75,59,.14), transparent 38%),radial-gradient(circle at 50% 100%, rgba(63,143,107,.08), transparent 45%),#FBF3E4;font-family:'Nunito',sans-serif;position:relative;overflow:hidden">
+
+<sc-if value="{{ a.isHome }}" hint-placeholder-val="{{ true }}">
+<div style="height:100%;display:flex;flex-direction:column;padding-top:60px;box-sizing:border-box">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 22px 6px">
+    <div style="display:flex;align-items:center;gap:9px">
+      <div style="width:34px;height:34px;border-radius:11px;background:linear-gradient(160deg,#FF6F5A,#E14B3B);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px rgba(225,75,59,.35)">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><rect x="3" y="7" width="13" height="15" rx="3" fill="#fff" fill-opacity="0.55" transform="rotate(-10 9.5 14.5)"></rect><rect x="8" y="4" width="13" height="15" rx="3" fill="#fff"></rect></svg>
+      </div>
+      <div style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:23px;color:#2E1D12;letter-spacing:0.2px">Hımbıl</div>
+    </div>
+    <div style="width:40px;height:40px;border-radius:20px;padding:2px;background:linear-gradient(160deg,#F0A93B,#E14B3B);box-shadow:0 4px 10px rgba(225,75,59,.25)">
+      <div style="width:100%;height:100%;border-radius:18px;background:#FFFDF8;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:800;font-size:15px;color:#E14B3B">S</div>
+    </div>
+  </div>
+
+  <sc-if value="{{ a.tabPlay }}" hint-placeholder-val="{{ true }}">
+  <div style="flex:1;display:flex;flex-direction:column;padding:14px 22px 0;box-sizing:border-box">
+    <div style="font-family:'Nunito';font-size:14px;color:#8A7660;font-weight:700;margin-bottom:2px">Merhaba,</div>
+    <div style="font-family:'Baloo 2';font-size:23px;color:#2E1D12;font-weight:700;margin-bottom:20px">Bugün Hımbıl var!</div>
+
+    <div onClick="{{ a.quickPlay }}" style-active="transform:scale(.97)" style="cursor:pointer;position:relative;overflow:hidden;background:linear-gradient(160deg,#FF6F5A,#D6432F);border-radius:28px;padding:24px 20px;display:flex;flex-direction:column;align-items:center;gap:5px;box-shadow:0 12px 0 #A82E20,0 22px 30px rgba(225,75,59,.32);transition:transform .15s">
+      <div style="position:absolute;top:0;left:0;right:0;height:50%;background:linear-gradient(180deg,rgba(255,255,255,.32),rgba(255,255,255,0));pointer-events:none"></div>
+<div style="position:relative;font-family:'Baloo 2';font-size:24px;font-weight:800;color:#fff;letter-spacing:0.4px;display:flex;align-items:center;gap:9px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M8 5.5v13l11-6.5-11-6.5z" fill="#fff"></path></svg>HIZLI OYNA</div>
+      <div style="position:relative;font-family:'Nunito';font-size:13px;font-weight:700;color:rgba(255,255,255,.88)">Rastgele oyuncularla eşleş</div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:10px;margin:20px 0">
+      <div style="flex:1;height:2px;background:rgba(46,29,18,.1)"></div>
+      <div style="font-family:'Nunito';font-weight:800;font-size:11px;color:#8A7660;letter-spacing:.5px">VEYA ÖZEL ODA</div>
+      <div style="flex:1;height:2px;background:rgba(46,29,18,.1)"></div>
+    </div>
+
+    <div style="display:flex;gap:14px">
+      <div onClick="{{ a.quickPlay }}" style-active="transform:scale(.96)" style="cursor:pointer;flex:1;background:#FFFDF8;border-radius:22px;padding:16px 8px 14px;text-align:center;box-shadow:0 3px 0 rgba(46,29,18,.05),0 10px 22px rgba(46,29,18,.07);border:2px solid rgba(46,29,18,.05);transition:transform .15s">
+        <div style="width:42px;height:42px;border-radius:15px;background:linear-gradient(160deg,#FFCB7A,#F0A93B);margin:0 auto 8px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px rgba(240,169,59,.35)"><svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2.6" stroke-linecap="round"></path></svg></div>
+        <div style="font-family:'Baloo 2';font-weight:700;font-size:14px;color:#2E1D12">Oda Kur</div>
+      </div>
+      <div onClick="{{ a.openJoin }}" style-active="transform:scale(.96)" style="cursor:pointer;flex:1;background:#FFFDF8;border-radius:22px;padding:16px 8px 14px;text-align:center;box-shadow:0 3px 0 rgba(46,29,18,.05),0 10px 22px rgba(46,29,18,.07);border:2px solid rgba(46,29,18,.05);transition:transform .15s">
+        <div style="width:42px;height:42px;border-radius:15px;background:linear-gradient(160deg,#5B8FC7,#3B6EA5);margin:0 auto 8px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px rgba(59,110,165,.35)"><svg width="19" height="19" viewBox="0 0 24 24" fill="none"><circle cx="8" cy="15" r="4" stroke="#fff" stroke-width="2.2"></circle><path d="M11 12l9-9M16.5 6.5l2 2M13.5 9.5l2 2" stroke="#fff" stroke-width="2.2" stroke-linecap="round"></path></svg></div>
+        <div style="font-family:'Baloo 2';font-weight:700;font-size:14px;color:#2E1D12">Kodla Katıl</div>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ a.tabProfile }}" hint-placeholder-val="{{ false }}">
+  <div style="flex:1;overflow:auto;padding:14px 22px 16px;box-sizing:border-box">
+    <div style="font-family:'Baloo 2';font-size:19px;font-weight:700;color:#2E1D12;margin-bottom:12px">Profilim</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px">
+      <div style="background:#FFFDF8;border-radius:16px;padding:13px;box-shadow:0 6px 16px rgba(46,29,18,.06);border:2px solid rgba(46,29,18,.04)">
+        <div style="width:26px;height:26px;border-radius:9px;background:linear-gradient(160deg,#FF6F5A,#E14B3B);display:flex;align-items:center;justify-content:center;margin-bottom:6px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><rect x="3" y="7" width="13" height="15" rx="3" fill="#fff" fill-opacity="0.55" transform="rotate(-10 9.5 14.5)"></rect><rect x="8" y="4" width="13" height="15" rx="3" fill="#fff"></rect></svg></div>
+        <div style="font-family:'Baloo 2';font-size:20px;font-weight:800;color:#2E1D12">{{ a.profileStats.games }}</div>
+        <div style="font-family:'Nunito';font-size:11px;color:#8A7660;font-weight:700">Oyun</div>
+      </div>
+      <div style="background:#FFFDF8;border-radius:16px;padding:13px;box-shadow:0 6px 16px rgba(46,29,18,.06);border:2px solid rgba(46,29,18,.04)">
+        <div style="width:26px;height:26px;border-radius:9px;background:linear-gradient(160deg,#5FB98C,#3F8F6B);display:flex;align-items:center;justify-content:center;margin-bottom:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M7 4h10v4a5 5 0 0 1-10 0V4z" stroke="#fff" stroke-width="2" stroke-linejoin="round"></path><path d="M7 5H4.5A2.5 2.5 0 0 0 7 9.5M17 5h2.5A2.5 2.5 0 0 1 17 9.5" stroke="#fff" stroke-width="2" stroke-linecap="round"></path><path d="M12 13v3M9.5 20h5M10 17h4v3h-4z" stroke="#fff" stroke-width="2" stroke-linejoin="round"></path></svg></div>
+        <div style="font-family:'Baloo 2';font-size:20px;font-weight:800;color:#2E1D12">{{ a.profileStats.wins }}</div>
+        <div style="font-family:'Nunito';font-size:11px;color:#8A7660;font-weight:700">Galibiyet</div>
+      </div>
+      <div style="background:#FFFDF8;border-radius:16px;padding:13px;box-shadow:0 6px 16px rgba(46,29,18,.06);border:2px solid rgba(46,29,18,.04)">
+        <div style="width:26px;height:26px;border-radius:9px;background:linear-gradient(160deg,#FFCB7A,#F0A93B);display:flex;align-items:center;justify-content:center;margin-bottom:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="4" y="13" width="4" height="7" rx="1" fill="#fff"></rect><rect x="10" y="8" width="4" height="12" rx="1" fill="#fff"></rect><rect x="16" y="4" width="4" height="16" rx="1" fill="#fff"></rect></svg></div>
+        <div style="font-family:'Baloo 2';font-size:20px;font-weight:800;color:#2E1D12">{{ a.profileStats.winRate }}</div>
+        <div style="font-family:'Nunito';font-size:11px;color:#8A7660;font-weight:700">Kazanma Oranı</div>
+      </div>
+      <div style="background:#FFFDF8;border-radius:16px;padding:13px;box-shadow:0 6px 16px rgba(46,29,18,.06);border:2px solid rgba(46,29,18,.04)">
+        <div style="width:26px;height:26px;border-radius:9px;background:linear-gradient(160deg,#5B8FC7,#3B6EA5);display:flex;align-items:center;justify-content:center;margin-bottom:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2c1.2 4-3.6 5.2-3.6 9.2a3.6 3.6 0 0 0 7.2 0c0-1.6-.8-2.6-.8-2.6s.6 2-.6 2-.6-1.4-.6-2.2c.8 0 1.6-1.4 1.6-2.4.8 1 1.8 2.6 1.8 5A4.6 4.6 0 0 1 7.6 11c0-4.2 2.8-5.2 4.4-9z" fill="#fff"></path></svg></div>
+        <div style="font-family:'Baloo 2';font-size:20px;font-weight:800;color:#2E1D12">{{ a.profileStats.bestStreak }}</div>
+        <div style="font-family:'Nunito';font-size:11px;color:#8A7660;font-weight:700">En İyi Seri</div>
+      </div>
+    </div>
+    <div style="font-family:'Baloo 2';font-size:16px;font-weight:700;color:#2E1D12;margin-bottom:8px">Liderlik Tablosu</div>
+    <div style="background:#FFFDF8;border-radius:18px;box-shadow:0 6px 16px rgba(46,29,18,.06);border:2px solid rgba(46,29,18,.04);overflow:hidden">
+      <sc-for list="{{ a.leaderboard }}" as="row" hint-placeholder-count="5">
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid rgba(46,29,18,.06)">
+          <div style="font-family:'Baloo 2';font-weight:800;font-size:13px;color:#8A7660;width:16px">{{ row.rank }}</div>
+          <div style="flex:1;font-family:'Nunito';font-weight:700;font-size:14px;color:#2E1D12">{{ row.name }}</div>
+          <div style="font-family:'Baloo 2';font-weight:800;font-size:14px;color:#E14B3B">{{ row.score }}</div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+  </sc-if>
+
+  <div style="padding:8px 18px 18px">
+    <div style="display:flex;background:#FFFDF8;border-radius:24px;padding:5px;box-shadow:0 6px 18px rgba(46,29,18,.08);border:2px solid rgba(46,29,18,.04)">
+      <div onClick="{{ a.setTabPlay }}" style-active="transform:scale(.96)" style="flex:1;cursor:pointer;padding:9px 0;border-radius:19px;font-family:'Baloo 2';font-weight:700;font-size:13px;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px;{{ a.tabPlayStyle }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M8 5.5v13l11-6.5-11-6.5z" fill="currentColor"></path></svg>Oyna</div>
+      <div onClick="{{ a.setTabProfile }}" style-active="transform:scale(.96)" style="flex:1;cursor:pointer;padding:9px 0;border-radius:19px;font-family:'Baloo 2';font-weight:700;font-size:13px;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px;{{ a.tabProfileStyle }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2.2"></circle><path d="M4.5 20c0-4.2 3.9-6.4 7.5-6.4s7.5 2.2 7.5 6.4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"></path></svg>Profil</div>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ a.isJoin }}" hint-placeholder-val="{{ false }}">
+<div style="height:100%;display:flex;flex-direction:column;padding-top:60px;box-sizing:border-box">
+  <div style="display:flex;align-items:center;padding:8px 22px 4px">
+    <div onClick="{{ a.backHome }}" style-active="transform:scale(.92)" style="cursor:pointer;width:36px;height:36px;border-radius:18px;background:#FFFDF8;box-shadow:0 4px 10px rgba(46,29,18,.08);display:flex;align-items:center;justify-content:center;font-size:16px;color:#2E1D12">←</div>
+  </div>
+  <div style="padding:14px 22px 2px;font-family:'Baloo 2';font-size:21px;font-weight:700;color:#2E1D12">Kod ile Katıl</div>
+  <div style="padding:0 22px 18px;font-family:'Nunito';font-size:13px;color:#8A7660;font-weight:700">Arkadaşının oda kodunu gir</div>
+  <div style="display:flex;gap:8px;padding:0 22px 16px;justify-content:center">
+    <sc-for list="{{ a.joinBoxes }}" as="box" hint-placeholder-count="5">
+      <div style="width:46px;height:58px;border-radius:14px;background:#FFFDF8;box-shadow:0 4px 12px rgba(46,29,18,.08);border-bottom:4px solid #E14B3B;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:800;font-size:22px;color:#2E1D12">{{ box.value }}</div>
+    </sc-for>
+  </div>
+  <div onClick="{{ a.fillDemoCode }}" style-active="transform:scale(.97)" style="cursor:pointer;margin:0 22px 14px;text-align:center;font-family:'Nunito';font-weight:800;font-size:12px;color:#3B6EA5;text-decoration:underline">Örnek kod ile doldur (34521)</div>
+  <div style="flex:1;padding:0 22px 20px;display:flex;flex-direction:column;justify-content:flex-end;box-sizing:border-box">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+      <div onClick="{{ a.digit1 }}" style-active="transform:scale(.93)" style="cursor:pointer;background:#FFFDF8;border-radius:16px;height:52px;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:700;font-size:19px;color:#2E1D12;box-shadow:0 3px 8px rgba(46,29,18,.07);transition:transform .1s">1</div>
+      <div onClick="{{ a.digit2 }}" style-active="transform:scale(.93)" style="cursor:pointer;background:#FFFDF8;border-radius:16px;height:52px;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:700;font-size:19px;color:#2E1D12;box-shadow:0 3px 8px rgba(46,29,18,.07);transition:transform .1s">2</div>
+      <div onClick="{{ a.digit3 }}" style-active="transform:scale(.93)" style="cursor:pointer;background:#FFFDF8;border-radius:16px;height:52px;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:700;font-size:19px;color:#2E1D12;box-shadow:0 3px 8px rgba(46,29,18,.07);transition:transform .1s">3</div>
+      <div onClick="{{ a.digit4 }}" style-active="transform:scale(.93)" style="cursor:pointer;background:#FFFDF8;border-radius:16px;height:52px;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:700;font-size:19px;color:#2E1D12;box-shadow:0 3px 8px rgba(46,29,18,.07);transition:transform .1s">4</div>
+      <div onClick="{{ a.digit5 }}" style-active="transform:scale(.93)" style="cursor:pointer;background:#FFFDF8;border-radius:16px;height:52px;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:700;font-size:19px;color:#2E1D12;box-shadow:0 3px 8px rgba(46,29,18,.07);transition:transform .1s">5</div>
+      <div onClick="{{ a.digit6 }}" style-active="transform:scale(.93)" style="cursor:pointer;background:#FFFDF8;border-radius:16px;height:52px;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:700;font-size:19px;color:#2E1D12;box-shadow:0 3px 8px rgba(46,29,18,.07);transition:transform .1s">6</div>
+      <div onClick="{{ a.digit7 }}" style-active="transform:scale(.93)" style="cursor:pointer;background:#FFFDF8;border-radius:16px;height:52px;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:700;font-size:19px;color:#2E1D12;box-shadow:0 3px 8px rgba(46,29,18,.07);transition:transform .1s">7</div>
+      <div onClick="{{ a.digit8 }}" style-active="transform:scale(.93)" style="cursor:pointer;background:#FFFDF8;border-radius:16px;height:52px;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:700;font-size:19px;color:#2E1D12;box-shadow:0 3px 8px rgba(46,29,18,.07);transition:transform .1s">8</div>
+      <div onClick="{{ a.digit9 }}" style-active="transform:scale(.93)" style="cursor:pointer;background:#FFFDF8;border-radius:16px;height:52px;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:700;font-size:19px;color:#2E1D12;box-shadow:0 3px 8px rgba(46,29,18,.07);transition:transform .1s">9</div>
+      <div style="height:52px"></div>
+      <div onClick="{{ a.digit0 }}" style-active="transform:scale(.93)" style="cursor:pointer;background:#FFFDF8;border-radius:16px;height:52px;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:700;font-size:19px;color:#2E1D12;box-shadow:0 3px 8px rgba(46,29,18,.07);transition:transform .1s">0</div>
+      <div onClick="{{ a.keypadDelete }}" style-active="transform:scale(.93)" style="cursor:pointer;background:#FFFDF8;border-radius:16px;height:52px;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:700;font-size:17px;color:#2E1D12;box-shadow:0 3px 8px rgba(46,29,18,.07);transition:transform .1s">⌫</div>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ a.isLobby }}" hint-placeholder-val="{{ false }}">
+<div style="height:100%;display:flex;flex-direction:column;padding-top:60px;box-sizing:border-box">
+  <div style="display:flex;align-items:center;padding:8px 22px 4px">
+    <div onClick="{{ a.backHome }}" style-active="transform:scale(.92)" style="cursor:pointer;width:36px;height:36px;border-radius:18px;background:#FFFDF8;box-shadow:0 4px 10px rgba(46,29,18,.08);display:flex;align-items:center;justify-content:center;font-size:16px;color:#2E1D12">←</div>
+  </div>
+  <div style="margin:8px 24px 4px;background:linear-gradient(160deg,#FFFDF8,#FFF1DC);border-radius:20px;box-shadow:0 8px 20px rgba(46,29,18,.09);border:2px dashed rgba(225,75,59,.35);padding:14px;text-align:center">
+    <div style="font-family:'Nunito';font-weight:800;font-size:11px;color:#8A7660;letter-spacing:1.5px">ODA KODU</div>
+    <div style="font-family:'Baloo 2';font-weight:800;font-size:36px;color:#E14B3B;letter-spacing:6px">{{ a.roomCode }}</div>
+  </div>
+  <div style="flex:1;padding:14px 24px;display:grid;grid-template-columns:1fr 1fr;gap:14px;align-content:start">
+    <sc-for list="{{ a.lobbySlots }}" as="slot" hint-placeholder-count="4">
+      <div style="background:#FFFDF8;border-radius:20px;box-shadow:0 6px 16px rgba(46,29,18,.07);border:2px solid rgba(46,29,18,.04);padding:16px 8px;display:flex;flex-direction:column;align-items:center;gap:7px">
+        <div style="width:56px;height:56px;border-radius:28px;padding:2px;background:linear-gradient(160deg,#F0A93B,#E14B3B)">
+          <div style="width:100%;height:100%;border-radius:26px;background:#fff;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:800;font-size:19px;color:#E14B3B">{{ slot.initial }}</div>
+        </div>
+        <div style="font-family:'Baloo 2';font-weight:700;font-size:14px;color:#2E1D12">{{ slot.name }}</div>
+        <sc-if value="{{ slot.joined }}" hint-placeholder-val="{{ true }}"><div style="font-family:'Nunito';font-weight:800;font-size:11px;color:#3F8F6B">✓ Hazır</div></sc-if>
+        <sc-if value="{{ slot.waiting }}" hint-placeholder-val="{{ false }}"><div style="font-family:'Nunito';font-weight:800;font-size:11px;color:#8A7660;animation:himBob 1s infinite">Bekleniyor…</div></sc-if>
+      </div>
+    </sc-for>
+  </div>
+  <div style="padding:10px 24px 26px">
+    <div onClick="{{ a.startGame }}" style-active="transform:scale(.98)" style="position:relative;overflow:hidden;text-align:center;background:linear-gradient(160deg,#FF6F5A,#D6432F);border-radius:24px;padding:16px;font-family:'Baloo 2';font-weight:800;font-size:17px;color:#fff;box-shadow:0 10px 0 #A82E20,0 16px 24px rgba(225,75,59,.3);transition:all .15s;{{ a.startBtnStyle }}">
+      <div style="position:absolute;top:0;left:0;right:0;height:50%;background:linear-gradient(180deg,rgba(255,255,255,.3),rgba(255,255,255,0));pointer-events:none"></div>
+      <span style="position:relative">Oyunu Başlat</span>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ a.isGame }}" hint-placeholder-val="{{ false }}">
+<div style="height:100%;display:flex;flex-direction:column;padding-top:54px;box-sizing:border-box;position:relative">
+  <div style="display:flex;justify-content:space-around;padding:6px 14px">
+    <sc-for list="{{ a.opponents }}" as="opp" hint-placeholder-count="3">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+        <div style="width:44px;height:44px;border-radius:22px;padding:2px;background:linear-gradient(160deg,#5B8FC7,#3B6EA5)">
+          <div style="width:100%;height:100%;border-radius:20px;background:#fff;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:700;font-size:15px;color:#3B6EA5">{{ opp.initial }}</div>
+        </div>
+        <div style="font-family:'Nunito';font-weight:700;font-size:11px;color:#8A7660">{{ opp.name }}</div>
+        <div style="background:rgba(46,29,18,.07);border-radius:10px;padding:2px 8px;font-family:'Baloo 2';font-weight:700;font-size:11px;color:#2E1D12;display:flex;align-items:center;gap:4px"><svg width="11" height="11" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="13" height="15" rx="3" fill="currentColor" opacity="0.45" transform="rotate(-10 8.5 14.5)"></rect><rect x="7" y="4" width="13" height="15" rx="3" fill="currentColor"></rect></svg>4</div>
+      </div>
+    </sc-for>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;position:relative">
+    <div style="position:absolute;width:190px;height:190px;border-radius:50%;background:radial-gradient(circle,rgba(225,75,59,.1),transparent 70%)"></div>
+    <sc-if value="{{ a.penaltyFlash }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;top:0px;background:#E14B3B;color:#fff;padding:8px 16px;border-radius:16px;font-family:'Baloo 2';font-weight:700;font-size:13px;animation:himShake .4s;z-index:5;box-shadow:0 6px 16px rgba(225,75,59,.4)">Erken bastın! Ceza puanı</div>
+    </sc-if>
+    <div style="position:relative;background:#FFFDF8;border-radius:50%;padding:10px;box-shadow:0 8px 20px rgba(46,29,18,.1)">
+      <svg width="60" height="60" viewBox="0 0 64 64" style="transform:rotate(-90deg)">
+        <circle cx="32" cy="32" r="18" fill="none" stroke="rgba(46,29,18,.1)" stroke-width="6"></circle>
+        <circle cx="32" cy="32" r="18" fill="none" stroke="#E14B3B" stroke-width="6" stroke-linecap="round" stroke-dasharray="113.097" style="stroke-dashoffset:{{ a.timerDashOffset }}"></circle>
+      </svg>
+    </div>
+    <div style="position:relative;font-family:'Baloo 2';font-weight:700;font-size:13px;color:#2E1D12">{{ a.roundLabel }} · {{ a.tickLabel }}</div>
+  </div>
+  <div style="padding:6px 18px 6px;text-align:center;font-family:'Nunito';font-weight:800;font-size:12px;min-height:16px">
+    <sc-if value="{{ a.handComplete }}" hint-placeholder-val="{{ false }}"><span style="color:#3F8F6B">4'lün tamam — HIMBIL'e bas!</span></sc-if>
+    <sc-if value="{{ a.notHandComplete }}" hint-placeholder-val="{{ true }}"><span style="color:#8A7660">İşine yaramayan kartı seç, komşuna ver</span></sc-if>
+  </div>
+  <div style="display:flex;gap:9px;padding:8px 18px 4px;justify-content:center">
+    <sc-for list="{{ a.hand }}" as="card" hint-placeholder-count="4">
+      <div onClick="{{ card.onTap }}" style="cursor:pointer;position:relative;width:70px;height:96px;background:linear-gradient(160deg,#FFFDF8,#FFF3DE);border-radius:16px;border:3px solid #E14B3B;display:flex;align-items:center;justify-content:center;font-size:34px;box-shadow:0 6px 0 rgba(46,29,18,.08),0 10px 18px rgba(46,29,18,.08);transition:transform .2s;{{ card.liftStyle }}">
+        <span style="position:absolute;top:5px;left:6px;font-size:11px;opacity:.45">{{ card.emoji }}</span>
+        <span style="position:absolute;bottom:5px;right:6px;font-size:11px;opacity:.45;transform:rotate(180deg)">{{ card.emoji }}</span>
+        {{ card.emoji }}
+      </div>
+    </sc-for>
+  </div>
+  <div style="padding:14px 20px 24px;display:flex;flex-direction:column;align-items:center;gap:8px">
+    <div onClick="{{ a.onSlam }}" style-active="transform:scale(.94)" style="cursor:pointer;position:relative;overflow:hidden;width:116px;height:116px;border-radius:58px;background:linear-gradient(160deg,#FF6F5A,#D6432F);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:800;font-size:19px;box-shadow:0 10px 0 #A82E20,0 18px 26px rgba(225,75,59,.35);transition:transform .12s;{{ a.himbilAnim }}">
+      <div style="position:absolute;top:6px;left:14px;right:14px;height:34%;border-radius:50%;background:rgba(255,255,255,.28);pointer-events:none"></div>
+      <span style="position:relative">HIMBIL!</span>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ a.isSlam }}" hint-placeholder-val="{{ false }}">
+<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(180deg,#F5B95C,#E14B3B);padding-top:40px;box-sizing:border-box;position:relative;overflow:hidden">
+  <div style="position:absolute;width:280px;height:280px;border-radius:50%;background:repeating-conic-gradient(rgba(255,255,255,.15) 0deg 8deg, transparent 8deg 16deg);animation:himRay 14s linear infinite"></div>
+  <div style="position:relative;font-family:'Baloo 2';font-weight:800;font-size:42px;color:#fff;animation:himPop .5s ease;text-shadow:0 6px 18px rgba(0,0,0,.2)">HIMBIL!</div>
+  <div style="position:relative;width:88%;margin-top:18px;display:flex;flex-direction:column;gap:8px">
+    <sc-for list="{{ a.ranking }}" as="r" hint-placeholder-count="4">
+      <div style="opacity:0;animation:himRise .5s ease forwards;animation-delay:{{ r.delayMs }}ms;background:rgba(255,255,255,.95);border-radius:14px;padding:10px 14px;display:flex;align-items:center;gap:10px;box-shadow:0 6px 14px rgba(0,0,0,.12)">
+        <div style="width:26px;height:26px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-family:system-ui,sans-serif;font-weight:800;font-size:12px;color:#fff;background:{{ r.badgeBg }}">{{ r.rank }}</div>
+        <div style="flex:1;font-family:'Nunito';font-weight:800;font-size:14px;color:#2E1D12">{{ r.name }}</div>
+        <div style="font-family:'Baloo 2';font-weight:800;font-size:14px;color:#3F8F6B">+{{ r.points }}</div>
+      </div>
+    </sc-for>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ a.isRoundResult }}" hint-placeholder-val="{{ false }}">
+<div style="height:100%;display:flex;flex-direction:column;padding-top:60px;box-sizing:border-box">
+  <div style="text-align:center;padding:6px 22px 18px">
+    <div style="font-family:'Nunito';font-weight:800;font-size:12px;color:#8A7660;letter-spacing:1px">TUR {{ a.roundNum }} SONUÇLARI</div>
+  </div>
+  <div style="flex:1;padding:0 24px;display:flex;flex-direction:column;gap:10px">
+    <sc-for list="{{ a.ranking }}" as="r" hint-placeholder-count="4">
+      <div style="background:#FFFDF8;border-radius:16px;box-shadow:0 6px 16px rgba(46,29,18,.06);border:2px solid rgba(46,29,18,.04);padding:12px 16px;display:flex;align-items:center;gap:12px">
+        <div style="width:28px;height:28px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:system-ui,sans-serif;font-weight:800;font-size:13px;color:#fff;background:{{ r.badgeBg }}">{{ r.rank }}</div>
+        <div style="flex:1;font-family:'Baloo 2';font-weight:700;font-size:15px;color:#2E1D12">{{ r.name }}</div>
+        <div style="font-family:'Baloo 2';font-weight:800;font-size:16px;color:#E14B3B">+{{ r.points }}</div>
+      </div>
+    </sc-for>
+  </div>
+  <div style="padding:16px 24px 26px">
+    <div onClick="{{ a.onNextRound }}" style-active="transform:scale(.98)" style="cursor:pointer;position:relative;overflow:hidden;text-align:center;background:linear-gradient(160deg,#FF6F5A,#D6432F);border-radius:24px;padding:16px;font-family:'Baloo 2';font-weight:800;font-size:16px;color:#fff;box-shadow:0 10px 0 #A82E20,0 16px 24px rgba(225,75,59,.3);transition:transform .15s">
+      <div style="position:absolute;top:0;left:0;right:0;height:50%;background:linear-gradient(180deg,rgba(255,255,255,.3),rgba(255,255,255,0));pointer-events:none"></div>
+      <span style="position:relative">{{ a.nextLabel }}</span>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ a.isMatchEnd }}" hint-placeholder-val="{{ false }}">
+<div style="height:100%;display:flex;flex-direction:column;padding-top:56px;box-sizing:border-box;position:relative;overflow:hidden">
+  <div style="position:absolute;top:64px;left:20px;width:18px;height:18px;border-radius:50%;background:#F0A93B;opacity:.55"></div>
+  <div style="position:absolute;top:110px;right:26px;width:13px;height:13px;border-radius:50%;background:#3F8F6B;opacity:.55"></div>
+  <div style="position:absolute;top:36px;right:64px;width:9px;height:9px;border-radius:50%;background:#3B6EA5;opacity:.55"></div>
+  <div style="position:absolute;top:150px;left:50px;width:10px;height:10px;border-radius:50%;background:#E14B3B;opacity:.5"></div>
+  <div style="text-align:center;padding:8px 22px 4px">
+    <div style="width:70px;height:70px;border-radius:35px;background:linear-gradient(160deg,#FFCB7A,#F0A93B);margin:0 auto 8px;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 22px rgba(240,169,59,.4);animation:himGlow 2s ease infinite"><svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M7 4h10v4a5 5 0 0 1-10 0V4z" stroke="#fff" stroke-width="2" stroke-linejoin="round"></path><path d="M7 5H4.5A2.5 2.5 0 0 0 7 9.5M17 5h2.5A2.5 2.5 0 0 1 17 9.5" stroke="#fff" stroke-width="2" stroke-linecap="round"></path><path d="M12 13v3M9.5 20h5M10 17h4v3h-4z" stroke="#fff" stroke-width="2" stroke-linejoin="round"></path></svg></div>
+    <div style="font-family:'Baloo 2';font-weight:800;font-size:21px;color:#2E1D12">{{ a.winnerName }} kazandı!</div>
+  </div>
+  <div style="flex:1;padding:12px 24px;display:flex;flex-direction:column;gap:10px">
+    <sc-for list="{{ a.finalRanking }}" as="r" hint-placeholder-count="4">
+      <div style="background:#FFFDF8;border-radius:16px;box-shadow:0 6px 16px rgba(46,29,18,.06);border:2px solid rgba(46,29,18,.04);padding:12px 16px;display:flex;align-items:center;gap:12px">
+        <div style="width:28px;height:28px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:system-ui,sans-serif;font-weight:800;font-size:13px;color:#fff;background:{{ r.badgeBg }}">{{ r.rank }}</div>
+        <div style="flex:1;font-family:'Baloo 2';font-weight:700;font-size:15px;color:#2E1D12">{{ r.name }}</div>
+        <div style="font-family:'Baloo 2';font-weight:800;font-size:16px;color:#3F8F6B">{{ r.total }}</div>
+      </div>
+    </sc-for>
+  </div>
+  <div style="padding:10px 24px 26px;display:flex;gap:10px">
+    <div onClick="{{ a.playAgain }}" style-active="transform:scale(.97)" style="cursor:pointer;flex:1;text-align:center;background:linear-gradient(160deg,#FF6F5A,#D6432F);border-radius:22px;padding:15px;font-family:'Baloo 2';font-weight:800;font-size:14px;color:#fff;box-shadow:0 8px 0 #A82E20,0 14px 20px rgba(225,75,59,.3);transition:transform .15s">Tekrar Oyna</div>
+    <div onClick="{{ a.backHome }}" style-active="transform:scale(.97)" style="cursor:pointer;flex:1;text-align:center;background:#FFFDF8;box-shadow:0 6px 16px rgba(46,29,18,.07);border:2px solid rgba(46,29,18,.06);border-radius:22px;padding:15px;font-family:'Baloo 2';font-weight:800;font-size:14px;color:#2E1D12;transition:transform .15s">Ana Menü</div>
+  </div>
+</div>
+</sc-if>
+
+</div>
+</x-import>
+</div>
+
+<div class="dv-opt" id="1b">
+<div class="dv-olabel"><a class="dv-oid" href="#1b">1b</a>Şeker Parti — canlı mor/pembe, ipeksi kartlar, Fredoka</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="402,874">
+<div style="height:100%;background:radial-gradient(circle at 12% 8%, rgba(124,58,237,.14), transparent 40%),radial-gradient(circle at 90% 20%, rgba(255,77,141,.12), transparent 38%),radial-gradient(circle at 50% 100%, rgba(22,198,182,.08), transparent 45%),#F6F1FF;font-family:'Quicksand',sans-serif;position:relative;overflow:hidden">
+
+<sc-if value="{{ b.isHome }}" hint-placeholder-val="{{ true }}">
+<div style="height:100%;display:flex;flex-direction:column;padding-top:60px;box-sizing:border-box">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 22px 6px">
+    <div style="display:flex;align-items:center;gap:9px">
+      <div style="width:34px;height:34px;border-radius:11px;background:linear-gradient(135deg,#7C3AED,#FF4D8D);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px rgba(124,58,237,.35)">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><rect x="3" y="7" width="13" height="15" rx="3" fill="#fff" fill-opacity="0.55" transform="rotate(-10 9.5 14.5)"></rect><rect x="8" y="4" width="13" height="15" rx="3" fill="#fff"></rect></svg>
+      </div>
+      <div style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:23px;color:#2B1440;letter-spacing:0.2px">Hımbıl</div>
+    </div>
+    <div style="width:40px;height:40px;border-radius:20px;padding:2px;background:linear-gradient(135deg,#7C3AED,#FF4D8D);box-shadow:0 4px 10px rgba(124,58,237,.3)">
+      <div style="width:100%;height:100%;border-radius:18px;background:#fff;display:flex;align-items:center;justify-content:center;font-family:'Fredoka';font-weight:600;font-size:15px;color:#7C3AED">S</div>
+    </div>
+  </div>
+
+  <sc-if value="{{ b.tabPlay }}" hint-placeholder-val="{{ true }}">
+  <div style="flex:1;display:flex;flex-direction:column;padding:14px 22px 0;box-sizing:border-box">
+    <div style="font-family:'Quicksand';font-size:14px;color:#8B6FB3;font-weight:700;margin-bottom:2px">Merhaba,</div>
+    <div style="font-family:'Fredoka';font-size:23px;color:#2B1440;font-weight:600;margin-bottom:20px">Bugün Hımbıl var!</div>
+
+    <div onClick="{{ b.quickPlay }}" style-active="transform:scale(.97)" style="cursor:pointer;position:relative;overflow:hidden;background:linear-gradient(135deg,#7C3AED,#FF4D8D);border-radius:28px;padding:24px 20px;display:flex;flex-direction:column;align-items:center;gap:5px;box-shadow:0 16px 30px rgba(124,58,237,.4);transition:transform .15s">
+      <div style="position:absolute;top:0;left:0;right:0;height:50%;background:linear-gradient(180deg,rgba(255,255,255,.3),rgba(255,255,255,0));pointer-events:none"></div>
+<div style="position:relative;font-family:'Fredoka';font-size:24px;font-weight:600;color:#fff;letter-spacing:0.4px;display:flex;align-items:center;gap:9px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M8 5.5v13l11-6.5-11-6.5z" fill="#fff"></path></svg>HIZLI OYNA</div>
+      <div style="position:relative;font-family:'Quicksand';font-size:13px;font-weight:700;color:rgba(255,255,255,.92)">Rastgele oyuncularla eşleş</div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:10px;margin:20px 0">
+      <div style="flex:1;height:2px;background:rgba(124,58,237,.12)"></div>
+      <div style="font-family:'Quicksand';font-weight:800;font-size:11px;color:#8B6FB3;letter-spacing:.5px">VEYA ÖZEL ODA</div>
+      <div style="flex:1;height:2px;background:rgba(124,58,237,.12)"></div>
+    </div>
+
+    <div style="display:flex;gap:14px">
+      <div onClick="{{ b.quickPlay }}" style-active="transform:scale(.96)" style="cursor:pointer;flex:1;background:#fff;border-radius:22px;padding:16px 8px 14px;text-align:center;box-shadow:0 10px 22px rgba(124,58,237,.14);border:2px dashed rgba(22,198,182,.5);transition:transform .15s">
+        <div style="width:42px;height:42px;border-radius:15px;background:linear-gradient(135deg,#26E0CB,#16C6B6);margin:0 auto 8px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px rgba(22,198,182,.4)"><svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2.6" stroke-linecap="round"></path></svg></div>
+        <div style="font-family:'Fredoka';font-weight:600;font-size:14px;color:#2B1440">Oda Kur</div>
+      </div>
+      <div onClick="{{ b.openJoin }}" style-active="transform:scale(.96)" style="cursor:pointer;flex:1;background:#fff;border-radius:22px;padding:16px 8px 14px;text-align:center;box-shadow:0 10px 22px rgba(124,58,237,.14);border:2px dashed rgba(255,77,141,.5);transition:transform .15s">
+        <div style="width:42px;height:42px;border-radius:15px;background:linear-gradient(135deg,#FF6FA3,#FF4D8D);margin:0 auto 8px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px rgba(255,77,141,.4)"><svg width="19" height="19" viewBox="0 0 24 24" fill="none"><circle cx="8" cy="15" r="4" stroke="#fff" stroke-width="2.2"></circle><path d="M11 12l9-9M16.5 6.5l2 2M13.5 9.5l2 2" stroke="#fff" stroke-width="2.2" stroke-linecap="round"></path></svg></div>
+        <div style="font-family:'Fredoka';font-weight:600;font-size:14px;color:#2B1440">Kodla Katıl</div>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ b.tabProfile }}" hint-placeholder-val="{{ false }}">
+  <div style="flex:1;overflow:auto;padding:14px 22px 16px;box-sizing:border-box">
+    <div style="font-family:'Fredoka';font-size:19px;font-weight:600;color:#2B1440;margin-bottom:12px">Profilim</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px">
+      <div style="background:#fff;border-radius:16px;padding:13px;box-shadow:0 6px 16px rgba(124,58,237,.1)">
+        <div style="width:26px;height:26px;border-radius:9px;background:linear-gradient(135deg,#7C3AED,#FF4D8D);display:flex;align-items:center;justify-content:center;margin-bottom:6px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><rect x="3" y="7" width="13" height="15" rx="3" fill="#fff" fill-opacity="0.55" transform="rotate(-10 9.5 14.5)"></rect><rect x="8" y="4" width="13" height="15" rx="3" fill="#fff"></rect></svg></div>
+        <div style="font-family:'Fredoka';font-size:20px;font-weight:600;color:#2B1440">{{ b.profileStats.games }}</div>
+        <div style="font-family:'Quicksand';font-size:11px;color:#8B6FB3;font-weight:700">Oyun</div>
+      </div>
+      <div style="background:#fff;border-radius:16px;padding:13px;box-shadow:0 6px 16px rgba(124,58,237,.1)">
+        <div style="width:26px;height:26px;border-radius:9px;background:linear-gradient(135deg,#26E0CB,#16C6B6);display:flex;align-items:center;justify-content:center;margin-bottom:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M7 4h10v4a5 5 0 0 1-10 0V4z" stroke="#fff" stroke-width="2" stroke-linejoin="round"></path><path d="M7 5H4.5A2.5 2.5 0 0 0 7 9.5M17 5h2.5A2.5 2.5 0 0 1 17 9.5" stroke="#fff" stroke-width="2" stroke-linecap="round"></path><path d="M12 13v3M9.5 20h5M10 17h4v3h-4z" stroke="#fff" stroke-width="2" stroke-linejoin="round"></path></svg></div>
+        <div style="font-family:'Fredoka';font-size:20px;font-weight:600;color:#2B1440">{{ b.profileStats.wins }}</div>
+        <div style="font-family:'Quicksand';font-size:11px;color:#8B6FB3;font-weight:700">Galibiyet</div>
+      </div>
+      <div style="background:#fff;border-radius:16px;padding:13px;box-shadow:0 6px 16px rgba(124,58,237,.1)">
+        <div style="width:26px;height:26px;border-radius:9px;background:linear-gradient(135deg,#FF6FA3,#FF4D8D);display:flex;align-items:center;justify-content:center;margin-bottom:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="4" y="13" width="4" height="7" rx="1" fill="#fff"></rect><rect x="10" y="8" width="4" height="12" rx="1" fill="#fff"></rect><rect x="16" y="4" width="4" height="16" rx="1" fill="#fff"></rect></svg></div>
+        <div style="font-family:'Fredoka';font-size:20px;font-weight:600;color:#2B1440">{{ b.profileStats.winRate }}</div>
+        <div style="font-family:'Quicksand';font-size:11px;color:#8B6FB3;font-weight:700">Kazanma Oranı</div>
+      </div>
+      <div style="background:#fff;border-radius:16px;padding:13px;box-shadow:0 6px 16px rgba(124,58,237,.1)">
+        <div style="width:26px;height:26px;border-radius:9px;background:linear-gradient(135deg,#FFD65C,#FFC93C);display:flex;align-items:center;justify-content:center;margin-bottom:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2c1.2 4-3.6 5.2-3.6 9.2a3.6 3.6 0 0 0 7.2 0c0-1.6-.8-2.6-.8-2.6s.6 2-.6 2-.6-1.4-.6-2.2c.8 0 1.6-1.4 1.6-2.4.8 1 1.8 2.6 1.8 5A4.6 4.6 0 0 1 7.6 11c0-4.2 2.8-5.2 4.4-9z" fill="#fff"></path></svg></div>
+        <div style="font-family:'Fredoka';font-size:20px;font-weight:600;color:#2B1440">{{ b.profileStats.bestStreak }}</div>
+        <div style="font-family:'Quicksand';font-size:11px;color:#8B6FB3;font-weight:700">En İyi Seri</div>
+      </div>
+    </div>
+    <div style="font-family:'Fredoka';font-size:16px;font-weight:600;color:#2B1440;margin-bottom:8px">Liderlik Tablosu</div>
+    <div style="background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 6px 16px rgba(124,58,237,.1)">
+      <sc-for list="{{ b.leaderboard }}" as="row" hint-placeholder-count="5">
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid rgba(124,58,237,.08)">
+          <div style="font-family:'Fredoka';font-weight:600;font-size:13px;color:#8B6FB3;width:16px">{{ row.rank }}</div>
+          <div style="flex:1;font-family:'Quicksand';font-weight:700;font-size:14px;color:#2B1440">{{ row.name }}</div>
+          <div style="font-family:'Fredoka';font-weight:600;font-size:14px;color:#7C3AED">{{ row.score }}</div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+  </sc-if>
+
+  <div style="padding:8px 18px 18px">
+    <div style="display:flex;background:#fff;border-radius:24px;padding:5px;box-shadow:0 6px 18px rgba(124,58,237,.14)">
+      <div onClick="{{ b.setTabPlay }}" style-active="transform:scale(.96)" style="flex:1;cursor:pointer;padding:9px 0;border-radius:19px;font-family:'Fredoka';font-weight:600;font-size:13px;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px;{{ b.tabPlayStyle }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M8 5.5v13l11-6.5-11-6.5z" fill="currentColor"></path></svg>Oyna</div>
+      <div onClick="{{ b.setTabProfile }}" style-active="transform:scale(.96)" style="flex:1;cursor:pointer;padding:9px 0;border-radius:19px;font-family:'Fredoka';font-weight:600;font-size:13px;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px;{{ b.tabProfileStyle }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2.2"></circle><path d="M4.5 20c0-4.2 3.9-6.4 7.5-6.4s7.5 2.2 7.5 6.4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"></path></svg>Profil</div>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ b.isJoin }}" hint-placeholder-val="{{ false }}">
+<div style="height:100%;display:flex;flex-direction:column;padding-top:60px;box-sizing:border-box">
+  <div style="display:flex;align-items:center;padding:8px 22px 4px">
+    <div onClick="{{ b.backHome }}" style-active="transform:scale(.92)" style="cursor:pointer;width:36px;height:36px;border-radius:18px;background:#fff;box-shadow:0 4px 10px rgba(124,58,237,.15);display:flex;align-items:center;justify-content:center;font-size:16px;color:#2B1440">←</div>
+  </div>
+  <div style="padding:14px 22px 2px;font-family:'Fredoka';font-size:21px;font-weight:600;color:#2B1440">Kod ile Katıl</div>
+  <div style="padding:0 22px 18px;font-family:'Quicksand';font-size:13px;color:#8B6FB3;font-weight:700">Arkadaşının oda kodunu gir</div>
+  <div style="display:flex;gap:8px;padding:0 22px 16px;justify-content:center">
+    <sc-for list="{{ b.joinBoxes }}" as="box" hint-placeholder-count="5">
+      <div style="width:46px;height:58px;border-radius:14px;background:#fff;box-shadow:0 4px 12px rgba(124,58,237,.14);border-bottom:4px solid #7C3AED;display:flex;align-items:center;justify-content:center;font-family:'Fredoka';font-weight:600;font-size:22px;color:#2B1440">{{ box.value }}</div>
+    </sc-for>
+  </div>
+  <div onClick="{{ b.fillDemoCode }}" style-active="transform:scale(.97)" style="cursor:pointer;margin:0 22px 14px;text-align:center;font-family:'Quicksand';font-weight:800;font-size:12px;color:#FF4D8D;text-decoration:underline">Örnek kod ile doldur (34521)</div>
+  <div style="flex:1;padding:0 22px 20px;display:flex;flex-direction:column;justify-content:flex-end;box-sizing:border-box">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+      <div onClick="{{ b.digit1 }}" style-active="transform:scale(.93)" style="cursor:pointer;background:#fff;border-radius:16px;height:52px;display:flex;align-items:center;justify-content:center;font-family:'Fredoka';font-weight:600;font-size:19px;color:#2B1440;box-shadow:0 4px 10px rgba(124,58,237,.12);transition:transform .1s">1</div>
+      <div onClick="{{ b.digit2 }}" style-active="transform:scale(.93)" style="cursor:pointer;background:#fff;border-radius:16px;height:52px;display:flex;align-items:center;justify-content:center;font-family:'Fredoka';font-weight:600;font-size:19px;color:#2B1440;box-shadow:0 4px 10px rgba(124,58,237,.12);transition:transform .1s">2</div>
+      <div onClick="{{ b.digit3 }}" style-active="transform:scale(.93)" style="cursor:pointer;background:#fff;border-radius:16px;height:52px;display:flex;align-items:center;justify-content:center;font-family:'Fredoka';font-weight:600;font-size:19px;color:#2B1440;box-shadow:0 4px 10px rgba(124,58,237,.12);transition:transform .1s">3</div>
+      <div onClick="{{ b.digit4 }}" style-active="transform:scale(.93)" style="cursor:pointer;background:#fff;border-radius:16px;height:52px;display:flex;align-items:center;justify-content:center;font-family:'Fredoka';font-weight:600;font-size:19px;color:#2B1440;box-shadow:0 4px 10px rgba(124,58,237,.12);transition:transform .1s">4</div>
+      <div onClick="{{ b.digit5 }}" style-active="transform:scale(.93)" style="cursor:pointer;background:#fff;border-radius:16px;height:52px;display:flex;align-items:center;justify-content:center;font-family:'Fredoka';font-weight:600;font-size:19px;color:#2B1440;box-shadow:0 4px 10px rgba(124,58,237,.12);transition:transform .1s">5</div>
+      <div onClick="{{ b.digit6 }}" style-active="transform:scale(.93)" style="cursor:pointer;background:#fff;border-radius:16px;height:52px;display:flex;align-items:center;justify-content:center;font-family:'Fredoka';font-weight:600;font-size:19px;color:#2B1440;box-shadow:0 4px 10px rgba(124,58,237,.12);transition:transform .1s">6</div>
+      <div onClick="{{ b.digit7 }}" style-active="transform:scale(.93)" style="cursor:pointer;background:#fff;border-radius:16px;height:52px;display:flex;align-items:center;justify-content:center;font-family:'Fredoka';font-weight:600;font-size:19px;color:#2B1440;box-shadow:0 4px 10px rgba(124,58,237,.12);transition:transform .1s">7</div>
+      <div onClick="{{ b.digit8 }}" style-active="transform:scale(.93)" style="cursor:pointer;background:#fff;border-radius:16px;height:52px;display:flex;align-items:center;justify-content:center;font-family:'Fredoka';font-weight:600;font-size:19px;color:#2B1440;box-shadow:0 4px 10px rgba(124,58,237,.12);transition:transform .1s">8</div>
+      <div onClick="{{ b.digit9 }}" style-active="transform:scale(.93)" style="cursor:pointer;background:#fff;border-radius:16px;height:52px;display:flex;align-items:center;justify-content:center;font-family:'Fredoka';font-weight:600;font-size:19px;color:#2B1440;box-shadow:0 4px 10px rgba(124,58,237,.12);transition:transform .1s">9</div>
+      <div style="height:52px"></div>
+      <div onClick="{{ b.digit0 }}" style-active="transform:scale(.93)" style="cursor:pointer;background:#fff;border-radius:16px;height:52px;display:flex;align-items:center;justify-content:center;font-family:'Fredoka';font-weight:600;font-size:19px;color:#2B1440;box-shadow:0 4px 10px rgba(124,58,237,.12);transition:transform .1s">0</div>
+      <div onClick="{{ b.keypadDelete }}" style-active="transform:scale(.93)" style="cursor:pointer;background:#fff;border-radius:16px;height:52px;display:flex;align-items:center;justify-content:center;font-family:'Fredoka';font-weight:600;font-size:17px;color:#2B1440;box-shadow:0 4px 10px rgba(124,58,237,.12);transition:transform .1s">⌫</div>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ b.isLobby }}" hint-placeholder-val="{{ false }}">
+<div style="height:100%;display:flex;flex-direction:column;padding-top:60px;box-sizing:border-box">
+  <div style="display:flex;align-items:center;padding:8px 22px 4px">
+    <div onClick="{{ b.backHome }}" style-active="transform:scale(.92)" style="cursor:pointer;width:36px;height:36px;border-radius:18px;background:#fff;box-shadow:0 4px 10px rgba(124,58,237,.15);display:flex;align-items:center;justify-content:center;font-size:16px;color:#2B1440">←</div>
+  </div>
+  <div style="margin:8px 24px 4px;background:#fff;border-radius:20px;box-shadow:0 8px 20px rgba(124,58,237,.14);border:2px dashed rgba(124,58,237,.35);padding:14px;text-align:center">
+    <div style="font-family:'Quicksand';font-weight:800;font-size:11px;color:#8B6FB3;letter-spacing:1.5px">ODA KODU</div>
+    <div style="font-family:'Fredoka';font-weight:700;font-size:36px;color:#7C3AED;letter-spacing:6px">{{ b.roomCode }}</div>
+  </div>
+  <div style="flex:1;padding:14px 24px;display:grid;grid-template-columns:1fr 1fr;gap:14px;align-content:start">
+    <sc-for list="{{ b.lobbySlots }}" as="slot" hint-placeholder-count="4">
+      <div style="background:#fff;border-radius:20px;box-shadow:0 6px 16px rgba(124,58,237,.12);padding:16px 8px;display:flex;flex-direction:column;align-items:center;gap:7px">
+        <div style="width:56px;height:56px;border-radius:28px;padding:2px;background:linear-gradient(135deg,#7C3AED,#FF4D8D)">
+          <div style="width:100%;height:100%;border-radius:26px;background:#fff;display:flex;align-items:center;justify-content:center;font-family:'Fredoka';font-weight:600;font-size:19px;color:#7C3AED">{{ slot.initial }}</div>
+        </div>
+        <div style="font-family:'Fredoka';font-weight:600;font-size:14px;color:#2B1440">{{ slot.name }}</div>
+        <sc-if value="{{ slot.joined }}" hint-placeholder-val="{{ true }}"><div style="font-family:'Quicksand';font-weight:800;font-size:11px;color:#16C6B6">✓ Hazır</div></sc-if>
+        <sc-if value="{{ slot.waiting }}" hint-placeholder-val="{{ false }}"><div style="font-family:'Quicksand';font-weight:800;font-size:11px;color:#8B6FB3;animation:himBob 1s infinite">Bekleniyor…</div></sc-if>
+      </div>
+    </sc-for>
+  </div>
+  <div style="padding:10px 24px 26px">
+    <div onClick="{{ b.startGame }}" style-active="transform:scale(.98)" style="position:relative;overflow:hidden;text-align:center;background:linear-gradient(135deg,#7C3AED,#FF4D8D);border-radius:24px;padding:16px;font-family:'Fredoka';font-weight:600;font-size:17px;color:#fff;box-shadow:0 12px 24px rgba(124,58,237,.35);transition:all .15s;{{ b.startBtnStyle }}">
+      <div style="position:absolute;top:0;left:0;right:0;height:50%;background:linear-gradient(180deg,rgba(255,255,255,.3),rgba(255,255,255,0));pointer-events:none"></div>
+      <span style="position:relative">Oyunu Başlat</span>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ b.isGame }}" hint-placeholder-val="{{ false }}">
+<div style="height:100%;display:flex;flex-direction:column;padding-top:54px;box-sizing:border-box;position:relative">
+  <div style="display:flex;justify-content:space-around;padding:6px 14px">
+    <sc-for list="{{ b.opponents }}" as="opp" hint-placeholder-count="3">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+        <div style="width:44px;height:44px;border-radius:22px;padding:2px;background:linear-gradient(135deg,#26E0CB,#16C6B6)">
+          <div style="width:100%;height:100%;border-radius:20px;background:#fff;display:flex;align-items:center;justify-content:center;font-family:'Fredoka';font-weight:600;font-size:15px;color:#16C6B6">{{ opp.initial }}</div>
+        </div>
+        <div style="font-family:'Quicksand';font-weight:700;font-size:11px;color:#8B6FB3">{{ opp.name }}</div>
+        <div style="background:rgba(124,58,237,.1);border-radius:10px;padding:2px 8px;font-family:'Fredoka';font-weight:600;font-size:11px;color:#2B1440;display:flex;align-items:center;gap:4px"><svg width="11" height="11" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="13" height="15" rx="3" fill="currentColor" opacity="0.45" transform="rotate(-10 8.5 14.5)"></rect><rect x="7" y="4" width="13" height="15" rx="3" fill="currentColor"></rect></svg>4</div>
+      </div>
+    </sc-for>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;position:relative">
+    <div style="position:absolute;width:190px;height:190px;border-radius:50%;background:radial-gradient(circle,rgba(124,58,237,.12),transparent 70%)"></div>
+    <sc-if value="{{ b.penaltyFlash }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;top:0px;background:#FF4D8D;color:#fff;padding:8px 16px;border-radius:16px;font-family:'Fredoka';font-weight:600;font-size:13px;animation:himShake .4s;z-index:5;box-shadow:0 6px 16px rgba(255,77,141,.4)">Erken bastın! Ceza puanı</div>
+    </sc-if>
+    <div style="position:relative;background:#fff;border-radius:50%;padding:10px;box-shadow:0 8px 20px rgba(124,58,237,.14)">
+      <svg width="60" height="60" viewBox="0 0 64 64" style="transform:rotate(-90deg)">
+        <circle cx="32" cy="32" r="18" fill="none" stroke="rgba(124,58,237,.12)" stroke-width="6"></circle>
+        <circle cx="32" cy="32" r="18" fill="none" stroke="#7C3AED" stroke-width="6" stroke-linecap="round" stroke-dasharray="113.097" style="stroke-dashoffset:{{ b.timerDashOffset }}"></circle>
+      </svg>
+    </div>
+    <div style="position:relative;font-family:'Fredoka';font-weight:600;font-size:13px;color:#2B1440">{{ b.roundLabel }} · {{ b.tickLabel }}</div>
+  </div>
+  <div style="padding:6px 18px 6px;text-align:center;font-family:'Quicksand';font-weight:800;font-size:12px;min-height:16px">
+    <sc-if value="{{ b.handComplete }}" hint-placeholder-val="{{ false }}"><span style="color:#16C6B6">4'lün tamam — HIMBIL'e bas!</span></sc-if>
+    <sc-if value="{{ b.notHandComplete }}" hint-placeholder-val="{{ true }}"><span style="color:#8B6FB3">İşine yaramayan kartı seç, komşuna ver</span></sc-if>
+  </div>
+  <div style="display:flex;gap:9px;padding:8px 18px 4px;justify-content:center">
+    <sc-for list="{{ b.hand }}" as="card" hint-placeholder-count="4">
+      <div onClick="{{ card.onTap }}" style="cursor:pointer;position:relative;width:70px;height:96px;background:#fff;border-radius:16px;border:3px dashed #7C3AED;display:flex;align-items:center;justify-content:center;font-size:34px;box-shadow:0 6px 16px rgba(124,58,237,.16);transition:transform .2s;{{ card.liftStyle }}">
+        <span style="position:absolute;top:5px;left:6px;font-size:11px;opacity:.45">{{ card.emoji }}</span>
+        <span style="position:absolute;bottom:5px;right:6px;font-size:11px;opacity:.45;transform:rotate(180deg)">{{ card.emoji }}</span>
+        {{ card.emoji }}
+      </div>
+    </sc-for>
+  </div>
+  <div style="padding:14px 20px 24px;display:flex;flex-direction:column;align-items:center;gap:8px">
+    <div onClick="{{ b.onSlam }}" style-active="transform:scale(.94)" style="cursor:pointer;position:relative;overflow:hidden;width:116px;height:116px;border-radius:58px;background:linear-gradient(135deg,#7C3AED,#FF4D8D);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Fredoka';font-weight:600;font-size:19px;box-shadow:0 14px 26px rgba(124,58,237,.45);transition:transform .12s;{{ b.himbilAnim }}">
+      <div style="position:absolute;top:6px;left:14px;right:14px;height:34%;border-radius:50%;background:rgba(255,255,255,.28);pointer-events:none"></div>
+      <span style="position:relative">HIMBIL!</span>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ b.isSlam }}" hint-placeholder-val="{{ false }}">
+<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(180deg,#7C3AED,#FF4D8D);padding-top:40px;box-sizing:border-box;position:relative;overflow:hidden">
+  <div style="position:absolute;width:280px;height:280px;border-radius:50%;background:repeating-conic-gradient(rgba(255,255,255,.15) 0deg 8deg, transparent 8deg 16deg);animation:himRay 14s linear infinite"></div>
+  <div style="position:relative;font-family:'Fredoka';font-weight:700;font-size:42px;color:#fff;animation:himPop .5s ease;text-shadow:0 6px 18px rgba(0,0,0,.2)">HIMBIL!</div>
+  <div style="position:relative;width:88%;margin-top:18px;display:flex;flex-direction:column;gap:8px">
+    <sc-for list="{{ b.ranking }}" as="r" hint-placeholder-count="4">
+      <div style="opacity:0;animation:himRise .5s ease forwards;animation-delay:{{ r.delayMs }}ms;background:rgba(255,255,255,.96);border-radius:14px;padding:10px 14px;display:flex;align-items:center;gap:10px;box-shadow:0 6px 14px rgba(0,0,0,.12)">
+        <div style="width:26px;height:26px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-family:system-ui,sans-serif;font-weight:800;font-size:12px;color:#fff;background:{{ r.badgeBg }}">{{ r.rank }}</div>
+        <div style="flex:1;font-family:'Quicksand';font-weight:800;font-size:14px;color:#2B1440">{{ r.name }}</div>
+        <div style="font-family:'Fredoka';font-weight:600;font-size:14px;color:#16C6B6">+{{ r.points }}</div>
+      </div>
+    </sc-for>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ b.isRoundResult }}" hint-placeholder-val="{{ false }}">
+<div style="height:100%;display:flex;flex-direction:column;padding-top:60px;box-sizing:border-box">
+  <div style="text-align:center;padding:6px 22px 18px">
+    <div style="font-family:'Quicksand';font-weight:800;font-size:12px;color:#8B6FB3;letter-spacing:1px">TUR {{ b.roundNum }} SONUÇLARI</div>
+  </div>
+  <div style="flex:1;padding:0 24px;display:flex;flex-direction:column;gap:10px">
+    <sc-for list="{{ b.ranking }}" as="r" hint-placeholder-count="4">
+      <div style="background:#fff;border-radius:16px;box-shadow:0 6px 16px rgba(124,58,237,.1);padding:12px 16px;display:flex;align-items:center;gap:12px">
+        <div style="width:28px;height:28px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:system-ui,sans-serif;font-weight:800;font-size:13px;color:#fff;background:{{ r.badgeBg }}">{{ r.rank }}</div>
+        <div style="flex:1;font-family:'Fredoka';font-weight:600;font-size:15px;color:#2B1440">{{ r.name }}</div>
+        <div style="font-family:'Fredoka';font-weight:600;font-size:16px;color:#7C3AED">+{{ r.points }}</div>
+      </div>
+    </sc-for>
+  </div>
+  <div style="padding:16px 24px 26px">
+    <div onClick="{{ b.onNextRound }}" style-active="transform:scale(.98)" style="cursor:pointer;position:relative;overflow:hidden;text-align:center;background:linear-gradient(135deg,#7C3AED,#FF4D8D);border-radius:24px;padding:16px;font-family:'Fredoka';font-weight:600;font-size:16px;color:#fff;box-shadow:0 12px 24px rgba(124,58,237,.35);transition:transform .15s">
+      <div style="position:absolute;top:0;left:0;right:0;height:50%;background:linear-gradient(180deg,rgba(255,255,255,.3),rgba(255,255,255,0));pointer-events:none"></div>
+      <span style="position:relative">{{ b.nextLabel }}</span>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ b.isMatchEnd }}" hint-placeholder-val="{{ false }}">
+<div style="height:100%;display:flex;flex-direction:column;padding-top:56px;box-sizing:border-box;position:relative;overflow:hidden">
+  <div style="position:absolute;top:64px;left:20px;width:18px;height:18px;border-radius:50%;background:#FFC93C;opacity:.55"></div>
+  <div style="position:absolute;top:110px;right:26px;width:13px;height:13px;border-radius:50%;background:#16C6B6;opacity:.55"></div>
+  <div style="position:absolute;top:36px;right:64px;width:9px;height:9px;border-radius:50%;background:#FF4D8D;opacity:.55"></div>
+  <div style="position:absolute;top:150px;left:50px;width:10px;height:10px;border-radius:50%;background:#7C3AED;opacity:.5"></div>
+  <div style="text-align:center;padding:8px 22px 4px">
+    <div style="width:70px;height:70px;border-radius:35px;background:linear-gradient(135deg,#7C3AED,#FF4D8D);margin:0 auto 8px;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 22px rgba(124,58,237,.4);animation:himGlow 2s ease infinite"><svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M7 4h10v4a5 5 0 0 1-10 0V4z" stroke="#fff" stroke-width="2" stroke-linejoin="round"></path><path d="M7 5H4.5A2.5 2.5 0 0 0 7 9.5M17 5h2.5A2.5 2.5 0 0 1 17 9.5" stroke="#fff" stroke-width="2" stroke-linecap="round"></path><path d="M12 13v3M9.5 20h5M10 17h4v3h-4z" stroke="#fff" stroke-width="2" stroke-linejoin="round"></path></svg></div>
+    <div style="font-family:'Fredoka';font-weight:700;font-size:21px;color:#2B1440">{{ b.winnerName }} kazandı!</div>
+  </div>
+  <div style="flex:1;padding:12px 24px;display:flex;flex-direction:column;gap:10px">
+    <sc-for list="{{ b.finalRanking }}" as="r" hint-placeholder-count="4">
+      <div style="background:#fff;border-radius:16px;box-shadow:0 6px 16px rgba(124,58,237,.1);padding:12px 16px;display:flex;align-items:center;gap:12px">
+        <div style="width:28px;height:28px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:system-ui,sans-serif;font-weight:800;font-size:13px;color:#fff;background:{{ r.badgeBg }}">{{ r.rank }}</div>
+        <div style="flex:1;font-family:'Fredoka';font-weight:600;font-size:15px;color:#2B1440">{{ r.name }}</div>
+        <div style="font-family:'Fredoka';font-weight:600;font-size:16px;color:#16C6B6">{{ r.total }}</div>
+      </div>
+    </sc-for>
+  </div>
+  <div style="padding:10px 24px 26px;display:flex;gap:10px">
+    <div onClick="{{ b.playAgain }}" style-active="transform:scale(.97)" style="cursor:pointer;flex:1;text-align:center;background:linear-gradient(135deg,#7C3AED,#FF4D8D);border-radius:22px;padding:15px;font-family:'Fredoka';font-weight:600;font-size:14px;color:#fff;box-shadow:0 10px 20px rgba(124,58,237,.35);transition:transform .15s">Tekrar Oyna</div>
+    <div onClick="{{ b.backHome }}" style-active="transform:scale(.97)" style="cursor:pointer;flex:1;text-align:center;background:#fff;box-shadow:0 6px 16px rgba(124,58,237,.12);border-radius:22px;padding:15px;font-family:'Fredoka';font-weight:600;font-size:14px;color:#2B1440;transition:transform .15s">Ana Menü</div>
+  </div>
+</div>
+</sc-if>
+
+</div>
+</x-import>
+</div>
+
+</div>
+<p class="dv-next">Deneyebileceğin: "<a class="dv-oid" href="#1a">1a</a> ve <a class="dv-oid" href="#1b">1b</a>'yi karşılaştır" · "kart nesnelerini değiştir" · "yeni bir yön dene"</p>
+</section>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const PLAYERS = [
+  { id: 0, name: 'Sen', initial: 'S', you: true },
+  { id: 1, name: 'Ayşe', initial: 'A', you: false },
+  { id: 2, name: 'Mehmet', initial: 'M', you: false },
+  { id: 3, name: 'Zeynep', initial: 'Z', you: false },
+];
+
+const SCRIPTED = {
+  1: [
+    ['🍌', '🍇', '🍉', '🍊'],
+    ['🍌', '🍌', '🍇', '🍉'],
+    ['🍌', '🍌', '🍌', '🍇'],
+    ['🍌', '🍌', '🍌', '🍌'],
+  ],
+  2: [
+    ['🍓', '🍇', '🍉', '🍊'],
+    ['🍓', '🍓', '🍇', '🍉'],
+    ['🍓', '🍓', '🍓', '🍉'],
+    ['🍓', '🍓', '🍓', '🍓'],
+  ],
+};
+
+const SLAM_ORDER = { 1: [0, 1, 3, 2], 2: [2, 0, 3, 1] };
+const POINTS = [100, 75, 50, 25];
+const TICK_DURATION = 4;
+const TOTAL_ROUNDS = 2;
+const CIRC = 2 * Math.PI * 18;
+
+const GLOBAL_LEADERBOARD = [
+  { rank: 1, name: 'Deniz K.', score: 2450 },
+  { rank: 2, name: 'Sen', score: 1875 },
+  { rank: 3, name: 'Ayşe Y.', score: 1620 },
+  { rank: 4, name: 'Mehmet A.', score: 1400 },
+  { rank: 5, name: 'Zeynep T.', score: 1180 },
+];
+
+const PROFILE_STATS = { games: 47, wins: 19, winRate: '%40', bestStreak: 5 };
+
+function freshSide() {
+  return {
+    screen: 'home',
+    tab: 'play',
+    joinCode: '',
+    roomCode: '',
+    lobbyJoined: [true, false, false, false],
+    lobbyReady: false,
+    round: 1,
+    tick: 0,
+    hand: SCRIPTED[1][0],
+    selected: null,
+    phase: 'swap',
+    timeLeft: TICK_DURATION,
+    penaltyFlash: false,
+  };
+}
+
+class Component extends DCLogic {
+  state = { a: freshSide(), b: freshSide() };
+
+  componentWillUnmount() {
+    this.stopTimer('a');
+    this.stopTimer('b');
+  }
+
+  setSide(side, patch) {
+    this.setState(prev => ({ ...prev, [side]: { ...prev[side], ...patch } }));
+  }
+
+  startTimer(side) {
+    this.stopTimer(side);
+    this['_timer_' + side] = setInterval(() => {
+      const s = this.state[side];
+      if (!s || s.screen !== 'game' || s.phase !== 'swap') return;
+      const next = +(s.timeLeft - 0.1).toFixed(1);
+      if (next <= 0) {
+        this.passCard(side, Math.floor(Math.random() * s.hand.length));
+      } else {
+        this.setSide(side, { timeLeft: next });
+      }
+    }, 100);
+  }
+
+  stopTimer(side) {
+    const key = '_timer_' + side;
+    if (this[key]) { clearInterval(this[key]); this[key] = null; }
+  }
+
+  onCardTap(side, idx) {
+    const s = this.state[side];
+    if (s.screen !== 'game' || s.phase !== 'swap' || s.selected !== null) return;
+    this.stopTimer(side);
+    this.setSide(side, { selected: idx });
+    setTimeout(() => this.passCard(side, idx), 350);
+  }
+
+  passCard(side, idx) {
+    const s = this.state[side];
+    if (!s || s.screen !== 'game' || s.phase !== 'swap') return;
+    const nextTick = s.tick + 1;
+    const nextHand = SCRIPTED[s.round][nextTick];
+    const done = nextTick >= 3;
+    this.setSide(side, { hand: nextHand, tick: nextTick, selected: null, timeLeft: TICK_DURATION, phase: done ? 'ready' : 'swap' });
+    if (done) this.stopTimer(side); else this.startTimer(side);
+  }
+
+  onSlam(side) {
+    const s = this.state[side];
+    if (s.screen !== 'game') return;
+    if (s.phase === 'ready') {
+      this.stopTimer(side);
+      this.setSide(side, { screen: 'slam' });
+      setTimeout(() => this.setSide(side, { screen: 'roundResult' }), 1700);
+    } else {
+      this.setSide(side, { penaltyFlash: true });
+      setTimeout(() => this.setSide(side, { penaltyFlash: false }), 900);
+    }
+  }
+
+  setTab(side, tab) { this.setSide(side, { tab }); }
+
+  quickPlay(side) {
+    const roomCode = String(Math.floor(10000 + Math.random() * 90000));
+    this.setSide(side, { screen: 'lobby', roomCode, lobbyJoined: [true, false, false, false], lobbyReady: false });
+    setTimeout(() => this.setSide(side, { lobbyJoined: [true, true, true, true], lobbyReady: true }), 1600);
+  }
+
+  openJoin(side) { this.setSide(side, { screen: 'join', joinCode: '' }); }
+
+  keypadDigit(side, d) {
+    const s = this.state[side];
+    if (s.screen !== 'join' || s.joinCode.length >= 5) return;
+    const code = s.joinCode + d;
+    this.setSide(side, { joinCode: code });
+    if (code.length === 5) setTimeout(() => this.enterLobbyFromCode(side), 500);
+  }
+
+  keypadDelete(side) {
+    const s = this.state[side];
+    if (s.screen !== 'join') return;
+    this.setSide(side, { joinCode: s.joinCode.slice(0, -1) });
+  }
+
+  fillDemoCode(side) {
+    this.setSide(side, { joinCode: '34521' });
+    setTimeout(() => this.enterLobbyFromCode(side), 500);
+  }
+
+  enterLobbyFromCode(side) {
+    const s = this.state[side];
+    this.setSide(side, { screen: 'lobby', roomCode: s.joinCode || '34521', lobbyJoined: [true, false, false, false], lobbyReady: false });
+    setTimeout(() => this.setSide(side, { lobbyJoined: [true, true, true, true], lobbyReady: true }), 1400);
+  }
+
+  startGame(side) {
+    const s = this.state[side];
+    if (!s.lobbyReady) return;
+    this.setSide(side, { screen: 'game', round: 1, tick: 0, hand: SCRIPTED[1][0], phase: 'swap', selected: null, timeLeft: TICK_DURATION });
+    this.startTimer(side);
+  }
+
+  nextRound(side) {
+    const s = this.state[side];
+    if (s.round < TOTAL_ROUNDS) {
+      const round = s.round + 1;
+      this.setSide(side, { screen: 'game', round, tick: 0, hand: SCRIPTED[round][0], phase: 'swap', selected: null, timeLeft: TICK_DURATION });
+      this.startTimer(side);
+    } else {
+      this.setSide(side, { screen: 'matchEnd' });
+    }
+  }
+
+  backHome(side) {
+    this.stopTimer(side);
+    this.setSide(side, freshSide());
+  }
+
+  playAgain(side) {
+    this.stopTimer(side);
+    this.setSide(side, freshSide());
+  }
+
+  computeSide(side) {
+    const s = this.state[side];
+    const isA = side === 'a';
+    const badgeBg = (rank) => rank === 1 ? 'linear-gradient(160deg,#FFE29A,#F0A93B)' : rank === 2 ? 'linear-gradient(160deg,#EDEDED,#B9B9C2)' : rank === 3 ? 'linear-gradient(160deg,#E3A97A,#B87333)' : 'linear-gradient(160deg,#D9D3C8,#AFA593)';
+    const timerDashOffset = CIRC * (1 - s.timeLeft / TICK_DURATION);
+    const hand = s.hand.map((emoji, idx) => ({
+      emoji, idx,
+      selected: s.selected === idx,
+      liftStyle: s.selected === idx ? 'transform:translateY(-14px) scale(1.06);' : 'transform:none;',
+      onTap: () => this.onCardTap(side, idx),
+    }));
+    const opponents = PLAYERS.filter(p => !p.you);
+    const order = SLAM_ORDER[s.round] || [0, 1, 2, 3];
+    const ranking = order.map((pid, i) => {
+      const p = PLAYERS.find(pp => pp.id === pid);
+      return { rank: i + 1, badgeBg: badgeBg(i + 1), name: p.name, you: p.you, points: POINTS[i], delayMs: i * 260 };
+    });
+    const totals = {};
+    PLAYERS.forEach(p => { totals[p.id] = 0; });
+    [1, 2].forEach(r => { (SLAM_ORDER[r] || []).forEach((pid, i) => { totals[pid] += POINTS[i]; }); });
+    const finalRanking = PLAYERS.map(p => ({ id: p.id, name: p.name, you: p.you, total: totals[p.id] }))
+      .sort((x, y) => y.total - x.total)
+      .map((p, i) => ({ ...p, rank: i + 1, badgeBg: badgeBg(i + 1) }));
+
+    const joinBoxes = [0, 1, 2, 3, 4].map(i => ({ filled: i < s.joinCode.length, value: s.joinCode[i] || '' }));
+    const lobbySlots = PLAYERS.map((p, i) => ({ name: p.name, initial: p.initial, you: p.you, joined: s.lobbyJoined[i], waiting: !s.lobbyJoined[i] }));
+
+    return {
+      isHome: s.screen === 'home',
+      isJoin: s.screen === 'join',
+      isLobby: s.screen === 'lobby',
+      isGame: s.screen === 'game',
+      isSlam: s.screen === 'slam',
+      isRoundResult: s.screen === 'roundResult',
+      isMatchEnd: s.screen === 'matchEnd',
+      tabPlay: s.tab === 'play',
+      tabProfile: s.tab === 'profile',
+      setTabPlay: () => this.setTab(side, 'play'),
+      setTabProfile: () => this.setTab(side, 'profile'),
+      quickPlay: () => this.quickPlay(side),
+      openJoin: () => this.openJoin(side),
+      backHome: () => this.backHome(side),
+      joinCode: s.joinCode,
+      joinBoxes,
+      digit0: () => this.keypadDigit(side, '0'),
+      digit1: () => this.keypadDigit(side, '1'),
+      digit2: () => this.keypadDigit(side, '2'),
+      digit3: () => this.keypadDigit(side, '3'),
+      digit4: () => this.keypadDigit(side, '4'),
+      digit5: () => this.keypadDigit(side, '5'),
+      digit6: () => this.keypadDigit(side, '6'),
+      digit7: () => this.keypadDigit(side, '7'),
+      digit8: () => this.keypadDigit(side, '8'),
+      digit9: () => this.keypadDigit(side, '9'),
+      keypadDelete: () => this.keypadDelete(side),
+      fillDemoCode: () => this.fillDemoCode(side),
+      roomCode: s.roomCode,
+      lobbySlots,
+      lobbyReady: s.lobbyReady,
+      startBtnStyle: s.lobbyReady ? 'opacity:1;cursor:pointer;' : 'opacity:.45;cursor:default;pointer-events:none;',
+      startGame: () => this.startGame(side),
+      tabPlayStyle: s.tab === 'play'
+        ? (isA ? 'background:linear-gradient(160deg,#FF6F5A,#E14B3B);color:#fff;box-shadow:0 4px 10px rgba(225,75,59,.3);' : 'background:linear-gradient(135deg,#7C3AED,#FF4D8D);color:#fff;box-shadow:0 4px 10px rgba(124,58,237,.3);')
+        : (isA ? 'color:#8A7660;' : 'color:#8B6FB3;'),
+      tabProfileStyle: s.tab === 'profile'
+        ? (isA ? 'background:linear-gradient(160deg,#FF6F5A,#E14B3B);color:#fff;box-shadow:0 4px 10px rgba(225,75,59,.3);' : 'background:linear-gradient(135deg,#7C3AED,#FF4D8D);color:#fff;box-shadow:0 4px 10px rgba(124,58,237,.3);')
+        : (isA ? 'color:#8A7660;' : 'color:#8B6FB3;'),
+      roundNum: s.round,
+      totalRounds: TOTAL_ROUNDS,
+      roundLabel: 'Tur ' + s.round + '/' + TOTAL_ROUNDS,
+      tickLabel: 'Takas ' + Math.min(s.tick + 1, 3) + '/3',
+      timerDashOffset,
+      opponents,
+      hand,
+      handComplete: s.phase === 'ready',
+      notHandComplete: s.phase !== 'ready',
+      himbilAnim: s.phase === 'ready' ? (isA ? 'animation:himPulseA 1.1s infinite;' : 'animation:himPulseB 1.1s infinite;') : '',
+      onSlam: () => this.onSlam(side),
+      penaltyFlash: s.penaltyFlash,
+      ranking,
+      nextLabel: s.round < TOTAL_ROUNDS ? 'Sonraki Tur →' : 'Final Sonuçlar →',
+      onNextRound: () => this.nextRound(side),
+      finalRanking,
+      winnerName: finalRanking[0] ? finalRanking[0].name : '',
+      playAgain: () => this.playAgain(side),
+      profileStats: PROFILE_STATS,
+      leaderboard: GLOBAL_LEADERBOARD,
+    };
+  }
+
+  renderVals() {
+    return { a: this.computeSide('a'), b: this.computeSide('b') };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+# Godot
+client-godot/.godot/
+client-godot/export_presets.cfg
+
+# Node / server
+server/node_modules/
+server/dist/
+
+# OS
+.DS_Store
+Thumbs.db
