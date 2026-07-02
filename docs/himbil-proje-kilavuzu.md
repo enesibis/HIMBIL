@@ -20,18 +20,20 @@ Mimarinin tamamı bu iki şeyi **hilesiz** ve **adil** çözmek üzerine kurulud
 
 | Katman | Seçim | Neden |
 |--------|-------|-------|
-| **İstemci (mobil)** | **Godot** (GDScript veya C#) | Hafif, ücretsiz, 2D birinci sınıf, iOS/Android export sağlam. 2D kart oyunu için Unity'nin ağırlığı gereksiz. |
+| **İstemci (mobil)** | **Flutter** (Dart) | *Karar değişti — bkz. not aşağıda.* UI-ağırlıklı bir kart oyunu için hızlı geliştirme, hot reload, tek kod tabanından iOS/Android/web/masaüstü export. |
 | **Gerçek zamanlı taşıma** | **WebSocket (TCP)** | Slam çözümü sunucu zaman damgasına dayandığı için birkaç on ms gecikme sorun değil. WebRTC/UDP gereksiz karmaşıklık. |
 | **Otoriter oyun sunucusu** | **Colyseus** (Node/TypeScript) | Oda bazlı otoriter state senkronizasyonunu hazır verir (schema delta sync). MVP'yi en hızlı buradan çıkarırsın. |
 | **Veritabanı** | **PostgreSQL** | Hesap, istatistik, maç geçmişi, leaderboard. Canlı maç durumu için DEĞİL. |
 | **Redis** | **Başlangıçta yok** | Sadece yatay ölçeklemede (node'lar arası pub/sub, matchmaking kuyruğu) devreye girer. Tek-node MVP'de gereksiz. |
 
-**Başlangıç seti:** Godot + WebSocket + Colyseus + PostgreSQL. Dördü de ücretsiz.
+**Başlangıç seti:** Flutter + WebSocket + Colyseus + PostgreSQL.
+
+> **Not (istemci kararı revize edildi):** Kılavuz başlangıçta Godot'u önermişti; proje ilerledikten sonra **Flutter**'a geçildi (bkz. `client-flutter/`). Gerekçe: oyun düz `Material` widget'larıyla (özel `Tween`/`AnimationController` animasyonlarıyla) inşa edildi, bir oyun motorunun fizik/parçacık sistemine ihtiyaç duymadı; Flutter'ın hot reload'u UI-ağır bir kart oyununda iterasyonu hızlandırdı. `client-godot/` klasörü kaldırıldı.
 
 **Alternatifler (sonradan değerlendirilebilir):**
 - *Colyseus yerine* **Nakama** (Go): auth, matchmaking, leaderboard, storage hepsi built-in. "Gerçek ürün, uzun vadeli" hedefi için daha güçlü ama öğrenme eğrisi daha dik.
 - *Colyseus yerine* **Elixir + Phoenix Channels**: mimari olarak ideal (her oda = bir process, BEAM tam bu iş için yapılmış), hata toleransı mükemmel. Dezavantajı yeni dil öğrenmek.
-- *Godot yerine* **Flutter + Flame**: UI odaklı hızlı geliştirme istersen. Ama slam animasyonunun "juicy" hissi için oyun motoru daha iyi.
+- *Flutter yerine* **Godot**: slam animasyonunun "juicy" hissi için bir oyun motoru gerekirse (parçacık efektleri, fizik tabanlı kart fırlatma) sonradan değerlendirilebilir.
 
 ---
 
@@ -112,14 +114,14 @@ Sunucuda tutulacak temel yapılar:
 
 > **En kritik tavsiye:** 1. ve 2. aşamayı atlamadan yap. Çoğu kişi direkt multiplayer'a dalıp hem oyun mantığını hem netcode'u aynı anda debug etmeye çalışırken boğulur. Mantığı ağdan ayırırsan ikisini ayrı ayrı çözersin.
 
-1. **Ağsız kural motoru.** Deste üretimi, takas, 4'lü tespiti, puanlama — saf mantık, ağ yok. Birim testlerle. Tüm oyun riskini burada azaltırsın.
-2. **Tek kişilik + bot.** Kural motorunu basit AI'la sarıp tüm UI/UX'i buna karşı kur. Netcode yok, oynanabilir oyun hızlıca elde edilir.
-3. **Otoriter sunucu + 1 gerçek client.** Kural motorunu sunucuya taşı; client intent yollar, sunucu state push eder. İki instance lokal test.
-4. **Odalar + matchmaking (oda kodu).** Çok oyuncu, kodla katılma.
-5. **Gerçek zamanlı takas loop'u + slam yarışı.** Tick, eşzamanlı takas, slam çözümü, yanlış-slam cezası. Tick zamanlamasını/hissini ayarla.
-6. **Dayanıklılık.** Yeniden bağlanma, kopma yönetimi (bot devralma ya da grace timer), gecikme toleransı.
-7. **Kalıcılık & meta.** Hesap, istatistik, leaderboard, kozmetikler.
-8. **Ölçekleme.** Redis pub/sub, çok-node, yük testi.
+1. ✅ **Ağsız kural motoru.** Deste üretimi, takas, 4'lü tespiti, puanlama — saf mantık, ağ yok. Birim testlerle. Tüm oyun riskini burada azaltırsın. *(`server/game/` — deck/deal/swap/quartet/scoring, hepsi test edilmiş.)*
+2. ✅ **Tek kişilik + bot.** Kural motorunu basit AI'la sarıp tüm UI/UX'i buna karşı kur. Netcode yok, oynanabilir oyun hızlıca elde edilir. *(`client-flutter/lib/game/` — kendi rule engine + bot AI portu; UI Sıcak Karnaval tasarım referansına göre kuruldu: ana menü (Oyna/Profil sekmeleri, liderlik tablosu), oda kur/kodla katıl, lobi, oyun ekranı, slam kutlaması, tur sonucu, maç sonu.)*
+3. ⏳ **Otoriter sunucu + 1 gerçek client.** Kural motorunu sunucuya taşı; client intent yollar, sunucu state push eder. İki instance lokal test. *(Henüz başlamadı — `server/rooms/` ve `server/schema/` boş, Colyseus henüz bağımlılık olarak eklenmedi. Client şu an tamamen yerel/sahte state ile çalışıyor.)*
+4. ⏳ **Odalar + matchmaking (oda kodu).** Çok oyuncu, kodla katılma. *(Client'ta UI akışı var — Lobi/Kod ile Katıl ekranları — ama gerçek ağ bağlantısı yok, botlarla simüle ediliyor.)*
+5. ⏳ **Gerçek zamanlı takas loop'u + slam yarışı.** Tick, eşzamanlı takas, slam çözümü, yanlış-slam cezası. Tick zamanlamasını/hissini ayarla. *(Client-lokal olarak çalışıyor; sunucu otoritesi eklenince bu mantık `server/game/`'e taşınacak.)*
+6. ⏳ **Dayanıklılık.** Yeniden bağlanma, kopma yönetimi (bot devralma ya da grace timer), gecikme toleransı.
+7. ⏳ **Kalıcılık & meta.** Hesap, istatistik, leaderboard, kozmetikler. *(Profil sekmesindeki istatistik/liderlik tablosu şimdilik sahte veri.)*
+8. ⏳ **Ölçekleme.** Redis pub/sub, çok-node, yük testi.
 
 ---
 
@@ -139,19 +141,25 @@ Sunucuda tutulacak temel yapılar:
 
 ```
 himbil/
-├── client-godot/          # Godot projesi (UI, animasyon, WebSocket bağlantısı)
+├── client-flutter/        # Flutter projesi (UI, animasyon; WebSocket bağlantısı henüz yok)
+│   └── lib/
+│       ├── game/          # Rule engine + bot AI'ın client-tarafı portu (Aşama 2)
+│       ├── screens/       # Ana Menü, Kod ile Katıl, Lobi, Oyun, Slam, Tur Sonucu
+│       ├── widgets/       # Paylaşılan bileşenler (kart, buton, alt nav, vb.)
+│       └── theme/         # Sıcak Karnaval tasarım token'ları (palet, tipografi)
 ├── server/                # Colyseus sunucusu (TypeScript)
-│   ├── rooms/             # Oyun odası mantığı
-│   ├── game/              # Ağdan bağımsız kural motoru (Aşama 1)
+│   ├── rooms/             # Oyun odası mantığı (Aşama 3 — henüz boş)
+│   ├── game/              # Ağdan bağımsız kural motoru (Aşama 1 — tamamlandı)
 │   │   └── __tests__/     # Kural motoru birim testleri
-│   └── schema/            # Senkronize state şemaları
+│   └── schema/            # Senkronize state şemaları (Aşama 3 — henüz boş)
+├── MD dosyasından uygulama tasarımı/  # Tasarım handoff paketi (Sıcak Karnaval referansı, değiştirilmez)
 └── docs/                  # Bu kılavuz ve tasarım notları
 ```
 
-**Not:** Kural motoru (`server/game/`) ağdan tamamen bağımsız yazılmalı ki Aşama 1'de tek başına test edilebilsin, sonra oda tarafından çağrılsın.
+**Not:** Kural motoru sunucuda (`server/game/`) ağdan tamamen bağımsız yazıldı ve test edildi (Aşama 1 tamam). Client tarafında da (`client-flutter/lib/game/`) aynı mantığın bağımsız bir portu var — bu, Aşama 2'nin (tek kişilik + bot) sunucu olmadan oynanabilir olmasını sağladı. Aşama 3'e geçildiğinde client'taki bu yerel mantık kaldırılıp sunucudan gelen state'e bağlanmalı; iki kopyanın kalıcı olarak birbirinden ayrı yaşaması hedeflenmiyor.
 
 ---
 
-## 10. İlk Somut Adım
+## 10. Sıradaki Somut Adım
 
-Kod tarafına Aşama 1 ile başla: **`server/game/` içinde ağsız kural motoru + birim testleri.** Deste üret, takas fonksiyonunu yaz, 4'lü tespitini ve puanlamayı test et. Bu bittiğinde oyunun tüm mantığı kanıtlanmış olur; geri kalan her şey bunun üstüne bağlanır.
+Aşama 1 ve 2 tamamlandı: kural motoru sunucuda test edilmiş durumda, client'ta da tek-kişilik + bot ile oynanabilir bir prototip var (Sıcak Karnaval tasarımına göre kurulu UI dahil). **Sıradaki adım Aşama 3: otoriter sunucu + 1 gerçek client.** `server/`'a Colyseus'u bağımlılık olarak ekle, `server/game/`'deki kural motorunu bir Colyseus `Room`'a sar (`server/rooms/`), `server/schema/`'da senkronize state şemasını tanımla; sonra `client-flutter` tarafında bir WebSocket katmanı ekleyip `game_controller.dart`'ın yerel/sahte state üretimini sunucudan gelen state'i dinlemekle değiştir.
