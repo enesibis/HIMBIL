@@ -116,10 +116,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         padding: const EdgeInsets.symmetric(horizontal: 28),
                         child: AvatarStep(
                           initial: PlayerSession.initial,
-                          iconIndex: PlayerSession.avatarIconIndex,
+                          characterIndex: PlayerSession.avatarCharacterIndex,
                           colorIndex: PlayerSession.avatarColorIndex,
                           frame: PlayerSession.avatarFrame,
-                          onIconSelected: (i) => setState(() => PlayerSession.avatarIconIndex = i),
+                          onCharacterSelected: (i) => setState(() => PlayerSession.avatarCharacterIndex = i),
                           onColorSelected: (i) => setState(() => PlayerSession.avatarColorIndex = i),
                           onFrameSelected: (f) => setState(() => PlayerSession.avatarFrame = f),
                         ),
@@ -132,7 +132,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         child: CompleteStep(
                           name: _nameController.text.trim().isEmpty ? PlayerSession.name : _nameController.text.trim(),
                           initial: PlayerSession.initial,
-                          iconIndex: PlayerSession.avatarIconIndex,
+                          characterIndex: PlayerSession.avatarCharacterIndex,
                           colorIndex: PlayerSession.avatarColorIndex,
                           frame: PlayerSession.avatarFrame,
                         ),

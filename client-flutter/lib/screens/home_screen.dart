@@ -103,7 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         UserAvatar(
           size: 40,
-          icon: PlayerSession.avatarIcon.icon,
+          imagePath: PlayerSession.avatarCharacter.imagePath,
           initial: PlayerSession.initial,
           gradient: PlayerSession.avatarColor.gradient,
           frame: PlayerSession.avatarFrame,

@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 
 import 'palette.dart';
 
-/// Profil oluşturma (onboarding) sırasında seçilebilen avatar ikonu.
-/// İlk seçenek `icon: null` — bu durumda isim baş harfi gösterilir.
-class AvatarIconOption {
-  final IconData? icon;
+/// Profil oluşturma (onboarding) sırasında seçilebilen avatar karakteri.
+/// İlk seçenek `imagePath: null` — bu durumda isim baş harfi gösterilir.
+class AvatarCharacterOption {
+  final String? imagePath;
   final String label;
 
-  const AvatarIconOption({required this.icon, required this.label});
+  const AvatarCharacterOption({required this.imagePath, required this.label});
 }
 
-/// Seçilebilen renk/gradyan — hem avatar dolgusu hem çerçevesi için kullanılır.
+/// Seçilebilen renk/gradyan — avatar çerçevesi (ve baş harf modunda dolgusu) için kullanılır.
 class AvatarColorOption {
   final String label;
   final List<Color> gradient;
@@ -31,20 +31,28 @@ extension AvatarFrameLabel on AvatarFrame {
       };
 }
 
-/// Onboarding'deki "Avatarını Seç" adımında sunulan sabit seçenek listeleri.
+/// Onboarding'deki "Avatarını Oluştur" adımında sunulan sabit seçenek listeleri.
+/// Karakter illüstrasyonları `design/avatars/` kaynağından (`assets/avatars/`).
 class AvatarOptions {
   AvatarOptions._();
 
-  static const icons = [
-    AvatarIconOption(icon: null, label: 'Baş Harf'),
-    AvatarIconOption(icon: Icons.pets_rounded, label: 'Patiler'),
-    AvatarIconOption(icon: Icons.rocket_launch_rounded, label: 'Roket'),
-    AvatarIconOption(icon: Icons.bolt_rounded, label: 'Şimşek'),
-    AvatarIconOption(icon: Icons.favorite_rounded, label: 'Kalp'),
-    AvatarIconOption(icon: Icons.emoji_emotions_rounded, label: 'Gülen Yüz'),
-    AvatarIconOption(icon: Icons.star_rounded, label: 'Yıldız'),
-    AvatarIconOption(icon: Icons.local_fire_department_rounded, label: 'Ateş'),
-    AvatarIconOption(icon: Icons.auto_awesome_rounded, label: 'Parıltı'),
+  static const characters = [
+    AvatarCharacterOption(imagePath: null, label: 'Baş Harf'),
+    AvatarCharacterOption(imagePath: 'assets/avatars/01-elmacik.png', label: 'Elmacık'),
+    AvatarCharacterOption(imagePath: 'assets/avatars/02-bal.png', label: 'Bal'),
+    AvatarCharacterOption(imagePath: 'assets/avatars/03-filiz.png', label: 'Filiz'),
+    AvatarCharacterOption(imagePath: 'assets/avatars/04-deniz.png', label: 'Deniz'),
+    AvatarCharacterOption(imagePath: 'assets/avatars/05-mora.png', label: 'Mora'),
+    AvatarCharacterOption(imagePath: 'assets/avatars/06-toprak.png', label: 'Toprak'),
+    AvatarCharacterOption(imagePath: 'assets/avatars/07-gullu.png', label: 'Güllü'),
+    AvatarCharacterOption(imagePath: 'assets/avatars/08-yosun.png', label: 'Yosun'),
+    AvatarCharacterOption(imagePath: 'assets/avatars/09-gokce.png', label: 'Gökçe'),
+    AvatarCharacterOption(imagePath: 'assets/avatars/10-fistik.png', label: 'Fıstık'),
+    AvatarCharacterOption(imagePath: 'assets/avatars/11-saricik.png', label: 'Sarıcık'),
+    AvatarCharacterOption(imagePath: 'assets/avatars/12-uykucu.png', label: 'Uykucu'),
+    AvatarCharacterOption(imagePath: 'assets/avatars/13-kayisi.png', label: 'Kayısı'),
+    AvatarCharacterOption(imagePath: 'assets/avatars/14-erik.png', label: 'Erik'),
+    AvatarCharacterOption(imagePath: 'assets/avatars/15-nane.png', label: 'Nane'),
   ];
 
   static const colors = [

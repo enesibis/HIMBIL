@@ -10,7 +10,7 @@ import '../../widgets/user_avatar.dart';
 class CompleteStep extends StatelessWidget {
   final String name;
   final String initial;
-  final int iconIndex;
+  final int characterIndex;
   final int colorIndex;
   final AvatarFrame frame;
 
@@ -18,7 +18,7 @@ class CompleteStep extends StatelessWidget {
     super.key,
     required this.name,
     required this.initial,
-    required this.iconIndex,
+    required this.characterIndex,
     required this.colorIndex,
     required this.frame,
   });
@@ -26,7 +26,7 @@ class CompleteStep extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final gradient = AvatarOptions.colors[colorIndex].gradient;
-    final icon = AvatarOptions.icons[iconIndex].icon;
+    final imagePath = AvatarOptions.characters[characterIndex].imagePath;
 
     return Stack(
       alignment: Alignment.center,
@@ -41,7 +41,7 @@ class CompleteStep extends StatelessWidget {
                 duration: const Duration(milliseconds: 650),
                 curve: Curves.elasticOut,
                 builder: (context, scale, child) => Transform.scale(scale: scale, child: child),
-                child: UserAvatar(size: 128, icon: icon, initial: initial, gradient: gradient, frame: frame, pulse: true),
+                child: UserAvatar(size: 128, imagePath: imagePath, initial: initial, gradient: gradient, frame: frame, pulse: true),
               ),
             ),
             const SizedBox(height: 22),

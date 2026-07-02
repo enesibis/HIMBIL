@@ -5,10 +5,11 @@ import '../theme/palette.dart';
 import '../theme/text_styles.dart';
 
 /// Uygulama genelinde (Ana Menü, Lobi, onboarding önizlemesi) kullanılan,
-/// oluşturulan profile göre ikon/renk/çerçeve ile render edilen avatar.
+/// oluşturulan profile göre karakter illüstrasyonu/renk/çerçeve ile render
+/// edilen avatar. `imagePath` null ise isim baş harfi gösterilir.
 class UserAvatar extends StatefulWidget {
   final double size;
-  final IconData? icon;
+  final String? imagePath;
   final String initial;
   final List<Color> gradient;
   final AvatarFrame frame;
@@ -17,7 +18,7 @@ class UserAvatar extends StatefulWidget {
   const UserAvatar({
     super.key,
     required this.size,
-    required this.icon,
+    required this.imagePath,
     required this.initial,
     required this.gradient,
     required this.frame,
@@ -129,12 +130,13 @@ class _UserAvatarState extends State<UserAvatar> with SingleTickerProviderStateM
   LinearGradient _gradient() => LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: widget.gradient);
 
   Widget _core() {
+    if (widget.imagePath != null) {
+      return ClipOval(child: Image.asset(widget.imagePath!, fit: BoxFit.cover));
+    }
     return Container(
       decoration: const BoxDecoration(color: Palette.surface, shape: BoxShape.circle),
       alignment: Alignment.center,
-      child: widget.icon != null
-          ? Icon(widget.icon, size: widget.size * 0.42, color: widget.gradient.last)
-          : Text(widget.initial, style: AppText.baloo(size: widget.size * 0.4, weight: FontWeight.w800, color: widget.gradient.last)),
+      child: Text(widget.initial, style: AppText.baloo(size: widget.size * 0.4, weight: FontWeight.w800, color: widget.gradient.last)),
     );
   }
 }

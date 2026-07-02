@@ -6,24 +6,24 @@ import '../../theme/text_styles.dart';
 import '../../widgets/fade_slide_in.dart';
 import '../../widgets/user_avatar.dart';
 
-/// Onboarding 4. adım: avatar oluşturma — karakter ikonu, renk ve çerçeve
+/// Onboarding 4. adım: avatar oluşturma — karakter, renk ve çerçeve
 /// stili tek tek seçilir; üstte canlı önizleme her değişiklikte "pop" animasyonuyla güncellenir.
 class AvatarStep extends StatelessWidget {
   final String initial;
-  final int iconIndex;
+  final int characterIndex;
   final int colorIndex;
   final AvatarFrame frame;
-  final ValueChanged<int> onIconSelected;
+  final ValueChanged<int> onCharacterSelected;
   final ValueChanged<int> onColorSelected;
   final ValueChanged<AvatarFrame> onFrameSelected;
 
   const AvatarStep({
     super.key,
     required this.initial,
-    required this.iconIndex,
+    required this.characterIndex,
     required this.colorIndex,
     required this.frame,
-    required this.onIconSelected,
+    required this.onCharacterSelected,
     required this.onColorSelected,
     required this.onFrameSelected,
   });
@@ -31,7 +31,7 @@ class AvatarStep extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final gradient = AvatarOptions.colors[colorIndex].gradient;
-    final icon = AvatarOptions.icons[iconIndex].icon;
+    final imagePath = AvatarOptions.characters[characterIndex].imagePath;
 
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
@@ -51,17 +51,17 @@ class AvatarStep extends StatelessWidget {
           ),
           const SizedBox(height: 22),
           TweenAnimationBuilder<double>(
-            key: ValueKey('$iconIndex-$colorIndex-$frame'),
+            key: ValueKey('$characterIndex-$colorIndex-$frame'),
             tween: Tween(begin: 0.82, end: 1.0),
             duration: const Duration(milliseconds: 320),
             curve: Curves.elasticOut,
             builder: (context, scale, child) => Transform.scale(scale: scale, child: child),
-            child: UserAvatar(size: 118, icon: icon, initial: initial, gradient: gradient, frame: frame),
+            child: UserAvatar(size: 118, imagePath: imagePath, initial: initial, gradient: gradient, frame: frame),
           ),
           const SizedBox(height: 26),
           FadeSlideIn(delay: const Duration(milliseconds: 120), child: _sectionLabel('KARAKTER')),
           const SizedBox(height: 10),
-          FadeSlideIn(delay: const Duration(milliseconds: 160), child: _iconGrid(gradient)),
+          FadeSlideIn(delay: const Duration(milliseconds: 160), child: _characterGrid()),
           const SizedBox(height: 22),
           FadeSlideIn(delay: const Duration(milliseconds: 200), child: _sectionLabel('RENK')),
           const SizedBox(height: 10),
@@ -69,7 +69,7 @@ class AvatarStep extends StatelessWidget {
           const SizedBox(height: 22),
           FadeSlideIn(delay: const Duration(milliseconds: 280), child: _sectionLabel('ÇERÇEVE')),
           const SizedBox(height: 10),
-          FadeSlideIn(delay: const Duration(milliseconds: 320), child: _frameRow(gradient, icon)),
+          FadeSlideIn(delay: const Duration(milliseconds: 320), child: _frameRow(gradient, imagePath)),
           const SizedBox(height: 8),
         ],
       ),
@@ -83,24 +83,20 @@ class AvatarStep extends StatelessWidget {
     );
   }
 
-  Widget _iconGrid(List<Color> selectedGradient) {
+  Widget _characterGrid() {
     return Wrap(
       spacing: 12,
       runSpacing: 12,
       children: [
-        for (var i = 0; i < AvatarOptions.icons.length; i++)
-          _iconChoice(
-            index: i,
-            selected: i == iconIndex,
-            icon: AvatarOptions.icons[i].icon,
-          ),
+        for (var i = 0; i < AvatarOptions.characters.length; i++)
+          _characterChoice(index: i, selected: i == characterIndex, imagePath: AvatarOptions.characters[i].imagePath),
       ],
     );
   }
 
-  Widget _iconChoice({required int index, required bool selected, required IconData? icon}) {
+  Widget _characterChoice({required int index, required bool selected, required String? imagePath}) {
     return GestureDetector(
-      onTap: () => onIconSelected(index),
+      onTap: () => onCharacterSelected(index),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeOut,
@@ -113,8 +109,8 @@ class AvatarStep extends StatelessWidget {
           boxShadow: [BoxShadow(color: Palette.textPrimary.withValues(alpha: 0.06), blurRadius: 10, offset: const Offset(0, 3))],
         ),
         alignment: Alignment.center,
-        child: icon != null
-            ? Icon(icon, size: 24, color: selected ? Palette.red : Palette.textPrimary.withValues(alpha: 0.6))
+        child: imagePath != null
+            ? Padding(padding: const EdgeInsets.all(4), child: ClipOval(child: Image.asset(imagePath, fit: BoxFit.cover)))
             : Text('Aa', style: AppText.baloo(size: 16, weight: FontWeight.w800, color: selected ? Palette.red : Palette.textPrimary.withValues(alpha: 0.6))),
       ),
     );
@@ -154,16 +150,16 @@ class AvatarStep extends StatelessWidget {
     );
   }
 
-  Widget _frameRow(List<Color> gradient, IconData? icon) {
+  Widget _frameRow(List<Color> gradient, String? imagePath) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        for (final f in AvatarOptions.frames) _frameChoice(f, gradient, icon),
+        for (final f in AvatarOptions.frames) _frameChoice(f, gradient, imagePath),
       ],
     );
   }
 
-  Widget _frameChoice(AvatarFrame f, List<Color> gradient, IconData? icon) {
+  Widget _frameChoice(AvatarFrame f, List<Color> gradient, String? imagePath) {
     final selected = f == frame;
     return GestureDetector(
       onTap: () => onFrameSelected(f),
@@ -177,7 +173,7 @@ class AvatarStep extends StatelessWidget {
         ),
         child: Column(
           children: [
-            UserAvatar(size: 48, icon: icon, initial: initial, gradient: gradient, frame: f),
+            UserAvatar(size: 48, imagePath: imagePath, initial: initial, gradient: gradient, frame: f),
             const SizedBox(height: 6),
             Text(f.label, style: AppText.nunito(size: 10.5, weight: FontWeight.w800, color: selected ? Palette.red : Palette.textSecondary)),
           ],

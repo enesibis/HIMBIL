@@ -67,7 +67,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
                         ready: true,
                         avatar: UserAvatar(
                           size: 56,
-                          icon: PlayerSession.avatarIcon.icon,
+                          imagePath: PlayerSession.avatarCharacter.imagePath,
                           initial: PlayerSession.initial,
                           gradient: PlayerSession.avatarColor.gradient,
                           frame: PlayerSession.avatarFrame,
