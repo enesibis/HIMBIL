@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../game/game_controller.dart';
 import '../game/rules.dart';
+import '../session/player_session.dart';
 import '../theme/palette.dart';
 import '../theme/text_styles.dart';
 import '../widgets/carnival_background.dart';
@@ -16,12 +17,13 @@ import '../widgets/soft_button.dart';
 import 'round_result_screen.dart';
 import 'slam_celebration_screen.dart';
 
-const Map<String, String> _playerLabels = {
-  'human': 'Sen',
+const Map<String, String> _botLabels = {
   'bot_north': 'Mehmet',
   'bot_west': 'Zeynep',
   'bot_east': 'Ayşe',
 };
+
+String _labelFor(String id) => id == GameController.humanId ? PlayerSession.name : (_botLabels[id] ?? id);
 
 class GameScreen extends StatefulWidget {
   const GameScreen({super.key});
@@ -92,7 +94,7 @@ class _GameScreenState extends State<GameScreen> {
 
   Future<void> _handleRoundScored(int roundNumber, List<SlamResult> results, Map<String, int> scores, String? winnerId) async {
     _syncScores();
-    final roundRanking = [for (final r in results) MapEntry(_playerLabels[r.playerId] ?? r.playerId, r.score)];
+    final roundRanking = [for (final r in results) MapEntry(_labelFor(r.playerId), r.score)];
 
     await Navigator.of(context).push(MaterialPageRoute(builder: (_) => SlamCelebrationScreen(ranking: roundRanking)));
     if (!mounted) return;
@@ -195,9 +197,9 @@ class _GameScreenState extends State<GameScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        PlayerAvatar(key: _avatarKeys['bot_west'], name: _playerLabels['bot_west']!, score: _botScores['bot_west']!),
-                        PlayerAvatar(key: _avatarKeys['bot_north'], name: _playerLabels['bot_north']!, score: _botScores['bot_north']!),
-                        PlayerAvatar(key: _avatarKeys['bot_east'], name: _playerLabels['bot_east']!, score: _botScores['bot_east']!),
+                        PlayerAvatar(key: _avatarKeys['bot_west'], name: _botLabels['bot_west']!, score: _botScores['bot_west']!),
+                        PlayerAvatar(key: _avatarKeys['bot_north'], name: _botLabels['bot_north']!, score: _botScores['bot_north']!),
+                        PlayerAvatar(key: _avatarKeys['bot_east'], name: _botLabels['bot_east']!, score: _botScores['bot_east']!),
                       ],
                     ),
                   ),
@@ -295,12 +297,12 @@ class _GameScreenState extends State<GameScreen> {
   Widget _buildGameOverOverlay(({String winnerId, Map<String, int> scores}) gameOver) {
     final sortedIds = gameOver.scores.keys.toList()..sort((a, b) => gameOver.scores[b]!.compareTo(gameOver.scores[a]!));
     final ranking = [
-      for (final id in sortedIds) MapEntry(_playerLabels[id] ?? id, gameOver.scores[id] ?? 0),
+      for (final id in sortedIds) MapEntry(_labelFor(id), gameOver.scores[id] ?? 0),
     ];
 
     return GameOverOverlay(
       winnerId: gameOver.winnerId,
-      winnerLabel: _playerLabels[gameOver.winnerId] ?? gameOver.winnerId,
+      winnerLabel: _labelFor(gameOver.winnerId),
       isHumanWinner: gameOver.winnerId == GameController.humanId,
       ranking: ranking,
       onPlayAgain: _playAgain,

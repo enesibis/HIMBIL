@@ -2,10 +2,12 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../session/player_session.dart';
 import '../theme/palette.dart';
 import '../theme/text_styles.dart';
 import '../widgets/carnival_background.dart';
 import '../widgets/gradient_cta.dart';
+import '../widgets/user_avatar.dart';
 import 'game_screen.dart';
 
 const List<String> _botNames = ['Zeynep', 'Mehmet', 'Ayşe'];
@@ -60,7 +62,17 @@ class _LobbyScreenState extends State<LobbyScreen> {
                     crossAxisSpacing: 14,
                     childAspectRatio: 1.05,
                     children: [
-                      _lobbySlot('Sen', ready: true),
+                      _lobbySlot(
+                        PlayerSession.name,
+                        ready: true,
+                        avatar: UserAvatar(
+                          size: 56,
+                          icon: PlayerSession.avatarIcon.icon,
+                          initial: PlayerSession.initial,
+                          gradient: PlayerSession.avatarColor.gradient,
+                          frame: PlayerSession.avatarFrame,
+                        ),
+                      ),
                       for (final name in _botNames) _lobbySlot(name, ready: _botsReady),
                     ],
                   ),
@@ -135,7 +147,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
     );
   }
 
-  Widget _lobbySlot(String name, {required bool ready}) {
+  Widget _lobbySlot(String name, {required bool ready, Widget? avatar}) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
       decoration: BoxDecoration(
@@ -146,23 +158,24 @@ class _LobbyScreenState extends State<LobbyScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            width: 56,
-            height: 56,
-            padding: const EdgeInsets.all(2),
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(colors: [Palette.mustard, Palette.red]),
-              shape: BoxShape.circle,
-            ),
-            child: Container(
-              decoration: const BoxDecoration(color: Palette.surface, shape: BoxShape.circle),
-              alignment: Alignment.center,
-              child: Text(
-                name.substring(0, 1).toUpperCase(),
-                style: AppText.baloo(size: 19, weight: FontWeight.w800, color: Palette.red),
+          avatar ??
+              Container(
+                width: 56,
+                height: 56,
+                padding: const EdgeInsets.all(2),
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(colors: [Palette.mustard, Palette.red]),
+                  shape: BoxShape.circle,
+                ),
+                child: Container(
+                  decoration: const BoxDecoration(color: Palette.surface, shape: BoxShape.circle),
+                  alignment: Alignment.center,
+                  child: Text(
+                    name.substring(0, 1).toUpperCase(),
+                    style: AppText.baloo(size: 19, weight: FontWeight.w800, color: Palette.red),
+                  ),
+                ),
               ),
-            ),
-          ),
           const SizedBox(height: 7),
           Text(name, style: AppText.baloo(size: 14, weight: FontWeight.w700)),
           const SizedBox(height: 2),

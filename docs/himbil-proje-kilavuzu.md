@@ -116,6 +116,8 @@ Sunucuda tutulacak temel yapılar:
 
 1. ✅ **Ağsız kural motoru.** Deste üretimi, takas, 4'lü tespiti, puanlama — saf mantık, ağ yok. Birim testlerle. Tüm oyun riskini burada azaltırsın. *(`server/game/` — deck/deal/swap/quartet/scoring, hepsi test edilmiş.)*
 2. ✅ **Tek kişilik + bot.** Kural motorunu basit AI'la sarıp tüm UI/UX'i buna karşı kur. Netcode yok, oynanabilir oyun hızlıca elde edilir. *(`client-flutter/lib/game/` — kendi rule engine + bot AI portu; UI Sıcak Karnaval tasarım referansına göre kuruldu: ana menü (Oyna/Profil sekmeleri, liderlik tablosu), oda kur/kodla katıl, lobi, oyun ekranı, slam kutlaması, tur sonucu, maç sonu.)*
+   - *İlk açılış onboarding'i eklendi (tasarım referansında yoktu, sonradan tasarlandı):* `client-flutter/lib/screens/onboarding/` — Hoş Geldin → İsim → Yaş → Avatar Oluştur (karakter ikonu/renk/çerçeve seçimi) → Tamamlandı, parallax geçiş + staggered animasyonlarla. Profil `client-flutter/lib/session/player_session.dart` üzerinden `shared_preferences` ile cihazda kalıcı tutuluyor (`hasOnboarded` bayrağı sayesinde sadece ilk açılışta gösteriliyor); gerçek hesap sistemi hâlâ Aşama 7'de.
+   - *Uygulama markalaması:* `design/logo-export/` altındaki resmî logo hem Android/iOS launcher icon'u (`flutter_launcher_icons` ile üretildi) hem uygulama içi logo rozetleri (Ana Menü başlığı, onboarding Hoş Geldin ekranı) olarak entegre edildi.
 3. ⏳ **Otoriter sunucu + 1 gerçek client.** Kural motorunu sunucuya taşı; client intent yollar, sunucu state push eder. İki instance lokal test. *(Henüz başlamadı — `server/rooms/` ve `server/schema/` boş, Colyseus henüz bağımlılık olarak eklenmedi. Client şu an tamamen yerel/sahte state ile çalışıyor.)*
 4. ⏳ **Odalar + matchmaking (oda kodu).** Çok oyuncu, kodla katılma. *(Client'ta UI akışı var — Lobi/Kod ile Katıl ekranları — ama gerçek ağ bağlantısı yok, botlarla simüle ediliyor.)*
 5. ⏳ **Gerçek zamanlı takas loop'u + slam yarışı.** Tick, eşzamanlı takas, slam çözümü, yanlış-slam cezası. Tick zamanlamasını/hissini ayarla. *(Client-lokal olarak çalışıyor; sunucu otoritesi eklenince bu mantık `server/game/`'e taşınacak.)*
@@ -142,17 +144,22 @@ Sunucuda tutulacak temel yapılar:
 ```
 himbil/
 ├── client-flutter/        # Flutter projesi (UI, animasyon; WebSocket bağlantısı henüz yok)
+│   ├── assets/
+│   │   ├── icon/          # Launcher icon kaynağı (flutter_launcher_icons)
+│   │   └── images/        # Uygulama içi logo vb. görseller
 │   └── lib/
 │       ├── game/          # Rule engine + bot AI'ın client-tarafı portu (Aşama 2)
 │       ├── screens/       # Ana Menü, Kod ile Katıl, Lobi, Oyun, Slam, Tur Sonucu
-│       ├── widgets/       # Paylaşılan bileşenler (kart, buton, alt nav, vb.)
-│       └── theme/         # Sıcak Karnaval tasarım token'ları (palet, tipografi)
+│       │   └── onboarding/  # İlk açılış: Hoş Geldin, İsim, Yaş, Avatar Oluştur, Tamamlandı
+│       ├── session/       # PlayerSession — isim/yaş/avatar, shared_preferences ile kalıcı
+│       ├── widgets/       # Paylaşılan bileşenler (kart, buton, alt nav, UserAvatar, vb.)
+│       └── theme/         # Sıcak Karnaval tasarım token'ları (palet, tipografi, avatar seçenekleri)
 ├── server/                # Colyseus sunucusu (TypeScript)
 │   ├── rooms/             # Oyun odası mantığı (Aşama 3 — henüz boş)
 │   ├── game/              # Ağdan bağımsız kural motoru (Aşama 1 — tamamlandı)
 │   │   └── __tests__/     # Kural motoru birim testleri
 │   └── schema/            # Senkronize state şemaları (Aşama 3 — henüz boş)
-├── MD dosyasından uygulama tasarımı/  # Tasarım handoff paketi (Sıcak Karnaval referansı, değiştirilmez)
+├── design/                # Tasarım handoff paketi (Sıcak Karnaval referansı) + logo-export/ (resmî logo kaynakları)
 └── docs/                  # Bu kılavuz ve tasarım notları
 ```
 
@@ -162,4 +169,4 @@ himbil/
 
 ## 10. Sıradaki Somut Adım
 
-Aşama 1 ve 2 tamamlandı: kural motoru sunucuda test edilmiş durumda, client'ta da tek-kişilik + bot ile oynanabilir bir prototip var (Sıcak Karnaval tasarımına göre kurulu UI dahil). **Sıradaki adım Aşama 3: otoriter sunucu + 1 gerçek client.** `server/`'a Colyseus'u bağımlılık olarak ekle, `server/game/`'deki kural motorunu bir Colyseus `Room`'a sar (`server/rooms/`), `server/schema/`'da senkronize state şemasını tanımla; sonra `client-flutter` tarafında bir WebSocket katmanı ekleyip `game_controller.dart`'ın yerel/sahte state üretimini sunucudan gelen state'i dinlemekle değiştir.
+Aşama 1 ve 2 tamamlandı: kural motoru sunucuda test edilmiş durumda, client'ta da tek-kişilik + bot ile oynanabilir bir prototip var (Sıcak Karnaval tasarımına göre kurulu UI dahil, artık ilk-açılış onboarding'i ve resmî uygulama logosu da entegre). Bunlar client-lokal UX/marka cilası — Aşama 3'ü bloklamıyor. **Sıradaki adım Aşama 3: otoriter sunucu + 1 gerçek client.** `server/`'a Colyseus'u bağımlılık olarak ekle, `server/game/`'deki kural motorunu bir Colyseus `Room`'a sar (`server/rooms/`), `server/schema/`'da senkronize state şemasını tanımla; sonra `client-flutter` tarafında bir WebSocket katmanı ekleyip `game_controller.dart`'ın yerel/sahte state üretimini sunucudan gelen state'i dinlemekle değiştir.

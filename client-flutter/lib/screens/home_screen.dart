@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../theme/palette.dart';
 import '../theme/text_styles.dart';
-import '../widgets/cards_stack_icon.dart';
 import '../widgets/carnival_background.dart';
 import '../widgets/gradient_cta.dart';
 import '../widgets/home_bottom_nav.dart';
+import '../widgets/user_avatar.dart';
+import '../session/player_session.dart';
 import 'join_screen.dart';
 import 'lobby_screen.dart';
 
@@ -90,35 +91,22 @@ class _HomeScreenState extends State<HomeScreen> {
               width: 34,
               height: 34,
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [Palette.redLight, Palette.red],
-                ),
                 borderRadius: BorderRadius.circular(11),
                 boxShadow: [BoxShadow(color: Palette.red.withValues(alpha: 0.35), blurRadius: 10, offset: const Offset(0, 4))],
               ),
-              alignment: Alignment.center,
-              child: const CardsStackIcon(size: 17),
+              clipBehavior: Clip.antiAlias,
+              child: Image.asset('assets/images/himbil_logo.png', fit: BoxFit.cover),
             ),
             const SizedBox(width: 9),
             Text('Hımbıl', style: AppText.baloo(size: 23, weight: FontWeight.w800)),
           ],
         ),
-        Container(
-          width: 40,
-          height: 40,
-          padding: const EdgeInsets.all(2),
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(colors: [Palette.mustard, Palette.red]),
-            shape: BoxShape.circle,
-            boxShadow: [BoxShadow(color: Palette.red.withValues(alpha: 0.25), blurRadius: 10, offset: const Offset(0, 4))],
-          ),
-          child: Container(
-            decoration: const BoxDecoration(color: Palette.surface, shape: BoxShape.circle),
-            alignment: Alignment.center,
-            child: Text('S', style: AppText.baloo(size: 15, weight: FontWeight.w800, color: Palette.red)),
-          ),
+        UserAvatar(
+          size: 40,
+          icon: PlayerSession.avatarIcon.icon,
+          initial: PlayerSession.initial,
+          gradient: PlayerSession.avatarColor.gradient,
+          frame: PlayerSession.avatarFrame,
         ),
       ],
     );
