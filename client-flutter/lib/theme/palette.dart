@@ -34,12 +34,12 @@ class Palette {
   static const Color rankBronze = Color(0xFFB87333);
   static const Color rankNeutral = Color(0xFFAFA593);
 
-  /// Kart üzerindeki nesne türleri için ikon renkleri (tasarımda emoji
-  /// placeholder'dı; bunlar kendi seçimimiz, paletle uyumlu).
+  /// Kart üzerindeki nesne türleri için ikon renkleri —
+  /// design_handoff_kart_paketi/kart-sanati.js FRUIT_COLOR ile birebir.
   static const Map<String, Color> fruitColors = {
-    'elma': red,
-    'armut': green,
-    'muz': mustard,
-    'cilek': Color(0xFFD6336C),
+    'muz': Color(0xFFFFC93D),
+    'uzum': Color(0xFF9B59D0),
+    'portakal': Color(0xFFF4941E),
+    'cilek': Color(0xFFF0455C),
   };
 }

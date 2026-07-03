@@ -29,7 +29,7 @@ class SwapTickResult {
 }
 
 class Rules {
-  static const List<String> objectPool = ['elma', 'armut', 'muz', 'cilek'];
+  static const List<String> objectPool = ['muz', 'uzum', 'portakal', 'cilek'];
   static const int handSize = 4;
 
   static const int slamScoreStart = 100;
