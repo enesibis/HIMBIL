@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'screens/home_screen.dart';
-import 'screens/onboarding/onboarding_screen.dart';
+import 'screens/splash_screen.dart';
 import 'session/player_session.dart';
 import 'theme/palette.dart';
 
@@ -25,7 +24,7 @@ class HimbilApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Palette.red, brightness: Brightness.light),
         fontFamily: 'Nunito',
       ),
-      home: PlayerSession.hasOnboarded ? const HomeScreen() : const OnboardingScreen(),
+      home: const SplashScreen(),
     );
   }
 }

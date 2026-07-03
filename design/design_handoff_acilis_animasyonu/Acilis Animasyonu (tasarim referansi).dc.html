@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+
+<helmet>
+  <meta name="design_doc_mode" content="canvas">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body{margin:0;background:#EDEAE3;font-family:'Nunito',sans-serif}
+  </style>
+</helmet>
+
+<section style="padding:44px;display:flex;flex-direction:column;align-items:center;gap:18px">
+  <div style="text-align:center;max-width:420px">
+    <div style="font-family:'Baloo 2';font-weight:800;font-size:22px;color:#2E1D12;margin-bottom:6px">Hımbıl Açılış Animasyonu</div>
+    <div style="font-family:'Nunito';font-weight:700;font-size:14px;color:#8A7660;line-height:1.5">Ana ekrandaki Hımbıl ikonuna dokun — renkler tek bir lekeden ayrışıp logoya, sonra giriş ekranına geçiyor.</div>
+  </div>
+
+  <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="402,874">
+    <div style="height:100%;position:relative;overflow:hidden;background:linear-gradient(165deg,#FDF8EE,#F3E4C8 60%,#EAD2A0)">
+
+      <!-- HOME SCREEN -->
+      <sc-if value="{{ homeVisible }}" hint-placeholder-val="{{ true }}">
+      <div style="position:absolute;inset:0;padding-top:70px;box-sizing:border-box;transition:opacity 260ms ease, transform 260ms ease;{{ homeWrapStyle }}">
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:26px 18px;padding:0 26px">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+            <div style="width:60px;height:60px;border-radius:16px;background:#C9BBA8;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px rgba(46,29,18,.12)"><div style="width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.75)"></div></div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+            <div style="width:60px;height:60px;border-radius:16px;background:#B8C4B0;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px rgba(46,29,18,.12)"><div style="width:24px;height:24px;border-radius:6px;background:rgba(255,255,255,.75)"></div></div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+            <div style="width:60px;height:60px;border-radius:16px;background:#B9AEC7;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px rgba(46,29,18,.12)"><div style="width:0;height:0;border-left:12px solid transparent;border-right:12px solid transparent;border-bottom:20px solid rgba(255,255,255,.75)"></div></div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+            <div style="width:60px;height:60px;border-radius:16px;background:#C7B2A0;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px rgba(46,29,18,.12)"><div style="width:26px;height:10px;border-radius:5px;background:rgba(255,255,255,.75)"></div></div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer" onClick="{{ onTapIcon }}" style-active="transform:scale(.92)">
+            <div style="width:60px;height:60px;border-radius:16px;background:#FBF3E4;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px rgba(46,29,18,.16);position:relative">
+              <div style="position:relative;width:30px;height:30px">
+                <div style="position:absolute;top:2px;left:9px;width:12px;height:9px;border-radius:4px;background:#E14B3B;transform:rotate(-12deg)"></div>
+                <div style="position:absolute;top:8px;left:19px;width:11px;height:11px;border-radius:3px;background:#3B6EA5;transform:rotate(45deg)"></div>
+                <div style="position:absolute;top:13px;left:2px;width:10px;height:10px;border-radius:5px;background:#F0A93B;transform:rotate(10deg)"></div>
+                <div style="position:absolute;top:22px;left:12px;width:7px;height:7px;border-radius:50%;background:#3F8F6B"></div>
+              </div>
+            </div>
+            <div style="font-family:'Nunito';font-weight:800;font-size:11px;color:#4A3A2C;text-shadow:0 1px 2px rgba(255,255,255,.5)">Hımbıl</div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+            <div style="width:60px;height:60px;border-radius:16px;background:#A9BFC4;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px rgba(46,29,18,.12)"><div style="width:24px;height:24px;border-radius:8px;background:rgba(255,255,255,.75)"></div></div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+            <div style="width:60px;height:60px;border-radius:16px;background:#CBB79A;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px rgba(46,29,18,.12)"><div style="width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.75)"></div></div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+            <div style="width:60px;height:60px;border-radius:16px;background:#B3B8C9;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px rgba(46,29,18,.12)"><div style="width:26px;height:10px;border-radius:5px;background:rgba(255,255,255,.75)"></div></div>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- SPLASH -->
+      <sc-if value="{{ splashVisible }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;inset:0;background:linear-gradient(165deg,#FDF8EE,#F6E9CE 60%,#EFD9AE);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;transition:opacity 400ms ease;{{ splashWrapStyle }}">
+        <div style="position:relative;width:150px;height:150px">
+          <div style="position:absolute;top:50%;left:50%;width:58px;height:58px;margin:-29px 0 0 -29px;border-radius:50%;background:linear-gradient(135deg,#E14B3B,#F0A93B 45%,#3F8F6B 75%,#3B6EA5);transition:transform 320ms cubic-bezier(.34,1.56,.64,1), opacity 300ms ease;{{ blobStyle }}"></div>
+
+          <div style="position:absolute;top:50%;left:50%;width:38px;height:28px;margin:-14px 0 0 -19px;border-radius:9px;background:#E14B3B;transition:transform 700ms cubic-bezier(.34,1.56,.64,1), opacity 250ms ease;transition-delay:0ms;{{ pieceRedStyle }}"></div>
+          <div style="position:absolute;top:50%;left:50%;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:8px;background:#3B6EA5;transition:transform 700ms cubic-bezier(.34,1.56,.64,1), opacity 250ms ease;transition-delay:40ms;{{ pieceBlueStyle }}"></div>
+          <div style="position:absolute;top:50%;left:50%;width:32px;height:32px;margin:-16px 0 0 -16px;border-radius:13px;background:#F0A93B;transition:transform 700ms cubic-bezier(.34,1.56,.64,1), opacity 250ms ease;transition-delay:80ms;{{ pieceYellowStyle }}"></div>
+          <div style="position:absolute;top:50%;left:50%;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;background:#3F8F6B;transition:transform 700ms cubic-bezier(.34,1.56,.64,1), opacity 250ms ease;transition-delay:120ms;{{ pieceGreenStyle }}"></div>
+          <div style="position:absolute;top:50%;left:50%;width:13px;height:13px;margin:-6.5px 0 0 -6.5px;border-radius:50%;background:#F0A93B;transition:transform 700ms cubic-bezier(.34,1.56,.64,1), opacity 250ms ease;transition-delay:160ms;{{ pieceDotStyle }}"></div>
+        </div>
+        <div style="font-family:'Baloo 2';font-weight:800;font-size:32px;color:#2E1D12;transition:opacity 300ms ease, transform 300ms ease;{{ wordmarkStyle }}">Hımbıl</div>
+      </div>
+      </sc-if>
+
+      <!-- ENTRY -->
+      <sc-if value="{{ entryVisible }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;inset:0;padding-top:60px;box-sizing:border-box;background:#FDF8EE;display:flex;flex-direction:column;align-items:center;transition:opacity 400ms ease;{{ entryWrapStyle }}">
+        <div style="position:relative;width:56px;height:56px;margin-bottom:10px">
+          <div style="position:absolute;top:5px;left:17px;width:22px;height:16px;border-radius:6px;background:#E14B3B;transform:rotate(-12deg)"></div>
+          <div style="position:absolute;top:15px;left:35px;width:20px;height:20px;border-radius:6px;background:#3B6EA5;transform:rotate(45deg)"></div>
+          <div style="position:absolute;top:24px;left:3px;width:18px;height:18px;border-radius:9px;background:#F0A93B;transform:rotate(10deg)"></div>
+          <div style="position:absolute;top:40px;left:22px;width:13px;height:13px;border-radius:50%;background:#3F8F6B"></div>
+        </div>
+        <div style="font-family:'Baloo 2';font-weight:800;font-size:26px;color:#2E1D12;margin-bottom:26px">Hımbıl</div>
+        <div style="text-align:center;padding:0 40px">
+          <div style="font-family:'Baloo 2';font-weight:700;font-size:20px;color:#2E1D12;margin-bottom:8px">Hoş geldin!</div>
+          <div style="font-family:'Nunito';font-weight:700;font-size:14px;color:#8A7660;line-height:1.5">Kartları topla, rakiplerinden önce dörtlü yap.</div>
+        </div>
+        <div style="flex:1"></div>
+        <div style="width:100%;padding:0 24px 30px;box-sizing:border-box">
+          <div style="text-align:center;background:linear-gradient(160deg,#FF6F5A,#D6432F);border-radius:24px;padding:16px;font-family:'Baloo 2';font-weight:800;font-size:16px;color:#fff;box-shadow:0 10px 0 #A82E20,0 16px 24px rgba(225,75,59,.3)">Devam Et</div>
+        </div>
+        <div onClick="{{ onReset }}" style-active="opacity:.6" style="position:absolute;top:16px;right:16px;width:30px;height:30px;border-radius:15px;background:rgba(46,29,18,.06);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;color:#8A7660">↺</div>
+      </div>
+      </sc-if>
+
+    </div>
+  </x-import>
+</section>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const T_LAUNCH_TO_SPLASH = 260;
+const T_SPLASH_TO_BURST = 190;
+const T_BURST_DURATION = 750;
+const T_BURST_TO_WORDMARK = 60;
+const T_WORDMARK_HOLD = 650;
+const T_TO_ENTRY_FADE = 420;
+
+class Component extends DCLogic {
+  state = { phase: 'home', burst: false, showWordmark: false };
+  timers = [];
+
+  componentWillUnmount() {
+    this.timers.forEach(clearTimeout);
+  }
+
+  schedule(fn, delay) {
+    this.timers.push(setTimeout(fn, delay));
+  }
+
+  onTapIcon() {
+    if (this.state.phase !== 'home') return;
+    this.setState({ phase: 'launch' });
+    this.schedule(() => this.setState({ phase: 'splash' }), T_LAUNCH_TO_SPLASH);
+    this.schedule(() => this.setState({ burst: true }), T_LAUNCH_TO_SPLASH + T_SPLASH_TO_BURST);
+    this.schedule(() => this.setState({ showWordmark: true }), T_LAUNCH_TO_SPLASH + T_SPLASH_TO_BURST + T_BURST_DURATION + T_BURST_TO_WORDMARK);
+    this.schedule(() => this.setState({ phase: 'toEntry' }), T_LAUNCH_TO_SPLASH + T_SPLASH_TO_BURST + T_BURST_DURATION + T_BURST_TO_WORDMARK + 300 + T_WORDMARK_HOLD);
+    this.schedule(() => this.setState({ phase: 'entry' }), T_LAUNCH_TO_SPLASH + T_SPLASH_TO_BURST + T_BURST_DURATION + T_BURST_TO_WORDMARK + 300 + T_WORDMARK_HOLD + T_TO_ENTRY_FADE);
+  }
+
+  onReset() {
+    this.timers.forEach(clearTimeout);
+    this.timers = [];
+    this.setState({ phase: 'home', burst: false, showWordmark: false });
+  }
+
+  renderVals() {
+    const s = this.state;
+    const homeVisible = s.phase === 'home' || s.phase === 'launch';
+    const homeWrapStyle = s.phase === 'launch'
+      ? 'opacity:0;transform:scale(1.05);pointer-events:none;'
+      : 'opacity:1;transform:scale(1);';
+
+    const splashVisible = s.phase === 'splash' || s.phase === 'toEntry';
+    const splashWrapStyle = s.phase === 'toEntry' ? 'opacity:0;pointer-events:none;' : 'opacity:1;';
+
+    const entryVisible = s.phase === 'toEntry' || s.phase === 'entry';
+    const entryWrapStyle = 'opacity:1;';
+
+    const blobIn = s.phase === 'splash' || s.phase === 'toEntry' || s.phase === 'entry';
+    const blobStyle = (blobIn ? 'transform:scale(1);' : 'transform:scale(.25);') + (s.burst ? 'opacity:0;' : 'opacity:1;');
+
+    function piece(dx, dy, rot) {
+      return s.burst
+        ? 'transform:translate(' + dx + 'px,' + dy + 'px) rotate(' + rot + 'deg) scale(1);opacity:1;'
+        : 'transform:translate(0px,0px) rotate(0deg) scale(.2);opacity:0;';
+    }
+
+    const wordmarkStyle = s.showWordmark ? 'opacity:1;transform:translateY(0);' : 'opacity:0;transform:translateY(8px);';
+
+    return {
+      onTapIcon: () => this.onTapIcon(),
+      onReset: () => this.onReset(),
+      homeVisible,
+      splashVisible,
+      entryVisible,
+      homeWrapStyle,
+      splashWrapStyle,
+      entryWrapStyle,
+      blobStyle,
+      wordmarkStyle,
+      pieceRedStyle: piece(-30, -34, -12),
+      pieceBlueStyle: piece(28, -28, 45),
+      pieceYellowStyle: piece(-38, 10, 10),
+      pieceGreenStyle: piece(16, 24, 0),
+      pieceDotStyle: piece(-14, 38, 0),
+    };
+  }
+}
+</script>
+</body>
+</html>
