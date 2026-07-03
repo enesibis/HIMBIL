@@ -4,9 +4,10 @@ import '../theme/palette.dart';
 import '../theme/text_styles.dart';
 
 /// Ana ekranın alt sekme çubuğu — tasarımdaki yüzen pill-bar: "Oyna" /
-/// "Profil". Aktif sekme kırmızı gradyan arkaplan + beyaz metin/ikon alır.
+/// "Mağaza" / "Profil". Aktif sekme kırmızı gradyan arkaplan + beyaz
+/// metin/ikon alır.
 class HomeBottomNav extends StatelessWidget {
-  final int currentIndex; // 0 = Oyna, 1 = Profil
+  final int currentIndex; // 0 = Oyna, 1 = Mağaza, 2 = Profil
   final ValueChanged<int> onChanged;
 
   const HomeBottomNav({super.key, required this.currentIndex, required this.onChanged});
@@ -24,7 +25,8 @@ class HomeBottomNav extends StatelessWidget {
       child: Row(
         children: [
           Expanded(child: _tab(icon: Icons.play_arrow_rounded, label: 'Oyna', index: 0)),
-          Expanded(child: _tab(icon: Icons.person_outline_rounded, label: 'Profil', index: 1)),
+          Expanded(child: _tab(icon: Icons.storefront_rounded, label: 'Mağaza', index: 1)),
+          Expanded(child: _tab(icon: Icons.person_outline_rounded, label: 'Profil', index: 2)),
         ],
       ),
     );

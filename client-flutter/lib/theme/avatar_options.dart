@@ -29,6 +29,15 @@ extension AvatarFrameLabel on AvatarFrame {
         AvatarFrame.dual => 'Çift Halka',
         AvatarFrame.glow => 'Parıltı',
       };
+
+  /// Mağazadaki jeton fiyatı — Klasik onboarding'de serbestçe seçilebildiği
+  /// için varsayılan/ücretsiz kalır.
+  int get storePrice => switch (this) {
+        AvatarFrame.classic => 0,
+        AvatarFrame.thick => 150,
+        AvatarFrame.dual => 300,
+        AvatarFrame.glow => 450,
+      };
 }
 
 /// Onboarding'deki "Avatarını Oluştur" adımında sunulan sabit seçenek listeleri.

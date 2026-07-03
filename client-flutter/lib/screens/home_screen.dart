@@ -5,6 +5,7 @@ import '../theme/text_styles.dart';
 import '../widgets/carnival_background.dart';
 import '../widgets/gradient_cta.dart';
 import '../widgets/home_bottom_nav.dart';
+import '../widgets/store_tab.dart';
 import '../widgets/user_avatar.dart';
 import '../session/player_session.dart';
 import 'join_screen.dart';
@@ -42,10 +43,10 @@ const _leaderboard = [
   _LeaderboardRow(rank: 5, name: 'Zeynep T.', score: 1180),
 ];
 
-/// Ana Menü — tasarımdaki Home ekranı: sabit header + "Oyna"/"Profil"
+/// Ana Menü — tasarımdaki Home ekranı: sabit header + "Oyna"/"Mağaza"/"Profil"
 /// sekmeleri arasında geçiş yapan alt pill-bar. "Oyna" sekmesinde Hızlı
-/// Oyna / Oda Kur / Kodla Katıl; "Profil" sekmesinde istatistik grid'i +
-/// liderlik tablosu.
+/// Oyna / Oda Kur / Kodla Katıl; "Mağaza" sekmesinde kart sırtı ve çerçeve
+/// satın alma; "Profil" sekmesinde istatistik grid'i + liderlik tablosu.
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -68,7 +69,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: _header(),
               ),
               Expanded(
-                child: _tabIndex == 0 ? _playTab(context) : _profileTab(),
+                child: switch (_tabIndex) {
+                  0 => _playTab(context),
+                  1 => const StoreTab(),
+                  _ => _profileTab(),
+                },
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(18, 8, 18, 18),
