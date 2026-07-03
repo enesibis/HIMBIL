@@ -34,7 +34,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: PlayerSession.name == 'Sen' ? '' : PlayerSession.name);
+    _nameController = TextEditingController(text: PlayerSession.name == 'Sen' ? '' : PlayerSession.name)
+      ..addListener(() => setState(() {}));
   }
 
   @override

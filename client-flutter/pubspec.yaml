@@ -77,29 +77,17 @@ flutter:
     - assets/images/himbil_logo.png
     - assets/avatars/
 
+  # Baloo2 ve Nunito variable font (wght eksenli); tek asset yeterli çünkü
+  # ağırlık seçimi AppText içinde TextStyle.fontVariations ile yapılıyor —
+  # burada aynı dosyayı birden çok "weight" altında tekrarlamak wght
+  # eksenini ayarlamaz, sadece yanıltıcı olur.
   fonts:
     - family: Baloo2
       fonts:
         - asset: assets/fonts/Baloo2.ttf
-          weight: 500
-        - asset: assets/fonts/Baloo2.ttf
-          weight: 600
-        - asset: assets/fonts/Baloo2.ttf
-          weight: 700
-        - asset: assets/fonts/Baloo2.ttf
-          weight: 800
     - family: Nunito
       fonts:
         - asset: assets/fonts/Nunito.ttf
-          weight: 400
-        - asset: assets/fonts/Nunito.ttf
-          weight: 600
-        - asset: assets/fonts/Nunito.ttf
-          weight: 700
-        - asset: assets/fonts/Nunito.ttf
-          weight: 800
-        - asset: assets/fonts/Nunito.ttf
-          weight: 900
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

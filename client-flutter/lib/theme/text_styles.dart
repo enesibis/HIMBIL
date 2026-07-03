@@ -16,6 +16,7 @@ class AppText {
       fontFamily: 'Baloo2',
       fontSize: size,
       fontWeight: weight,
+      fontVariations: [FontVariation('wght', weight.value.toDouble())],
       color: color,
     );
   }
@@ -29,6 +30,7 @@ class AppText {
       fontFamily: 'Nunito',
       fontSize: size,
       fontWeight: weight,
+      fontVariations: [FontVariation('wght', weight.value.toDouble())],
       color: color,
     );
   }

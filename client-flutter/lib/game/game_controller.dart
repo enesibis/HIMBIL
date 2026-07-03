@@ -84,10 +84,14 @@ class GameController extends ChangeNotifier {
   /// HIMBIL butonu her zaman basılabilir. Dönen değer:
   /// "recorded" - bu pencerenin geliş-sırası puanlamasına dahil edildi
   /// "already" - bu pencerede zaten basmıştın
+  /// "too_early" - pencere açık ama elinde 4'lü yok ve henüz kimse basmadı;
+  ///   sadece 4'lü sahibi ya da ondan sonra tepki verenler puan alabilir
   /// "false_start" - şu an hiçbir yerde 4'lü yok; cezalandırıldın
   String submitHumanSlam() {
     if (phase == 'slamWindow') {
       if (_recordedPlayers.contains(0)) return 'already';
+      final humanHasQuartet = Rules.detectQuartet(hands[0]) != null;
+      if (!humanHasQuartet && _recordedPlayers.isEmpty) return 'too_early';
       _recordSlamAttempt(0);
       return 'recorded';
     }
