@@ -1,0 +1,1567 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800;900&family=Fredoka:wght@400;500;600;700&family=Quicksand:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#EDEAE3;font-family:system-ui,sans-serif}
+.dv-turn{padding:40px 44px 60px}
+.dv-thd{display:flex;align-items:baseline;gap:10px;margin:0 0 20px}
+.dv-tid{font:600 10px ui-monospace,Menlo,monospace;padding:3px 7px;background:#1a1a1a;color:#fff;border-radius:4px;text-decoration:none}
+.dv-tname{font:600 13px/1.2 system-ui,sans-serif;color:#1a1a1a}
+.dv-opts{display:flex;flex-wrap:wrap;gap:40px;align-items:flex-start}
+.dv-opt{flex:none;display:flex;flex-direction:column;gap:10px}
+.dv-oid{font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1a1a1a;border-radius:5px;text-decoration:none}
+.dv-olabel{display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 system-ui,sans-serif;color:rgba(0,0,0,.55)}
+.dv-next{margin:26px 0 0;font:12px/1.5 system-ui,sans-serif;color:rgba(0,0,0,.5);max-width:900px}
+@keyframes himPulseA{0%,100%{box-shadow:0 0 0 0 rgba(225,75,59,.45)}50%{box-shadow:0 0 0 16px rgba(225,75,59,0)}}
+@keyframes himPulseB{0%,100%{box-shadow:0 0 0 0 rgba(124,58,237,.4)}50%{box-shadow:0 0 0 16px rgba(124,58,237,0)}}
+@keyframes himPop{0%{opacity:0;transform:scale(.7)}60%{opacity:1;transform:scale(1.08)}100%{opacity:1;transform:scale(1)}}
+@keyframes himRise{0%{opacity:0;transform:translateY(16px)}100%{opacity:1;transform:translateY(0)}}
+@keyframes himShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@keyframes himBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes himRay{0%,100%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+@keyframes himGlow{0%,100%{opacity:.5}50%{opacity:1}}
+@keyframes screenEnter{0%{opacity:0;transform:translateY(10px) scale(.98)}100%{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes confettiFall{0%{transform:translateY(-30px) rotate(0deg);opacity:0}12%{opacity:1}100%{transform:translateY(420px) rotate(400deg);opacity:0}}
+@keyframes cardFlyOutSelf{0%{transform:translateY(0) scale(1) rotate(0deg);opacity:1}100%{transform:translate(130px,-50px) scale(.45) rotate(20deg);opacity:0}}
+@keyframes cardFlyInSelf{0%{transform:translate(-130px,-50px) scale(.45) rotate(-18deg);opacity:0}100%{transform:translate(0,0) scale(1) rotate(0deg);opacity:1}}
+@keyframes stackPulse{0%,100%{transform:scale(1);filter:brightness(1)}50%{transform:scale(1.16);filter:brightness(1.3)}}
+</style>
+</helmet>
+<section class="dv-turn" id="t1">
+<div class="dv-thd"><a class="dv-tid" href="#t1">1</a><span class="dv-tname">Hımbıl — uçtan uca akış (ana menü → oda → oyun → slam → sonuç), 2 görsel yön</span></div>
+<div class="dv-opts">
+
+<div class="dv-opt" id="1a">
+<div class="dv-olabel"><a class="dv-oid" href="#1a">1a</a>Sıcak Karnaval — kağıt oyunu, doygun kırmızı/hardal, Baloo 2</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ a.darkMode }}" hint-size="402,874">
+<div style="height:100%;background:{{ a.phoneBg }};font-family:'Nunito',sans-serif;position:relative;overflow:hidden">
+
+<sc-if value="{{ a.isHome }}" hint-placeholder-val="{{ true }}">
+<div style="height:100%;display:flex;flex-direction:column;padding-top:60px;box-sizing:border-box">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 22px 6px">
+    <div style="display:flex;align-items:center;gap:9px">
+      <div style="width:34px;height:34px;border-radius:11px;background:linear-gradient(160deg,#FF6F5A,#E14B3B);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px rgba(225,75,59,.35)">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><rect x="3" y="7" width="13" height="15" rx="3" fill="#fff" fill-opacity="0.55" transform="rotate(-10 9.5 14.5)"></rect><rect x="8" y="4" width="13" height="15" rx="3" fill="#fff"></rect></svg>
+      </div>
+      <div style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:23px;color:{{ a.textPrimary }};letter-spacing:0.2px">Hımbıl</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div onClick="{{ a.openHowto }}" style-active="transform:scale(.92)" style="width:34px;height:34px;border-radius:17px;background:{{ a.cardBg }};box-shadow:0 4px 10px rgba(46,29,18,.08);display:flex;align-items:center;justify-content:center;cursor:pointer;color:{{ a.textMuted }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 6c-2-1.5-5-2-8-1v13c3-1 6-.5 8 1 2-1.5 5-2 8-1V5c-3-1-6-.5-8 1z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"></path><path d="M12 6v13" stroke="currentColor" stroke-width="2"></path></svg></div>
+      <div onClick="{{ a.openSettings }}" style-active="transform:scale(.92)" style="width:34px;height:34px;border-radius:17px;background:{{ a.cardBg }};box-shadow:0 4px 10px rgba(46,29,18,.08);display:flex;align-items:center;justify-content:center;cursor:pointer;color:{{ a.textMuted }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><line x1="4" y1="7" x2="20" y2="7" stroke="currentColor" stroke-width="2" stroke-linecap="round"></line><circle cx="9" cy="7" r="2.1" fill="currentColor"></circle><line x1="4" y1="12" x2="20" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"></line><circle cx="15" cy="12" r="2.1" fill="currentColor"></circle><line x1="4" y1="17" x2="20" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round"></line><circle cx="11" cy="17" r="2.1" fill="currentColor"></circle></svg></div>
+      <div style="width:40px;height:40px;border-radius:20px;padding:2px;background:linear-gradient(160deg,#F0A93B,#E14B3B);box-shadow:0 4px 10px rgba(225,75,59,.25);overflow:hidden">
+        <img ref="{{ a.onboardAvatarRef }}" style="width:100%;height:100%;border-radius:18px;background:#fff;display:block" alt="avatar"/>
+      </div>
+    </div>
+  </div>
+
+  <sc-if value="{{ a.tabPlay }}" hint-placeholder-val="{{ true }}">
+  <div style="flex:1;display:flex;flex-direction:column;padding:14px 22px 0;box-sizing:border-box">
+    <div style="font-family:'Nunito';font-size:14px;color:{{ a.textMuted }};font-weight:700;margin-bottom:2px">Merhaba,</div>
+    <div style="font-family:'Baloo 2';font-size:23px;color:{{ a.textPrimary }};font-weight:700;margin-bottom:20px">Bugün Hımbıl var!</div>
+
+    <div onClick="{{ a.quickPlay }}" style-active="transform:scale(.97)" style="cursor:pointer;position:relative;overflow:hidden;background:linear-gradient(160deg,#FF6F5A,#D6432F);border-radius:28px;padding:24px 20px;display:flex;flex-direction:column;align-items:center;gap:5px;box-shadow:0 12px 0 #A82E20,0 22px 30px rgba(225,75,59,.32);transition:transform .15s">
+      <div style="position:absolute;top:0;left:0;right:0;height:50%;background:linear-gradient(180deg,rgba(255,255,255,.32),rgba(255,255,255,0));pointer-events:none"></div>
+<div style="position:relative;font-family:'Baloo 2';font-size:24px;font-weight:800;color:#fff;letter-spacing:0.4px;display:flex;align-items:center;gap:9px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M8 5.5v13l11-6.5-11-6.5z" fill="#fff"></path></svg>HIZLI OYNA</div>
+      <div style="position:relative;font-family:'Nunito';font-size:13px;font-weight:700;color:rgba(255,255,255,.88)">Rastgele oyuncularla eşleş</div>
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:16px">
+      <div style="font-family:'Nunito';font-weight:700;font-size:13px;color:{{ a.textMuted }}">Oyuncu sayısı</div>
+      <div style="display:flex;background:{{ a.cardBg }};border-radius:14px;padding:3px;box-shadow:0 4px 10px rgba(46,29,18,.06)">
+        <sc-for list="{{ a.playerCountOptions }}" as="opt" hint-placeholder-count="4">
+          <div onClick="{{ opt.onTap }}" style-active="transform:scale(.94)" style="padding:6px 12px;border-radius:11px;font-family:'Baloo 2';font-weight:700;font-size:13px;cursor:pointer;transition:all .15s;{{ opt.style }}">{{ opt.count }}</div>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:10px;margin:16px 0">
+      <div style="flex:1;height:2px;background:rgba(46,29,18,.1)"></div>
+      <div style="font-family:'Nunito';font-weight:800;font-size:11px;color:{{ a.textMuted }};letter-spacing:.5px">VEYA ÖZEL ODA</div>
+      <div style="flex:1;height:2px;background:rgba(46,29,18,.1)"></div>
+    </div>
+
+    <div style="display:flex;gap:14px">
+      <div onClick="{{ a.quickPlay }}" style-active="transform:scale(.96)" style="cursor:pointer;flex:1;background:{{ a.cardBg }};border-radius:22px;padding:16px 8px 14px;text-align:center;box-shadow:0 3px 0 rgba(46,29,18,.05),0 10px 22px rgba(46,29,18,.07);border:2px solid rgba(46,29,18,.05);transition:transform .15s">
+        <div style="width:42px;height:42px;border-radius:15px;background:linear-gradient(160deg,#FFCB7A,#F0A93B);margin:0 auto 8px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px rgba(240,169,59,.35)"><svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2.6" stroke-linecap="round"></path></svg></div>
+        <div style="font-family:'Baloo 2';font-weight:700;font-size:14px;color:{{ a.textPrimary }}">Oda Kur</div>
+      </div>
+      <div onClick="{{ a.openJoin }}" style-active="transform:scale(.96)" style="cursor:pointer;flex:1;background:{{ a.cardBg }};border-radius:22px;padding:16px 8px 14px;text-align:center;box-shadow:0 3px 0 rgba(46,29,18,.05),0 10px 22px rgba(46,29,18,.07);border:2px solid rgba(46,29,18,.05);transition:transform .15s">
+        <div style="width:42px;height:42px;border-radius:15px;background:linear-gradient(160deg,#5B8FC7,#3B6EA5);margin:0 auto 8px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px rgba(59,110,165,.35)"><svg width="19" height="19" viewBox="0 0 24 24" fill="none"><circle cx="8" cy="15" r="4" stroke="#fff" stroke-width="2.2"></circle><path d="M11 12l9-9M16.5 6.5l2 2M13.5 9.5l2 2" stroke="#fff" stroke-width="2.2" stroke-linecap="round"></path></svg></div>
+        <div style="font-family:'Baloo 2';font-weight:700;font-size:14px;color:{{ a.textPrimary }}">Kodla Katıl</div>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ a.tabProfile }}" hint-placeholder-val="{{ false }}">
+  <div style="flex:1;overflow:auto;padding:14px 22px 16px;box-sizing:border-box">
+    <div style="font-family:'Baloo 2';font-size:19px;font-weight:700;color:{{ a.textPrimary }};margin-bottom:12px">Profilim</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px">
+      <div style="background:{{ a.cardBg }};border-radius:16px;padding:13px;box-shadow:0 6px 16px rgba(46,29,18,.06);border:2px solid rgba(46,29,18,.04)">
+        <div style="width:26px;height:26px;border-radius:9px;background:linear-gradient(160deg,#FF6F5A,#E14B3B);display:flex;align-items:center;justify-content:center;margin-bottom:6px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><rect x="3" y="7" width="13" height="15" rx="3" fill="#fff" fill-opacity="0.55" transform="rotate(-10 9.5 14.5)"></rect><rect x="8" y="4" width="13" height="15" rx="3" fill="#fff"></rect></svg></div>
+        <div style="font-family:'Baloo 2';font-size:20px;font-weight:800;color:{{ a.textPrimary }}">{{ a.profileStats.games }}</div>
+        <div style="font-family:'Nunito';font-size:11px;color:{{ a.textMuted }};font-weight:700">Oyun</div>
+      </div>
+      <div style="background:{{ a.cardBg }};border-radius:16px;padding:13px;box-shadow:0 6px 16px rgba(46,29,18,.06);border:2px solid rgba(46,29,18,.04)">
+        <div style="width:26px;height:26px;border-radius:9px;background:linear-gradient(160deg,#5FB98C,#3F8F6B);display:flex;align-items:center;justify-content:center;margin-bottom:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M7 4h10v4a5 5 0 0 1-10 0V4z" stroke="#fff" stroke-width="2" stroke-linejoin="round"></path><path d="M7 5H4.5A2.5 2.5 0 0 0 7 9.5M17 5h2.5A2.5 2.5 0 0 1 17 9.5" stroke="#fff" stroke-width="2" stroke-linecap="round"></path><path d="M12 13v3M9.5 20h5M10 17h4v3h-4z" stroke="#fff" stroke-width="2" stroke-linejoin="round"></path></svg></div>
+        <div style="font-family:'Baloo 2';font-size:20px;font-weight:800;color:{{ a.textPrimary }}">{{ a.profileStats.wins }}</div>
+        <div style="font-family:'Nunito';font-size:11px;color:{{ a.textMuted }};font-weight:700">Galibiyet</div>
+      </div>
+      <div style="background:{{ a.cardBg }};border-radius:16px;padding:13px;box-shadow:0 6px 16px rgba(46,29,18,.06);border:2px solid rgba(46,29,18,.04)">
+        <div style="width:26px;height:26px;border-radius:9px;background:linear-gradient(160deg,#FFCB7A,#F0A93B);display:flex;align-items:center;justify-content:center;margin-bottom:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="4" y="13" width="4" height="7" rx="1" fill="#fff"></rect><rect x="10" y="8" width="4" height="12" rx="1" fill="#fff"></rect><rect x="16" y="4" width="4" height="16" rx="1" fill="#fff"></rect></svg></div>
+        <div style="font-family:'Baloo 2';font-size:20px;font-weight:800;color:{{ a.textPrimary }}">{{ a.profileStats.winRate }}</div>
+        <div style="font-family:'Nunito';font-size:11px;color:{{ a.textMuted }};font-weight:700">Kazanma Oranı</div>
+      </div>
+      <div style="background:{{ a.cardBg }};border-radius:16px;padding:13px;box-shadow:0 6px 16px rgba(46,29,18,.06);border:2px solid rgba(46,29,18,.04)">
+        <div style="width:26px;height:26px;border-radius:9px;background:linear-gradient(160deg,#5B8FC7,#3B6EA5);display:flex;align-items:center;justify-content:center;margin-bottom:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2c1.2 4-3.6 5.2-3.6 9.2a3.6 3.6 0 0 0 7.2 0c0-1.6-.8-2.6-.8-2.6s.6 2-.6 2-.6-1.4-.6-2.2c.8 0 1.6-1.4 1.6-2.4.8 1 1.8 2.6 1.8 5A4.6 4.6 0 0 1 7.6 11c0-4.2 2.8-5.2 4.4-9z" fill="#fff"></path></svg></div>
+        <div style="font-family:'Baloo 2';font-size:20px;font-weight:800;color:{{ a.textPrimary }}">{{ a.profileStats.bestStreak }}</div>
+        <div style="font-family:'Nunito';font-size:11px;color:{{ a.textMuted }};font-weight:700">En İyi Seri</div>
+      </div>
+    </div>
+    <div style="font-family:'Baloo 2';font-size:16px;font-weight:700;color:{{ a.textPrimary }};margin-bottom:8px">Liderlik Tablosu</div>
+    <div style="background:{{ a.cardBg }};border-radius:18px;box-shadow:0 6px 16px rgba(46,29,18,.06);border:2px solid rgba(46,29,18,.04);overflow:hidden">
+      <sc-for list="{{ a.leaderboard }}" as="row" hint-placeholder-count="5">
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid rgba(46,29,18,.06)">
+          <div style="font-family:'Baloo 2';font-weight:800;font-size:13px;color:{{ a.textMuted }};width:16px">{{ row.rank }}</div>
+          <div style="flex:1;font-family:'Nunito';font-weight:700;font-size:14px;color:{{ a.textPrimary }}">{{ row.name }}</div>
+          <div style="font-family:'Baloo 2';font-weight:800;font-size:14px;color:#E14B3B">{{ row.score }}</div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+  </sc-if>
+
+  <div style="padding:8px 18px 18px">
+    <div style="display:flex;background:{{ a.cardBg }};border-radius:24px;padding:5px;box-shadow:0 6px 18px rgba(46,29,18,.08);border:2px solid rgba(46,29,18,.04)">
+      <div onClick="{{ a.setTabPlay }}" style-active="transform:scale(.96)" style="flex:1;cursor:pointer;padding:9px 0;border-radius:19px;font-family:'Baloo 2';font-weight:700;font-size:13px;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px;{{ a.tabPlayStyle }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M8 5.5v13l11-6.5-11-6.5z" fill="currentColor"></path></svg>Oyna</div>
+      <div onClick="{{ a.openStore }}" style-active="transform:scale(.96)" style="flex:1;cursor:pointer;padding:9px 0;border-radius:19px;font-family:'Baloo 2';font-weight:700;font-size:13px;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px;color:{{ a.textMuted }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M6 8h12l-1 12H7L6 8z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"></path><path d="M9 8V6a3 3 0 0 1 6 0v2" stroke="currentColor" stroke-width="2"></path></svg>Mağaza</div>
+      <div onClick="{{ a.setTabProfile }}" style-active="transform:scale(.96)" style="flex:1;cursor:pointer;padding:9px 0;border-radius:19px;font-family:'Baloo 2';font-weight:700;font-size:13px;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px;{{ a.tabProfileStyle }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2.2"></circle><path d="M4.5 20c0-4.2 3.9-6.4 7.5-6.4s7.5 2.2 7.5 6.4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"></path></svg>Profil</div>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ a.isOnboarding }}" hint-placeholder-val="{{ false }}">
+<div style="height:100%;display:flex;flex-direction:column;padding-top:60px;box-sizing:border-box">
+  <div style="flex:1;display:flex;flex-direction:column;padding:10px 26px 0;box-sizing:border-box">
+    <div style="text-align:center;margin-bottom:6px">
+      <div style="width:56px;height:56px;border-radius:18px;background:linear-gradient(160deg,#FF6F5A,#E14B3B);margin:0 auto 10px;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 18px rgba(225,75,59,.3)">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><rect x="3" y="7" width="13" height="15" rx="3" fill="#fff" fill-opacity="0.55" transform="rotate(-10 9.5 14.5)"></rect><rect x="8" y="4" width="13" height="15" rx="3" fill="#fff"></rect></svg>
+      </div>
+      <div style="font-family:'Baloo 2';font-weight:800;font-size:22px;color:{{ a.textPrimary }}">Hımbıl'a Hoş Geldin!</div>
+    </div>
+
+    <sc-if value="{{ a.onboardStepAvatar }}" hint-placeholder-val="{{ true }}">
+    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:18px">
+      <div style="text-align:center;font-family:'Nunito';font-weight:700;font-size:14px;color:{{ a.textMuted }}">Bir renk seç</div>
+      <div style="width:96px;height:96px;border-radius:48px;margin:0 auto;overflow:hidden;box-shadow:0 10px 24px rgba(46,29,18,.18)"><img ref="{{ a.onboardAvatarRef }}" style="width:100%;height:100%;display:block;background:#fff" alt="avatar"/></div>
+      <div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap;padding:0 6px">
+        <sc-for list="{{ a.onboardAvatars }}" as="av" hint-placeholder-count="0">
+          <div onClick="{{ av.onTap }}" style-active="transform:scale(.9)" style="width:38px;height:38px;border-radius:19px;overflow:hidden;cursor:pointer;transition:box-shadow .15s;{{ av.ringStyle }}"><img ref="{{ av.ref }}" style="width:100%;height:100%;display:block;background:#fff" alt="{{ av.name }}"/></div>
+        </sc-for>
+      </div>
+    </div>
+    <div style="padding:16px 0 24px">
+      <div onClick="{{ a.goOnboardName }}" style-active="transform:scale(.98)" style="cursor:pointer;text-align:center;background:linear-gradient(160deg,#FF6F5A,#D6432F);border-radius:24px;padding:16px;font-family:'Baloo 2';font-weight:800;font-size:16px;color:#fff;box-shadow:0 10px 0 #A82E20,0 16px 24px rgba(225,75,59,.3)">Devam Et</div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ a.onboardStepName }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:18px">
+      <div style="text-align:center;font-family:'Nunito';font-weight:700;font-size:14px;color:{{ a.textMuted }}">Rakiplerinin göreceği isim</div>
+      <div style="width:80px;height:80px;border-radius:40px;margin:0 auto;overflow:hidden"><img ref="{{ a.onboardAvatarRef }}" style="width:100%;height:100%;display:block;background:#fff" alt="avatar"/></div>
+      <input value="{{ a.onboardName }}" onChange="{{ a.onNameChange }}" maxLength="14" style="text-align:center;font-family:'Baloo 2';font-weight:700;font-size:20px;color:{{ a.textPrimary }};background:{{ a.cardBg }};border:2px solid rgba(46,29,18,.1);border-radius:18px;padding:14px;margin:0 20px;outline:none"/>
+    </div>
+    <div style="padding:16px 0 24px;display:flex;gap:10px">
+      <div onClick="{{ a.goOnboardAvatar }}" style-active="transform:scale(.97)" style="cursor:pointer;flex:1;text-align:center;background:{{ a.cardBg }};border:2px solid rgba(46,29,18,.08);border-radius:22px;padding:15px;font-family:'Baloo 2';font-weight:800;font-size:14px;color:{{ a.textPrimary }}">Geri</div>
+      <div onClick="{{ a.finishOnboarding }}" style-active="transform:scale(.97)" style="cursor:pointer;flex:2;text-align:center;background:linear-gradient(160deg,#FF6F5A,#D6432F);border-radius:22px;padding:15px;font-family:'Baloo 2';font-weight:800;font-size:14px;color:#fff;box-shadow:0 8px 0 #A82E20,0 14px 20px rgba(225,75,59,.3)">Oyuna Başla</div>
+    </div>
+    </sc-if>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ a.isSettings }}" hint-placeholder-val="{{ false }}">
+<div style="height:100%;display:flex;flex-direction:column;padding-top:60px;box-sizing:border-box">
+  <div style="display:flex;align-items:center;padding:8px 22px 4px">
+    <div onClick="{{ a.closeToHome }}" style-active="transform:scale(.92)" style="cursor:pointer;width:36px;height:36px;border-radius:18px;background:{{ a.cardBg }};box-shadow:0 4px 10px rgba(46,29,18,.08);display:flex;align-items:center;justify-content:center;font-size:16px;color:{{ a.textPrimary }}">←</div>
+  </div>
+  <div style="padding:14px 22px 18px;font-family:'Baloo 2';font-size:21px;font-weight:700;color:{{ a.textPrimary }}">Ayarlar</div>
+  <div style="flex:1;padding:0 22px;display:flex;flex-direction:column;gap:12px">
+    <div style="background:{{ a.cardBg }};border-radius:18px;box-shadow:0 6px 16px rgba(46,29,18,.06);border:2px solid rgba(46,29,18,.04);padding:4px 16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid rgba(46,29,18,.06)">
+        <div style="font-family:'Nunito';font-weight:700;font-size:15px;color:{{ a.textPrimary }}">Ses Efektleri</div>
+        <div onClick="{{ a.toggleSound }}" style-active="transform:scale(.95)" style="width:44px;height:26px;border-radius:13px;position:relative;cursor:pointer;transition:background .2s;{{ a.soundTrackStyle }}"><div style="position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:10px;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.2);transition:transform .2s;{{ a.soundKnobStyle }}"></div></div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid rgba(46,29,18,.06)">
+        <div style="font-family:'Nunito';font-weight:700;font-size:15px;color:{{ a.textPrimary }}">Bildirimler</div>
+        <div onClick="{{ a.toggleNotif }}" style-active="transform:scale(.95)" style="width:44px;height:26px;border-radius:13px;position:relative;cursor:pointer;transition:background .2s;{{ a.notifTrackStyle }}"><div style="position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:10px;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.2);transition:transform .2s;{{ a.notifKnobStyle }}"></div></div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid rgba(46,29,18,.06)">
+        <div style="font-family:'Nunito';font-weight:700;font-size:15px;color:{{ a.textPrimary }}">Titreşim</div>
+        <div onClick="{{ a.toggleHaptic }}" style-active="transform:scale(.95)" style="width:44px;height:26px;border-radius:13px;position:relative;cursor:pointer;transition:background .2s;{{ a.hapticTrackStyle }}"><div style="position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:10px;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.2);transition:transform .2s;{{ a.hapticKnobStyle }}"></div></div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0">
+        <div style="font-family:'Nunito';font-weight:700;font-size:15px;color:{{ a.textPrimary }}">Karanlık Mod</div>
+        <div onClick="{{ a.toggleDark }}" style-active="transform:scale(.95)" style="width:44px;height:26px;border-radius:13px;position:relative;cursor:pointer;transition:background .2s;{{ a.darkTrackStyle }}"><div style="position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:10px;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.2);transition:transform .2s;{{ a.darkKnobStyle }}"></div></div>
+      </div>
+    </div>
+    <div style="background:{{ a.cardBg }};border-radius:18px;box-shadow:0 6px 16px rgba(46,29,18,.06);border:2px solid rgba(46,29,18,.04);padding:14px 16px">
+      <div style="font-family:'Nunito';font-weight:700;font-size:15px;color:{{ a.textPrimary }};margin-bottom:10px">Dil</div>
+      <div style="display:flex;background:rgba(46,29,18,.05);border-radius:14px;padding:4px">
+        <div onClick="{{ a.setLangTr }}" style-active="transform:scale(.97)" style="flex:1;text-align:center;padding:9px 0;border-radius:11px;font-family:'Baloo 2';font-weight:700;font-size:13px;cursor:pointer;transition:all .15s;{{ a.langTrStyle }}">Türkçe</div>
+        <div onClick="{{ a.setLangEn }}" style-active="transform:scale(.97)" style="flex:1;text-align:center;padding:9px 0;border-radius:11px;font-family:'Baloo 2';font-weight:700;font-size:13px;cursor:pointer;transition:all .15s;{{ a.langEnStyle }}">English</div>
+      </div>
+    </div>
+  </div>
+  <div style="text-align:center;padding:18px;font-family:'Nunito';font-weight:700;font-size:11px;color:rgba(46,29,18,.35)">Hımbıl · Sürüm 1.0.0</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ a.isHowto }}" hint-placeholder-val="{{ false }}">
+<div style="height:100%;display:flex;flex-direction:column;padding-top:60px;box-sizing:border-box">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 22px 4px">
+    <div onClick="{{ a.closeToHome }}" style-active="transform:scale(.92)" style="cursor:pointer;width:36px;height:36px;border-radius:18px;background:{{ a.cardBg }};box-shadow:0 4px 10px rgba(46,29,18,.08);display:flex;align-items:center;justify-content:center;font-size:16px;color:{{ a.textPrimary }}">←</div>
+    <div style="font-family:'Baloo 2';font-weight:700;font-size:15px;color:{{ a.textMuted }}">Nasıl Oynanır</div>
+    <div style="width:36px"></div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:10px 30px;box-sizing:border-box">
+    <sc-if value="{{ a.howto0 }}" hint-placeholder-val="{{ true }}">
+      <div style="text-align:center">
+        <div style="width:76px;height:76px;border-radius:38px;background:linear-gradient(160deg,#FF6F5A,#E14B3B);margin:0 auto 18px;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 22px rgba(225,75,59,.3)"><svg width="34" height="34" viewBox="0 0 24 24" fill="none"><rect x="3" y="7" width="13" height="15" rx="3" fill="#fff" fill-opacity="0.55" transform="rotate(-10 9.5 14.5)"></rect><rect x="8" y="4" width="13" height="15" rx="3" fill="#fff"></rect></svg></div>
+        <div style="font-family:'Baloo 2';font-weight:800;font-size:20px;color:{{ a.textPrimary }};margin-bottom:8px">Amaç</div>
+        <div style="font-family:'Nunito';font-weight:700;font-size:14px;color:{{ a.textMuted }};line-height:1.5">Aynı nesneden (meyve, şehir vb.) 4 kart topla. Herkes 4 kart çekerek başlar.</div>
+      </div>
+    </sc-if>
+    <sc-if value="{{ a.howto1 }}" hint-placeholder-val="{{ false }}">
+      <div style="text-align:center">
+        <div style="width:76px;height:76px;border-radius:38px;background:linear-gradient(160deg,#FFCB7A,#F0A93B);margin:0 auto 18px;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 22px rgba(240,169,59,.3)"><svg width="34" height="34" viewBox="0 0 24 24" fill="none"><path d="M4 8h13M17 8l-4-4M17 8l-4 4" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M20 16H7M7 16l4-4M7 16l4 4" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
+        <div style="font-family:'Baloo 2';font-weight:800;font-size:20px;color:{{ a.textPrimary }};margin-bottom:8px">Kart Takası</div>
+        <div style="font-family:'Nunito';font-weight:700;font-size:14px;color:{{ a.textMuted }};line-height:1.5">Her turda işine yaramayan bir kartı seç, komşuna ver. Süre dolunca otomatik seçilir.</div>
+      </div>
+    </sc-if>
+    <sc-if value="{{ a.howto2 }}" hint-placeholder-val="{{ false }}">
+      <div style="text-align:center">
+        <div style="width:76px;height:76px;border-radius:38px;background:linear-gradient(160deg,#FF6F5A,#D6432F);margin:0 auto 18px;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 22px rgba(225,75,59,.35);animation:himPulseA 1.6s infinite"><div style="font-family:'Baloo 2';font-weight:800;font-size:12px;color:#fff">HIMBIL!</div></div>
+        <div style="font-family:'Baloo 2';font-weight:800;font-size:20px;color:{{ a.textPrimary }};margin-bottom:8px">HIMBIL!</div>
+        <div style="font-family:'Nunito';font-weight:700;font-size:14px;color:{{ a.textMuted }};line-height:1.5">4'lün tamamlanınca hemen bas. Ama dikkat — emin olmadan basarsan ceza puanı alırsın.</div>
+      </div>
+    </sc-if>
+    <sc-if value="{{ a.howto3 }}" hint-placeholder-val="{{ false }}">
+      <div style="text-align:center">
+        <div style="width:76px;height:76px;border-radius:38px;background:linear-gradient(160deg,#5FB98C,#3F8F6B);margin:0 auto 18px;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 22px rgba(63,143,107,.3)"><svg width="34" height="34" viewBox="0 0 24 24" fill="none"><path d="M7 4h10v4a5 5 0 0 1-10 0V4z" stroke="#fff" stroke-width="2" stroke-linejoin="round"></path><path d="M7 5H4.5A2.5 2.5 0 0 0 7 9.5M17 5h2.5A2.5 2.5 0 0 1 17 9.5" stroke="#fff" stroke-width="2" stroke-linecap="round"></path><path d="M12 13v3M9.5 20h5M10 17h4v3h-4z" stroke="#fff" stroke-width="2" stroke-linejoin="round"></path></svg></div>
+        <div style="font-family:'Baloo 2';font-weight:800;font-size:20px;color:{{ a.textPrimary }};margin-bottom:8px">Puanlama</div>
+        <div style="font-family:'Nunito';font-weight:700;font-size:14px;color:{{ a.textMuted }};line-height:1.5">İlk basan 100, sonrakiler 75, 50, 25 puan alır. En çok puan toplayan kazanır.</div>
+      </div>
+    </sc-if>
+  </div>
+  <div style="display:flex;justify-content:center;gap:8px;padding-bottom:16px">
+    <sc-for list="{{ a.howtoDots }}" as="dot" hint-placeholder-count="4">
+      <div onClick="{{ dot.onTap }}" style="cursor:pointer;height:8px;border-radius:4px;transition:all .2s;{{ dot.dotStyle }}"></div>
+    </sc-for>
+  </div>
+  <div style="padding:0 24px 26px">
+    <div onClick="{{ a.howtoNext }}" style-active="transform:scale(.98)" style="cursor:pointer;text-align:center;background:linear-gradient(160deg,#FF6F5A,#D6432F);border-radius:24px;padding:16px;font-family:'Baloo 2';font-weight:800;font-size:16px;color:#fff;box-shadow:0 10px 0 #A82E20,0 16px 24px rgba(225,75,59,.3)">{{ a.howtoBtnLabel }}</div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ a.isStore }}" hint-placeholder-val="{{ false }}">
+<div style="height:100%;display:flex;flex-direction:column;padding-top:60px;box-sizing:border-box">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 22px 4px">
+    <div onClick="{{ a.closeToHome }}" style-active="transform:scale(.92)" style="cursor:pointer;width:36px;height:36px;border-radius:18px;background:{{ a.cardBg }};box-shadow:0 4px 10px rgba(46,29,18,.08);display:flex;align-items:center;justify-content:center;font-size:16px;color:{{ a.textPrimary }}">←</div>
+    <div style="display:flex;align-items:center;gap:6px;background:{{ a.cardBg }};border-radius:16px;padding:6px 12px;box-shadow:0 4px 10px rgba(46,29,18,.08)">
+      <svg width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="#F0A93B"></circle><circle cx="12" cy="12" r="5" fill="none" stroke="#C97F1E" stroke-width="1.3"></circle></svg>
+      <div style="font-family:'Baloo 2';font-weight:800;font-size:14px;color:{{ a.textPrimary }}">{{ a.coins }}</div>
+    </div>
+  </div>
+  <div style="padding:14px 22px 4px;font-family:'Baloo 2';font-size:21px;font-weight:700;color:{{ a.textPrimary }}">Mağaza</div>
+  <div style="padding:8px 22px">
+    <div style="display:flex;background:{{ a.cardBg }};border-radius:18px;padding:4px;box-shadow:0 6px 16px rgba(46,29,18,.06)">
+      <div onClick="{{ a.setStoreTabCards }}" style-active="transform:scale(.97)" style="flex:1;text-align:center;padding:9px 0;border-radius:14px;font-family:'Baloo 2';font-weight:700;font-size:13px;cursor:pointer;transition:all .15s;{{ a.storeTabCardsStyle }}">Kart Arkası</div>
+      <div onClick="{{ a.setStoreTabFrames }}" style-active="transform:scale(.97)" style="flex:1;text-align:center;padding:9px 0;border-radius:14px;font-family:'Baloo 2';font-weight:700;font-size:13px;cursor:pointer;transition:all .15s;{{ a.storeTabFramesStyle }}">Çerçeve</div>
+    </div>
+  </div>
+  <sc-if value="{{ a.storeTabCards }}" hint-placeholder-val="{{ true }}">
+  <div style="flex:1;padding:8px 22px 20px;display:grid;grid-template-columns:1fr 1fr;gap:12px;overflow:auto">
+    <sc-for list="{{ a.cardSkins }}" as="item" hint-placeholder-count="4">
+      <div onClick="{{ item.onTap }}" style-active="transform:scale(.97)" style="cursor:pointer;background:{{ a.cardBg }};border-radius:18px;padding:14px;box-shadow:0 6px 16px rgba(46,29,18,.06);text-align:center;{{ item.selectedStyle }}">
+        <div style="width:52px;height:70px;border-radius:12px;margin:0 auto 8px;{{ item.previewStyle }}"></div>
+        <div style="font-family:'Baloo 2';font-weight:700;font-size:13px;color:{{ a.textPrimary }};margin-bottom:4px">{{ item.name }}</div>
+        <div style="font-family:'Nunito';font-weight:800;font-size:11px;{{ item.priceStyle }}">{{ item.priceLabel }}</div>
+      </div>
+    </sc-for>
+  </div>
+  </sc-if>
+  <sc-if value="{{ a.storeTabFrames }}" hint-placeholder-val="{{ false }}">
+  <div style="flex:1;padding:8px 22px 20px;display:grid;grid-template-columns:1fr 1fr;gap:12px;overflow:auto">
+    <sc-for list="{{ a.avatarFrames }}" as="item" hint-placeholder-count="4">
+      <div onClick="{{ item.onTap }}" style-active="transform:scale(.97)" style="cursor:pointer;background:{{ a.cardBg }};border-radius:18px;padding:14px;box-shadow:0 6px 16px rgba(46,29,18,.06);text-align:center;{{ item.selectedStyle }}">
+        <div style="width:56px;height:56px;border-radius:28px;margin:0 auto 8px;padding:3px;{{ item.frameStyle }}"><div style="width:100%;height:100%;border-radius:24px;background:#E14B3B;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:800;color:#fff;font-size:16px">S</div></div>
+        <div style="font-family:'Baloo 2';font-weight:700;font-size:13px;color:{{ a.textPrimary }};margin-bottom:4px">{{ item.name }}</div>
+        <div style="font-family:'Nunito';font-weight:800;font-size:11px;{{ item.priceStyle }}">{{ item.priceLabel }}</div>
+      </div>
+    </sc-for>
+  </div>
+  </sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ a.isJoin }}" hint-placeholder-val="{{ false }}">
+<div style="height:100%;display:flex;flex-direction:column;padding-top:60px;box-sizing:border-box">
+  <div style="display:flex;align-items:center;padding:8px 22px 4px">
+    <div onClick="{{ a.backHome }}" style-active="transform:scale(.92)" style="cursor:pointer;width:36px;height:36px;border-radius:18px;background:{{ a.cardBg }};box-shadow:0 4px 10px rgba(46,29,18,.08);display:flex;align-items:center;justify-content:center;font-size:16px;color:{{ a.textPrimary }}">←</div>
+  </div>
+  <div style="padding:14px 22px 2px;font-family:'Baloo 2';font-size:21px;font-weight:700;color:{{ a.textPrimary }}">Kod ile Katıl</div>
+  <div style="padding:0 22px 18px;font-family:'Nunito';font-size:13px;color:{{ a.textMuted }};font-weight:700">Arkadaşının oda kodunu gir</div>
+  <div style="display:flex;gap:8px;padding:0 22px 16px;justify-content:center">
+    <sc-for list="{{ a.joinBoxes }}" as="box" hint-placeholder-count="5">
+      <div style="width:46px;height:58px;border-radius:14px;background:{{ a.cardBg }};box-shadow:0 4px 12px rgba(46,29,18,.08);border-bottom:4px solid #E14B3B;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:800;font-size:22px;color:{{ a.textPrimary }}">{{ box.value }}</div>
+    </sc-for>
+  </div>
+  <div onClick="{{ a.fillDemoCode }}" style-active="transform:scale(.97)" style="cursor:pointer;margin:0 22px 14px;text-align:center;font-family:'Nunito';font-weight:800;font-size:12px;color:#3B6EA5;text-decoration:underline">Örnek kod ile doldur (34521)</div>
+  <div style="flex:1;padding:0 22px 20px;display:flex;flex-direction:column;justify-content:flex-end;box-sizing:border-box">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+      <div onClick="{{ a.digit1 }}" style-active="transform:scale(.93)" style="cursor:pointer;background:{{ a.cardBg }};border-radius:16px;height:52px;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:700;font-size:19px;color:{{ a.textPrimary }};box-shadow:0 3px 8px rgba(46,29,18,.07);transition:transform .1s">1</div>
+      <div onClick="{{ a.digit2 }}" style-active="transform:scale(.93)" style="cursor:pointer;background:{{ a.cardBg }};border-radius:16px;height:52px;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:700;font-size:19px;color:{{ a.textPrimary }};box-shadow:0 3px 8px rgba(46,29,18,.07);transition:transform .1s">2</div>
+      <div onClick="{{ a.digit3 }}" style-active="transform:scale(.93)" style="cursor:pointer;background:{{ a.cardBg }};border-radius:16px;height:52px;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:700;font-size:19px;color:{{ a.textPrimary }};box-shadow:0 3px 8px rgba(46,29,18,.07);transition:transform .1s">3</div>
+      <div onClick="{{ a.digit4 }}" style-active="transform:scale(.93)" style="cursor:pointer;background:{{ a.cardBg }};border-radius:16px;height:52px;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:700;font-size:19px;color:{{ a.textPrimary }};box-shadow:0 3px 8px rgba(46,29,18,.07);transition:transform .1s">4</div>
+      <div onClick="{{ a.digit5 }}" style-active="transform:scale(.93)" style="cursor:pointer;background:{{ a.cardBg }};border-radius:16px;height:52px;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:700;font-size:19px;color:{{ a.textPrimary }};box-shadow:0 3px 8px rgba(46,29,18,.07);transition:transform .1s">5</div>
+      <div onClick="{{ a.digit6 }}" style-active="transform:scale(.93)" style="cursor:pointer;background:{{ a.cardBg }};border-radius:16px;height:52px;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:700;font-size:19px;color:{{ a.textPrimary }};box-shadow:0 3px 8px rgba(46,29,18,.07);transition:transform .1s">6</div>
+      <div onClick="{{ a.digit7 }}" style-active="transform:scale(.93)" style="cursor:pointer;background:{{ a.cardBg }};border-radius:16px;height:52px;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:700;font-size:19px;color:{{ a.textPrimary }};box-shadow:0 3px 8px rgba(46,29,18,.07);transition:transform .1s">7</div>
+      <div onClick="{{ a.digit8 }}" style-active="transform:scale(.93)" style="cursor:pointer;background:{{ a.cardBg }};border-radius:16px;height:52px;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:700;font-size:19px;color:{{ a.textPrimary }};box-shadow:0 3px 8px rgba(46,29,18,.07);transition:transform .1s">8</div>
+      <div onClick="{{ a.digit9 }}" style-active="transform:scale(.93)" style="cursor:pointer;background:{{ a.cardBg }};border-radius:16px;height:52px;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:700;font-size:19px;color:{{ a.textPrimary }};box-shadow:0 3px 8px rgba(46,29,18,.07);transition:transform .1s">9</div>
+      <div style="height:52px"></div>
+      <div onClick="{{ a.digit0 }}" style-active="transform:scale(.93)" style="cursor:pointer;background:{{ a.cardBg }};border-radius:16px;height:52px;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:700;font-size:19px;color:{{ a.textPrimary }};box-shadow:0 3px 8px rgba(46,29,18,.07);transition:transform .1s">0</div>
+      <div onClick="{{ a.keypadDelete }}" style-active="transform:scale(.93)" style="cursor:pointer;background:{{ a.cardBg }};border-radius:16px;height:52px;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:700;font-size:17px;color:{{ a.textPrimary }};box-shadow:0 3px 8px rgba(46,29,18,.07);transition:transform .1s">⌫</div>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ a.isLobby }}" hint-placeholder-val="{{ false }}">
+<div style="height:100%;display:flex;flex-direction:column;padding-top:60px;box-sizing:border-box">
+  <div style="display:flex;align-items:center;padding:8px 22px 4px">
+    <div onClick="{{ a.backHome }}" style-active="transform:scale(.92)" style="cursor:pointer;width:36px;height:36px;border-radius:18px;background:{{ a.cardBg }};box-shadow:0 4px 10px rgba(46,29,18,.08);display:flex;align-items:center;justify-content:center;font-size:16px;color:{{ a.textPrimary }}">←</div>
+  </div>
+  <div style="margin:8px 24px 4px;background:linear-gradient(160deg,{{ a.cardBg }},{{ a.ticketBg2 }});border-radius:20px;box-shadow:0 8px 20px rgba(46,29,18,.09);border:2px dashed rgba(225,75,59,.35);padding:14px;text-align:center">
+    <div style="font-family:'Nunito';font-weight:800;font-size:11px;color:{{ a.textMuted }};letter-spacing:1.5px">ODA KODU</div>
+    <div style="font-family:'Baloo 2';font-weight:800;font-size:36px;color:#E14B3B;letter-spacing:6px">{{ a.roomCode }}</div>
+  </div>
+  <div style="flex:1;padding:14px 20px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;align-content:start;overflow:auto">
+    <sc-for list="{{ a.lobbySlots }}" as="slot" hint-placeholder-count="4">
+      <div style="background:{{ a.cardBg }};border-radius:18px;box-shadow:0 6px 16px rgba(46,29,18,.07);border:2px solid rgba(46,29,18,.04);padding:12px 6px;display:flex;flex-direction:column;align-items:center;gap:6px">
+        <div style="width:46px;height:46px;border-radius:23px;padding:2px;background:linear-gradient(160deg,#F0A93B,#E14B3B)">
+          <div style="width:100%;height:100%;border-radius:21px;overflow:hidden"><img ref="{{ slot.avatarRef }}" style="width:100%;height:100%;display:block;background:#fff" alt="{{ slot.name }}"/></div>
+        </div>
+        <div style="font-family:'Baloo 2';font-weight:700;font-size:12px;color:{{ a.textPrimary }};white-space:nowrap">{{ slot.name }}</div>
+        <sc-if value="{{ slot.joined }}" hint-placeholder-val="{{ true }}"><div style="font-family:'Nunito';font-weight:800;font-size:10px;color:#3F8F6B">✓ Hazır</div></sc-if>
+        <sc-if value="{{ slot.waiting }}" hint-placeholder-val="{{ false }}"><div style="font-family:'Nunito';font-weight:800;font-size:10px;color:{{ a.textMuted }};animation:himBob 1s infinite">Bekliyor…</div></sc-if>
+      </div>
+    </sc-for>
+  </div>
+  <div style="padding:10px 24px 26px">
+    <div onClick="{{ a.startGame }}" style-active="transform:scale(.98)" style="position:relative;overflow:hidden;text-align:center;background:linear-gradient(160deg,#FF6F5A,#D6432F);border-radius:24px;padding:16px;font-family:'Baloo 2';font-weight:800;font-size:17px;color:#fff;box-shadow:0 10px 0 #A82E20,0 16px 24px rgba(225,75,59,.3);transition:all .15s;{{ a.startBtnStyle }}">
+      <div style="position:absolute;top:0;left:0;right:0;height:50%;background:linear-gradient(180deg,rgba(255,255,255,.3),rgba(255,255,255,0));pointer-events:none"></div>
+      <span style="position:relative">Oyunu Başlat</span>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ a.isGame }}" hint-placeholder-val="{{ false }}">
+<div style="height:100%;display:flex;flex-direction:column;padding-top:54px;box-sizing:border-box;position:relative">
+  <sc-if value="{{ a.isFourPlayerLayout }}" hint-placeholder-val="{{ true }}">
+  <div style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:4px 14px 0">
+    <div style="display:flex;align-items:center;gap:6px">
+      <div style="width:36px;height:36px;border-radius:18px;padding:2px;background:linear-gradient(160deg,#5B8FC7,#3B6EA5)">
+        <div style="width:100%;height:100%;border-radius:16px;overflow:hidden"><img ref="{{ a.opponentNorth.avatarRef }}" style="width:100%;height:100%;display:block;background:#fff" alt="{{ a.opponentNorth.name }}"/></div>
+      </div>
+      <div style="font-family:'Nunito';font-weight:700;font-size:12px;color:{{ a.textMuted }}">{{ a.opponentNorth.name }}</div>
+    </div>
+    <div style="display:flex;padding-top:3px;{{ a.northPulseStyle }}">
+      <div style="position:relative;width:36px;height:50px;border-radius:9px;border:2px solid #B93424;background:linear-gradient(160deg,#FF6F5A,#D6432F);box-shadow:inset 0 0 0 2px rgba(240,169,59,.55),0 3px 6px rgba(46,29,18,.15);overflow:hidden;transform:rotate(-8deg);z-index:1">
+        <div style="position:absolute;top:0;left:0;right:0;height:45%;background:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,0));pointer-events:none"></div>
+        <div style="position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="13" height="15" rx="3" fill="#fff" fill-opacity="0.55" transform="rotate(-10 8.5 14.5)"></rect><rect x="7" y="4" width="13" height="15" rx="3" fill="#fff"></rect></svg></div>
+      </div>
+      <div style="position:relative;width:36px;height:50px;border-radius:9px;border:2px solid #B93424;background:linear-gradient(160deg,#FF6F5A,#D6432F);box-shadow:inset 0 0 0 2px rgba(240,169,59,.55),0 3px 6px rgba(46,29,18,.15);overflow:hidden;margin-left:-18px;transform:rotate(-2deg);z-index:2">
+        <div style="position:absolute;top:0;left:0;right:0;height:45%;background:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,0));pointer-events:none"></div>
+        <div style="position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="13" height="15" rx="3" fill="#fff" fill-opacity="0.55" transform="rotate(-10 8.5 14.5)"></rect><rect x="7" y="4" width="13" height="15" rx="3" fill="#fff"></rect></svg></div>
+      </div>
+      <div style="position:relative;width:36px;height:50px;border-radius:9px;border:2px solid #B93424;background:linear-gradient(160deg,#FF6F5A,#D6432F);box-shadow:inset 0 0 0 2px rgba(240,169,59,.55),0 3px 6px rgba(46,29,18,.15);overflow:hidden;margin-left:-18px;transform:rotate(3deg);z-index:3">
+        <div style="position:absolute;top:0;left:0;right:0;height:45%;background:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,0));pointer-events:none"></div>
+        <div style="position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="13" height="15" rx="3" fill="#fff" fill-opacity="0.55" transform="rotate(-10 8.5 14.5)"></rect><rect x="7" y="4" width="13" height="15" rx="3" fill="#fff"></rect></svg></div>
+      </div>
+      <div style="position:relative;width:36px;height:50px;border-radius:9px;border:2px solid #B93424;background:linear-gradient(160deg,#FF6F5A,#D6432F);box-shadow:inset 0 0 0 2px rgba(240,169,59,.55),0 3px 6px rgba(46,29,18,.15);overflow:hidden;margin-left:-18px;transform:rotate(9deg);z-index:4">
+        <div style="position:absolute;top:0;left:0;right:0;height:45%;background:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,0));pointer-events:none"></div>
+        <div style="position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="13" height="15" rx="3" fill="#fff" fill-opacity="0.55" transform="rotate(-10 8.5 14.5)"></rect><rect x="7" y="4" width="13" height="15" rx="3" fill="#fff"></rect></svg></div>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+  <sc-if value="{{ a.notFourPlayerLayout }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:14px;padding:6px 14px">
+    <sc-for list="{{ a.opponents }}" as="opp" hint-placeholder-count="3">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+        <div style="width:44px;height:44px;border-radius:22px;padding:2px;background:linear-gradient(160deg,#5B8FC7,#3B6EA5)">
+          <div style="width:100%;height:100%;border-radius:20px;overflow:hidden"><img ref="{{ opp.avatarRef }}" style="width:100%;height:100%;display:block;background:#fff" alt="{{ opp.name }}"/></div>
+        </div>
+        <div style="font-family:'Nunito';font-weight:700;font-size:11px;color:{{ a.textMuted }}">{{ opp.name }}</div>
+        <div style="background:rgba(46,29,18,.07);border-radius:10px;padding:2px 8px;font-family:'Baloo 2';font-weight:700;font-size:11px;color:{{ a.textPrimary }};display:flex;align-items:center;gap:4px"><svg width="11" height="11" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="13" height="15" rx="3" fill="currentColor" opacity="0.45" transform="rotate(-10 8.5 14.5)"></rect><rect x="7" y="4" width="13" height="15" rx="3" fill="currentColor"></rect></svg>4</div>
+      </div>
+    </sc-for>
+  </div>
+  </sc-if>
+  <div style="flex:1;display:flex;align-items:center;position:relative;padding:0 4px">
+    <sc-if value="{{ a.isFourPlayerLayout }}" hint-placeholder-val="{{ true }}">
+    <div style="width:74px;display:flex;flex-direction:column;align-items:center;gap:6px">
+      <div style="width:36px;height:36px;border-radius:18px;padding:2px;background:linear-gradient(160deg,#5B8FC7,#3B6EA5)">
+        <div style="width:100%;height:100%;border-radius:16px;overflow:hidden"><img ref="{{ a.opponentWest.avatarRef }}" style="width:100%;height:100%;display:block;background:#fff" alt="{{ a.opponentWest.name }}"/></div>
+      </div>
+      <div style="font-family:'Nunito';font-weight:700;font-size:11px;color:{{ a.textMuted }};max-width:70px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ a.opponentWest.name }}</div>
+      <div style="position:relative;width:60px;height:132px;{{ a.westPulseStyle }}">
+        <div style="position:absolute;top:2px;left:14px;width:36px;height:50px;border-radius:9px;border:2px solid #B93424;background:linear-gradient(160deg,#FF6F5A,#D6432F);box-shadow:inset 0 0 0 2px rgba(240,169,59,.55),0 3px 6px rgba(46,29,18,.15);overflow:hidden;transform:rotate(82deg)"><div style="position:absolute;top:0;left:0;right:0;height:45%;background:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,0));pointer-events:none"></div><div style="position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="13" height="15" rx="3" fill="#fff" fill-opacity="0.55" transform="rotate(-10 8.5 14.5)"></rect><rect x="7" y="4" width="13" height="15" rx="3" fill="#fff"></rect></svg></div></div>
+        <div style="position:absolute;top:24px;left:12px;width:36px;height:50px;border-radius:9px;border:2px solid #B93424;background:linear-gradient(160deg,#FF6F5A,#D6432F);box-shadow:inset 0 0 0 2px rgba(240,169,59,.55),0 3px 6px rgba(46,29,18,.15);overflow:hidden;transform:rotate(88deg)"><div style="position:absolute;top:0;left:0;right:0;height:45%;background:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,0));pointer-events:none"></div><div style="position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="13" height="15" rx="3" fill="#fff" fill-opacity="0.55" transform="rotate(-10 8.5 14.5)"></rect><rect x="7" y="4" width="13" height="15" rx="3" fill="#fff"></rect></svg></div></div>
+        <div style="position:absolute;top:46px;left:15px;width:36px;height:50px;border-radius:9px;border:2px solid #B93424;background:linear-gradient(160deg,#FF6F5A,#D6432F);box-shadow:inset 0 0 0 2px rgba(240,169,59,.55),0 3px 6px rgba(46,29,18,.15);overflow:hidden;transform:rotate(93deg)"><div style="position:absolute;top:0;left:0;right:0;height:45%;background:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,0));pointer-events:none"></div><div style="position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="13" height="15" rx="3" fill="#fff" fill-opacity="0.55" transform="rotate(-10 8.5 14.5)"></rect><rect x="7" y="4" width="13" height="15" rx="3" fill="#fff"></rect></svg></div></div>
+        <div style="position:absolute;top:68px;left:13px;width:36px;height:50px;border-radius:9px;border:2px solid #B93424;background:linear-gradient(160deg,#FF6F5A,#D6432F);box-shadow:inset 0 0 0 2px rgba(240,169,59,.55),0 3px 6px rgba(46,29,18,.15);overflow:hidden;transform:rotate(99deg)"><div style="position:absolute;top:0;left:0;right:0;height:45%;background:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,0));pointer-events:none"></div><div style="position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="13" height="15" rx="3" fill="#fff" fill-opacity="0.55" transform="rotate(-10 8.5 14.5)"></rect><rect x="7" y="4" width="13" height="15" rx="3" fill="#fff"></rect></svg></div></div>
+      </div>
+    </div>
+    </sc-if>
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;position:relative">
+      <div style="position:absolute;width:190px;height:190px;border-radius:50%;background:radial-gradient(circle,rgba(225,75,59,.1),transparent 70%)"></div>
+      <sc-if value="{{ a.penaltyFlash }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute;top:0px;background:#E14B3B;color:#fff;padding:8px 16px;border-radius:16px;font-family:'Baloo 2';font-weight:700;font-size:13px;animation:himShake .4s;z-index:5;box-shadow:0 6px 16px rgba(225,75,59,.4)">Erken bastın! Ceza puanı</div>
+      </sc-if>
+      <div style="position:relative;background:{{ a.cardBg }};border-radius:50%;padding:10px;box-shadow:0 8px 20px rgba(46,29,18,.1)">
+        <svg width="60" height="60" viewBox="0 0 64 64" style="transform:rotate(-90deg)">
+          <circle cx="32" cy="32" r="18" fill="none" stroke="rgba(46,29,18,.1)" stroke-width="6"></circle>
+          <circle cx="32" cy="32" r="18" fill="none" stroke="#E14B3B" stroke-width="6" stroke-linecap="round" stroke-dasharray="113.097" style="stroke-dashoffset:{{ a.timerDashOffset }}"></circle>
+        </svg>
+      </div>
+      <div style="position:relative;font-family:'Baloo 2';font-weight:700;font-size:13px;color:{{ a.textPrimary }}">{{ a.roundLabel }} · {{ a.tickLabel }}</div>
+    </div>
+    <sc-if value="{{ a.isFourPlayerLayout }}" hint-placeholder-val="{{ true }}">
+    <div style="width:74px;display:flex;flex-direction:column;align-items:center;gap:6px">
+      <div style="width:36px;height:36px;border-radius:18px;padding:2px;background:linear-gradient(160deg,#5B8FC7,#3B6EA5)">
+        <div style="width:100%;height:100%;border-radius:16px;overflow:hidden"><img ref="{{ a.opponentEast.avatarRef }}" style="width:100%;height:100%;display:block;background:#fff" alt="{{ a.opponentEast.name }}"/></div>
+      </div>
+      <div style="font-family:'Nunito';font-weight:700;font-size:11px;color:{{ a.textMuted }};max-width:70px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ a.opponentEast.name }}</div>
+      <div style="position:relative;width:60px;height:132px;{{ a.eastPulseStyle }}">
+        <div style="position:absolute;top:2px;left:14px;width:36px;height:50px;border-radius:9px;border:2px solid #B93424;background:linear-gradient(160deg,#FF6F5A,#D6432F);box-shadow:inset 0 0 0 2px rgba(240,169,59,.55),0 3px 6px rgba(46,29,18,.15);overflow:hidden;transform:rotate(-82deg)"><div style="position:absolute;top:0;left:0;right:0;height:45%;background:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,0));pointer-events:none"></div><div style="position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="13" height="15" rx="3" fill="#fff" fill-opacity="0.55" transform="rotate(-10 8.5 14.5)"></rect><rect x="7" y="4" width="13" height="15" rx="3" fill="#fff"></rect></svg></div></div>
+        <div style="position:absolute;top:24px;left:12px;width:36px;height:50px;border-radius:9px;border:2px solid #B93424;background:linear-gradient(160deg,#FF6F5A,#D6432F);box-shadow:inset 0 0 0 2px rgba(240,169,59,.55),0 3px 6px rgba(46,29,18,.15);overflow:hidden;transform:rotate(-88deg)"><div style="position:absolute;top:0;left:0;right:0;height:45%;background:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,0));pointer-events:none"></div><div style="position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="13" height="15" rx="3" fill="#fff" fill-opacity="0.55" transform="rotate(-10 8.5 14.5)"></rect><rect x="7" y="4" width="13" height="15" rx="3" fill="#fff"></rect></svg></div></div>
+        <div style="position:absolute;top:46px;left:15px;width:36px;height:50px;border-radius:9px;border:2px solid #B93424;background:linear-gradient(160deg,#FF6F5A,#D6432F);box-shadow:inset 0 0 0 2px rgba(240,169,59,.55),0 3px 6px rgba(46,29,18,.15);overflow:hidden;transform:rotate(-93deg)"><div style="position:absolute;top:0;left:0;right:0;height:45%;background:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,0));pointer-events:none"></div><div style="position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="13" height="15" rx="3" fill="#fff" fill-opacity="0.55" transform="rotate(-10 8.5 14.5)"></rect><rect x="7" y="4" width="13" height="15" rx="3" fill="#fff"></rect></svg></div></div>
+        <div style="position:absolute;top:68px;left:13px;width:36px;height:50px;border-radius:9px;border:2px solid #B93424;background:linear-gradient(160deg,#FF6F5A,#D6432F);box-shadow:inset 0 0 0 2px rgba(240,169,59,.55),0 3px 6px rgba(46,29,18,.15);overflow:hidden;transform:rotate(-99deg)"><div style="position:absolute;top:0;left:0;right:0;height:45%;background:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,0));pointer-events:none"></div><div style="position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="13" height="15" rx="3" fill="#fff" fill-opacity="0.55" transform="rotate(-10 8.5 14.5)"></rect><rect x="7" y="4" width="13" height="15" rx="3" fill="#fff"></rect></svg></div></div>
+      </div>
+    </div>
+    </sc-if>
+  </div>
+  <div style="padding:6px 18px 6px;text-align:center;font-family:'Nunito';font-weight:800;font-size:12px;min-height:16px">
+    <sc-if value="{{ a.handComplete }}" hint-placeholder-val="{{ false }}"><span style="color:#3F8F6B">4'lün tamam — HIMBIL'e bas!</span></sc-if>
+    <sc-if value="{{ a.notHandComplete }}" hint-placeholder-val="{{ true }}"><span style="color:{{ a.textMuted }}">İşine yaramayan kartı seç, komşuna ver</span></sc-if>
+  </div>
+  <div style="display:flex;gap:9px;padding:8px 18px 4px;justify-content:center">
+    <sc-for list="{{ a.hand }}" as="card" hint-placeholder-count="4">
+      <div onClick="{{ card.onTap }}" style="cursor:pointer;position:relative;overflow:hidden;width:70px;height:96px;background:linear-gradient(160deg,{{ a.cardBg }},{{ a.cardBg2 }});border-radius:16px;border:3px solid #E14B3B;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 0 rgba(46,29,18,.08),0 10px 18px rgba(46,29,18,.08),inset 0 0 0 2px rgba(240,169,59,.35);transition:transform .2s;{{ card.liftStyle }}">
+        <div style="position:absolute;top:0;left:0;right:0;height:38%;background:linear-gradient(180deg,rgba(255,255,255,.4),rgba(255,255,255,0));pointer-events:none"></div>
+        <sc-if value="{{ card.isBanana }}" hint-placeholder-val="{{ true }}">
+          <div style="position:absolute;top:6px;left:6px;width:8px;height:8px;border-radius:3px;background:#FFCB3D"></div>
+          <svg width="36" height="36" viewBox="0 0 32 32" fill="none"><path d="M9 26c8 2 16-4 17-14 1-3-1-4-2-2-3 9-9 13-16 12-1 0-1 3 1 4z" fill="#FFCB3D"></path><path d="M8 25c-2-1-3-3-2-5" stroke="#E0A526" stroke-width="1.5" stroke-linecap="round"></path><circle cx="25" cy="10" r="1.6" fill="#8A5A2B"></circle></svg>
+          <div style="position:absolute;bottom:6px;right:6px;width:8px;height:8px;border-radius:3px;background:#FFCB3D"></div>
+        </sc-if>
+        <sc-if value="{{ card.isGrape }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute;top:6px;left:6px;width:8px;height:8px;border-radius:3px;background:#9B59D0"></div>
+          <svg width="34" height="34" viewBox="0 0 32 32" fill="none"><path d="M15 6c3-2 6-1 6 2" stroke="#4C8C3B" stroke-width="1.6" stroke-linecap="round"></path><circle cx="12" cy="12" r="4" fill="#9B59D0"></circle><circle cx="19" cy="12" r="4" fill="#9B59D0"></circle><circle cx="9" cy="18" r="4" fill="#8E4CC7"></circle><circle cx="16" cy="18" r="4" fill="#9B59D0"></circle><circle cx="22" cy="18" r="4" fill="#8E4CC7"></circle><circle cx="12" cy="24" r="4" fill="#9B59D0"></circle><circle cx="19" cy="24" r="4" fill="#8E4CC7"></circle></svg>
+          <div style="position:absolute;bottom:6px;right:6px;width:8px;height:8px;border-radius:3px;background:#9B59D0"></div>
+        </sc-if>
+        <sc-if value="{{ card.isWatermelon }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute;top:6px;left:6px;width:8px;height:8px;border-radius:3px;background:#3F8F4F"></div>
+          <svg width="36" height="36" viewBox="0 0 32 32" fill="none"><path d="M4 16a12 12 0 0 0 24 0z" fill="#3F8F4F"></path><path d="M6.5 16a9.5 9.5 0 0 0 19 0z" fill="#E8F5E0"></path><path d="M8.5 16a7.5 7.5 0 0 0 15 0z" fill="#F0455C"></path><circle cx="13" cy="18.5" r="0.9" fill="{{ a.textPrimary }}"></circle><circle cx="16" cy="20" r="0.9" fill="{{ a.textPrimary }}"></circle><circle cx="19" cy="18.5" r="0.9" fill="{{ a.textPrimary }}"></circle></svg>
+          <div style="position:absolute;bottom:6px;right:6px;width:8px;height:8px;border-radius:3px;background:#3F8F4F"></div>
+        </sc-if>
+        <sc-if value="{{ card.isOrange }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute;top:6px;left:6px;width:8px;height:8px;border-radius:3px;background:#F4941E"></div>
+          <svg width="34" height="34" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="18" r="10" fill="#F4941E"></circle><path d="M16 8c1-3 4-4 6-3-1 3-4 4-6 3z" fill="#4C8C3B"></path></svg>
+          <div style="position:absolute;bottom:6px;right:6px;width:8px;height:8px;border-radius:3px;background:#F4941E"></div>
+        </sc-if>
+        <sc-if value="{{ card.isStrawberry }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute;top:6px;left:6px;width:8px;height:8px;border-radius:3px;background:#F0455C"></div>
+          <svg width="34" height="34" viewBox="0 0 32 32" fill="none"><path d="M16 28c6-1 10-7 9-13-1-5-5-6-9-4-4-2-8-1-9 4-1 6 3 12 9 13z" fill="#F0455C"></path><path d="M10 10l2 4M16 9v4M22 10l-2 4" stroke="#3F8F4F" stroke-width="2" stroke-linecap="round"></path><circle cx="12" cy="16" r="0.8" fill="#FFE9A8"></circle><circle cx="16" cy="14" r="0.8" fill="#FFE9A8"></circle><circle cx="20" cy="16" r="0.8" fill="#FFE9A8"></circle><circle cx="13" cy="21" r="0.8" fill="#FFE9A8"></circle><circle cx="19" cy="21" r="0.8" fill="#FFE9A8"></circle><circle cx="16" cy="24" r="0.8" fill="#FFE9A8"></circle></svg>
+          <div style="position:absolute;bottom:6px;right:6px;width:8px;height:8px;border-radius:3px;background:#F0455C"></div>
+        </sc-if>
+      </div>
+    </sc-for>
+  </div>
+  <div style="padding:14px 20px 24px;display:flex;flex-direction:column;align-items:center;gap:8px">
+    <div onClick="{{ a.onSlam }}" style-active="transform:scale(.94)" style="cursor:pointer;position:relative;overflow:hidden;width:116px;height:116px;border-radius:58px;background:linear-gradient(160deg,#FF6F5A,#D6432F);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:800;font-size:19px;box-shadow:0 10px 0 #A82E20,0 18px 26px rgba(225,75,59,.35);transition:transform .12s;{{ a.himbilAnim }}">
+      <div style="position:absolute;top:6px;left:14px;right:14px;height:34%;border-radius:50%;background:rgba(255,255,255,.28);pointer-events:none"></div>
+      <span style="position:relative">HIMBIL!</span>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ a.isSlam }}" hint-placeholder-val="{{ false }}">
+<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(180deg,#F5B95C,#E14B3B);padding-top:40px;box-sizing:border-box;position:relative;overflow:hidden">
+  <div style="position:absolute;width:280px;height:280px;border-radius:50%;background:repeating-conic-gradient(rgba(255,255,255,.15) 0deg 8deg, transparent 8deg 16deg);animation:himRay 14s linear infinite"></div>
+  <div style="position:relative;font-family:'Baloo 2';font-weight:800;font-size:42px;color:#fff;animation:himPop .5s ease;text-shadow:0 6px 18px rgba(0,0,0,.2)">HIMBIL!</div>
+  <div style="position:relative;width:88%;margin-top:18px;display:flex;flex-direction:column;gap:8px">
+    <sc-for list="{{ a.ranking }}" as="r" hint-placeholder-count="4">
+      <div style="opacity:0;animation:himRise .5s ease forwards;animation-delay:{{ r.delayMs }}ms;background:rgba(255,255,255,.95);border-radius:14px;padding:10px 14px;display:flex;align-items:center;gap:10px;box-shadow:0 6px 14px rgba(0,0,0,.12)">
+        <div style="width:26px;height:26px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-family:system-ui,sans-serif;font-weight:800;font-size:12px;color:#fff;background:{{ r.badgeBg }}">{{ r.rank }}</div>
+        <div style="flex:1;font-family:'Nunito';font-weight:800;font-size:14px;color:{{ a.textPrimary }}">{{ r.name }}</div>
+        <div style="font-family:'Baloo 2';font-weight:800;font-size:14px;color:#3F8F6B">+{{ r.points }}</div>
+      </div>
+    </sc-for>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ a.isRoundResult }}" hint-placeholder-val="{{ false }}">
+<div style="height:100%;display:flex;flex-direction:column;padding-top:60px;box-sizing:border-box">
+  <div style="text-align:center;padding:6px 22px 18px">
+    <div style="font-family:'Nunito';font-weight:800;font-size:12px;color:{{ a.textMuted }};letter-spacing:1px">TUR {{ a.roundNum }} SONUÇLARI</div>
+  </div>
+  <div style="flex:1;padding:0 24px;display:flex;flex-direction:column;gap:10px">
+    <sc-for list="{{ a.ranking }}" as="r" hint-placeholder-count="4">
+      <div style="background:{{ a.cardBg }};border-radius:16px;box-shadow:0 6px 16px rgba(46,29,18,.06);border:2px solid rgba(46,29,18,.04);padding:12px 16px;display:flex;align-items:center;gap:12px">
+        <div style="width:28px;height:28px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:system-ui,sans-serif;font-weight:800;font-size:13px;color:#fff;background:{{ r.badgeBg }}">{{ r.rank }}</div>
+        <div style="flex:1;font-family:'Baloo 2';font-weight:700;font-size:15px;color:{{ a.textPrimary }}">{{ r.name }}</div>
+        <div style="font-family:'Baloo 2';font-weight:800;font-size:16px;color:#E14B3B">+{{ r.points }}</div>
+      </div>
+    </sc-for>
+  </div>
+  <div style="padding:16px 24px 26px">
+    <div onClick="{{ a.onNextRound }}" style-active="transform:scale(.98)" style="cursor:pointer;position:relative;overflow:hidden;text-align:center;background:linear-gradient(160deg,#FF6F5A,#D6432F);border-radius:24px;padding:16px;font-family:'Baloo 2';font-weight:800;font-size:16px;color:#fff;box-shadow:0 10px 0 #A82E20,0 16px 24px rgba(225,75,59,.3);transition:transform .15s">
+      <div style="position:absolute;top:0;left:0;right:0;height:50%;background:linear-gradient(180deg,rgba(255,255,255,.3),rgba(255,255,255,0));pointer-events:none"></div>
+      <span style="position:relative">{{ a.nextLabel }}</span>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ a.isMatchEnd }}" hint-placeholder-val="{{ false }}">
+<div style="height:100%;display:flex;flex-direction:column;padding-top:56px;box-sizing:border-box;position:relative;overflow:hidden">
+  <div style="position:absolute;top:-20px;left:6%;width:8px;height:14px;border-radius:2px;background:#E14B3B;animation:confettiFall 2.8s linear infinite;animation-delay:0s"></div>
+  <div style="position:absolute;top:-20px;left:16%;width:10px;height:10px;border-radius:50%;background:#F0A93B;animation:confettiFall 3.2s linear infinite;animation-delay:.4s"></div>
+  <div style="position:absolute;top:-20px;left:27%;width:8px;height:14px;border-radius:2px;background:#3F8F6B;animation:confettiFall 3s linear infinite;animation-delay:.9s"></div>
+  <div style="position:absolute;top:-20px;left:39%;width:9px;height:9px;border-radius:50%;background:#3B6EA5;animation:confettiFall 2.6s linear infinite;animation-delay:1.3s"></div>
+  <div style="position:absolute;top:-20px;left:51%;width:8px;height:14px;border-radius:2px;background:#F0A93B;animation:confettiFall 3.4s linear infinite;animation-delay:.15s"></div>
+  <div style="position:absolute;top:-20px;left:63%;width:10px;height:10px;border-radius:50%;background:#E14B3B;animation:confettiFall 2.9s linear infinite;animation-delay:1.7s"></div>
+  <div style="position:absolute;top:-20px;left:75%;width:8px;height:14px;border-radius:2px;background:#3B6EA5;animation:confettiFall 3.1s linear infinite;animation-delay:.6s"></div>
+  <div style="position:absolute;top:-20px;left:85%;width:9px;height:9px;border-radius:50%;background:#3F8F6B;animation:confettiFall 2.7s linear infinite;animation-delay:2s"></div>
+  <div style="position:absolute;top:-20px;left:93%;width:8px;height:14px;border-radius:2px;background:#E14B3B;animation:confettiFall 3.3s linear infinite;animation-delay:1.1s"></div>
+  <div style="text-align:center;padding:8px 22px 4px">
+    <div style="width:70px;height:70px;border-radius:35px;background:linear-gradient(160deg,#FFCB7A,#F0A93B);margin:0 auto 8px;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 22px rgba(240,169,59,.4);animation:himGlow 2s ease infinite"><svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M7 4h10v4a5 5 0 0 1-10 0V4z" stroke="#fff" stroke-width="2" stroke-linejoin="round"></path><path d="M7 5H4.5A2.5 2.5 0 0 0 7 9.5M17 5h2.5A2.5 2.5 0 0 1 17 9.5" stroke="#fff" stroke-width="2" stroke-linecap="round"></path><path d="M12 13v3M9.5 20h5M10 17h4v3h-4z" stroke="#fff" stroke-width="2" stroke-linejoin="round"></path></svg></div>
+    <div style="font-family:'Baloo 2';font-weight:800;font-size:21px;color:{{ a.textPrimary }}">{{ a.winnerName }} kazandı!</div>
+  </div>
+  <div style="flex:1;padding:12px 24px;display:flex;flex-direction:column;gap:10px">
+    <sc-for list="{{ a.finalRanking }}" as="r" hint-placeholder-count="4">
+      <div style="background:{{ a.cardBg }};border-radius:16px;box-shadow:0 6px 16px rgba(46,29,18,.06);border:2px solid rgba(46,29,18,.04);padding:12px 16px;display:flex;align-items:center;gap:12px">
+        <div style="width:28px;height:28px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:system-ui,sans-serif;font-weight:800;font-size:13px;color:#fff;background:{{ r.badgeBg }}">{{ r.rank }}</div>
+        <div style="flex:1;font-family:'Baloo 2';font-weight:700;font-size:15px;color:{{ a.textPrimary }}">{{ r.name }}</div>
+        <div style="font-family:'Baloo 2';font-weight:800;font-size:16px;color:#3F8F6B">{{ r.total }}</div>
+      </div>
+    </sc-for>
+  </div>
+  <div style="padding:10px 24px 26px;display:flex;gap:10px">
+    <div onClick="{{ a.playAgain }}" style-active="transform:scale(.97)" style="cursor:pointer;flex:1;text-align:center;background:linear-gradient(160deg,#FF6F5A,#D6432F);border-radius:22px;padding:15px;font-family:'Baloo 2';font-weight:800;font-size:14px;color:#fff;box-shadow:0 8px 0 #A82E20,0 14px 20px rgba(225,75,59,.3);transition:transform .15s">Tekrar Oyna</div>
+    <div onClick="{{ a.backHome }}" style-active="transform:scale(.97)" style="cursor:pointer;flex:1;text-align:center;background:{{ a.cardBg }};box-shadow:0 6px 16px rgba(46,29,18,.07);border:2px solid rgba(46,29,18,.06);border-radius:22px;padding:15px;font-family:'Baloo 2';font-weight:800;font-size:14px;color:{{ a.textPrimary }};transition:transform .15s">Ana Menü</div>
+  </div>
+</div>
+</sc-if>
+
+</div>
+</x-import>
+</div>
+
+<div class="dv-opt" id="1b">
+<div class="dv-olabel"><a class="dv-oid" href="#1b">1b</a>Şeker Parti — canlı mor/pembe, ipeksi kartlar, Fredoka</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="402,874">
+<div style="height:100%;background:radial-gradient(circle at 12% 8%, rgba(124,58,237,.14), transparent 40%),radial-gradient(circle at 90% 20%, rgba(255,77,141,.12), transparent 38%),radial-gradient(circle at 50% 100%, rgba(22,198,182,.08), transparent 45%),#F6F1FF;font-family:'Quicksand',sans-serif;position:relative;overflow:hidden">
+
+<sc-if value="{{ b.isHome }}" hint-placeholder-val="{{ true }}">
+<div style="height:100%;display:flex;flex-direction:column;padding-top:60px;box-sizing:border-box">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 22px 6px">
+    <div style="display:flex;align-items:center;gap:9px">
+      <div style="width:34px;height:34px;border-radius:11px;background:linear-gradient(135deg,#7C3AED,#FF4D8D);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px rgba(124,58,237,.35)">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><rect x="3" y="7" width="13" height="15" rx="3" fill="#fff" fill-opacity="0.55" transform="rotate(-10 9.5 14.5)"></rect><rect x="8" y="4" width="13" height="15" rx="3" fill="#fff"></rect></svg>
+      </div>
+      <div style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:23px;color:#2B1440;letter-spacing:0.2px">Hımbıl</div>
+    </div>
+    <div style="width:40px;height:40px;border-radius:20px;padding:2px;background:linear-gradient(135deg,#7C3AED,#FF4D8D);box-shadow:0 4px 10px rgba(124,58,237,.3)">
+      <div style="width:100%;height:100%;border-radius:18px;background:#fff;display:flex;align-items:center;justify-content:center;font-family:'Fredoka';font-weight:600;font-size:15px;color:#7C3AED">S</div>
+    </div>
+  </div>
+
+  <sc-if value="{{ b.tabPlay }}" hint-placeholder-val="{{ true }}">
+  <div style="flex:1;display:flex;flex-direction:column;padding:14px 22px 0;box-sizing:border-box">
+    <div style="font-family:'Quicksand';font-size:14px;color:#8B6FB3;font-weight:700;margin-bottom:2px">Merhaba,</div>
+    <div style="font-family:'Fredoka';font-size:23px;color:#2B1440;font-weight:600;margin-bottom:20px">Bugün Hımbıl var!</div>
+
+    <div onClick="{{ b.quickPlay }}" style-active="transform:scale(.97)" style="cursor:pointer;position:relative;overflow:hidden;background:linear-gradient(135deg,#7C3AED,#FF4D8D);border-radius:28px;padding:24px 20px;display:flex;flex-direction:column;align-items:center;gap:5px;box-shadow:0 16px 30px rgba(124,58,237,.4);transition:transform .15s">
+      <div style="position:absolute;top:0;left:0;right:0;height:50%;background:linear-gradient(180deg,rgba(255,255,255,.3),rgba(255,255,255,0));pointer-events:none"></div>
+<div style="position:relative;font-family:'Fredoka';font-size:24px;font-weight:600;color:#fff;letter-spacing:0.4px;display:flex;align-items:center;gap:9px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M8 5.5v13l11-6.5-11-6.5z" fill="#fff"></path></svg>HIZLI OYNA</div>
+      <div style="position:relative;font-family:'Quicksand';font-size:13px;font-weight:700;color:rgba(255,255,255,.92)">Rastgele oyuncularla eşleş</div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:10px;margin:20px 0">
+      <div style="flex:1;height:2px;background:rgba(124,58,237,.12)"></div>
+      <div style="font-family:'Quicksand';font-weight:800;font-size:11px;color:#8B6FB3;letter-spacing:.5px">VEYA ÖZEL ODA</div>
+      <div style="flex:1;height:2px;background:rgba(124,58,237,.12)"></div>
+    </div>
+
+    <div style="display:flex;gap:14px">
+      <div onClick="{{ b.quickPlay }}" style-active="transform:scale(.96)" style="cursor:pointer;flex:1;background:#fff;border-radius:22px;padding:16px 8px 14px;text-align:center;box-shadow:0 10px 22px rgba(124,58,237,.14);border:2px dashed rgba(22,198,182,.5);transition:transform .15s">
+        <div style="width:42px;height:42px;border-radius:15px;background:linear-gradient(135deg,#26E0CB,#16C6B6);margin:0 auto 8px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px rgba(22,198,182,.4)"><svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2.6" stroke-linecap="round"></path></svg></div>
+        <div style="font-family:'Fredoka';font-weight:600;font-size:14px;color:#2B1440">Oda Kur</div>
+      </div>
+      <div onClick="{{ b.openJoin }}" style-active="transform:scale(.96)" style="cursor:pointer;flex:1;background:#fff;border-radius:22px;padding:16px 8px 14px;text-align:center;box-shadow:0 10px 22px rgba(124,58,237,.14);border:2px dashed rgba(255,77,141,.5);transition:transform .15s">
+        <div style="width:42px;height:42px;border-radius:15px;background:linear-gradient(135deg,#FF6FA3,#FF4D8D);margin:0 auto 8px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px rgba(255,77,141,.4)"><svg width="19" height="19" viewBox="0 0 24 24" fill="none"><circle cx="8" cy="15" r="4" stroke="#fff" stroke-width="2.2"></circle><path d="M11 12l9-9M16.5 6.5l2 2M13.5 9.5l2 2" stroke="#fff" stroke-width="2.2" stroke-linecap="round"></path></svg></div>
+        <div style="font-family:'Fredoka';font-weight:600;font-size:14px;color:#2B1440">Kodla Katıl</div>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ b.tabProfile }}" hint-placeholder-val="{{ false }}">
+  <div style="flex:1;overflow:auto;padding:14px 22px 16px;box-sizing:border-box">
+    <div style="font-family:'Fredoka';font-size:19px;font-weight:600;color:#2B1440;margin-bottom:12px">Profilim</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px">
+      <div style="background:#fff;border-radius:16px;padding:13px;box-shadow:0 6px 16px rgba(124,58,237,.1)">
+        <div style="width:26px;height:26px;border-radius:9px;background:linear-gradient(135deg,#7C3AED,#FF4D8D);display:flex;align-items:center;justify-content:center;margin-bottom:6px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><rect x="3" y="7" width="13" height="15" rx="3" fill="#fff" fill-opacity="0.55" transform="rotate(-10 9.5 14.5)"></rect><rect x="8" y="4" width="13" height="15" rx="3" fill="#fff"></rect></svg></div>
+        <div style="font-family:'Fredoka';font-size:20px;font-weight:600;color:#2B1440">{{ b.profileStats.games }}</div>
+        <div style="font-family:'Quicksand';font-size:11px;color:#8B6FB3;font-weight:700">Oyun</div>
+      </div>
+      <div style="background:#fff;border-radius:16px;padding:13px;box-shadow:0 6px 16px rgba(124,58,237,.1)">
+        <div style="width:26px;height:26px;border-radius:9px;background:linear-gradient(135deg,#26E0CB,#16C6B6);display:flex;align-items:center;justify-content:center;margin-bottom:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M7 4h10v4a5 5 0 0 1-10 0V4z" stroke="#fff" stroke-width="2" stroke-linejoin="round"></path><path d="M7 5H4.5A2.5 2.5 0 0 0 7 9.5M17 5h2.5A2.5 2.5 0 0 1 17 9.5" stroke="#fff" stroke-width="2" stroke-linecap="round"></path><path d="M12 13v3M9.5 20h5M10 17h4v3h-4z" stroke="#fff" stroke-width="2" stroke-linejoin="round"></path></svg></div>
+        <div style="font-family:'Fredoka';font-size:20px;font-weight:600;color:#2B1440">{{ b.profileStats.wins }}</div>
+        <div style="font-family:'Quicksand';font-size:11px;color:#8B6FB3;font-weight:700">Galibiyet</div>
+      </div>
+      <div style="background:#fff;border-radius:16px;padding:13px;box-shadow:0 6px 16px rgba(124,58,237,.1)">
+        <div style="width:26px;height:26px;border-radius:9px;background:linear-gradient(135deg,#FF6FA3,#FF4D8D);display:flex;align-items:center;justify-content:center;margin-bottom:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="4" y="13" width="4" height="7" rx="1" fill="#fff"></rect><rect x="10" y="8" width="4" height="12" rx="1" fill="#fff"></rect><rect x="16" y="4" width="4" height="16" rx="1" fill="#fff"></rect></svg></div>
+        <div style="font-family:'Fredoka';font-size:20px;font-weight:600;color:#2B1440">{{ b.profileStats.winRate }}</div>
+        <div style="font-family:'Quicksand';font-size:11px;color:#8B6FB3;font-weight:700">Kazanma Oranı</div>
+      </div>
+      <div style="background:#fff;border-radius:16px;padding:13px;box-shadow:0 6px 16px rgba(124,58,237,.1)">
+        <div style="width:26px;height:26px;border-radius:9px;background:linear-gradient(135deg,#FFD65C,#FFC93C);display:flex;align-items:center;justify-content:center;margin-bottom:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2c1.2 4-3.6 5.2-3.6 9.2a3.6 3.6 0 0 0 7.2 0c0-1.6-.8-2.6-.8-2.6s.6 2-.6 2-.6-1.4-.6-2.2c.8 0 1.6-1.4 1.6-2.4.8 1 1.8 2.6 1.8 5A4.6 4.6 0 0 1 7.6 11c0-4.2 2.8-5.2 4.4-9z" fill="#fff"></path></svg></div>
+        <div style="font-family:'Fredoka';font-size:20px;font-weight:600;color:#2B1440">{{ b.profileStats.bestStreak }}</div>
+        <div style="font-family:'Quicksand';font-size:11px;color:#8B6FB3;font-weight:700">En İyi Seri</div>
+      </div>
+    </div>
+    <div style="font-family:'Fredoka';font-size:16px;font-weight:600;color:#2B1440;margin-bottom:8px">Liderlik Tablosu</div>
+    <div style="background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 6px 16px rgba(124,58,237,.1)">
+      <sc-for list="{{ b.leaderboard }}" as="row" hint-placeholder-count="5">
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid rgba(124,58,237,.08)">
+          <div style="font-family:'Fredoka';font-weight:600;font-size:13px;color:#8B6FB3;width:16px">{{ row.rank }}</div>
+          <div style="flex:1;font-family:'Quicksand';font-weight:700;font-size:14px;color:#2B1440">{{ row.name }}</div>
+          <div style="font-family:'Fredoka';font-weight:600;font-size:14px;color:#7C3AED">{{ row.score }}</div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+  </sc-if>
+
+  <div style="padding:8px 18px 18px">
+    <div style="display:flex;background:#fff;border-radius:24px;padding:5px;box-shadow:0 6px 18px rgba(124,58,237,.14)">
+      <div onClick="{{ b.setTabPlay }}" style-active="transform:scale(.96)" style="flex:1;cursor:pointer;padding:9px 0;border-radius:19px;font-family:'Fredoka';font-weight:600;font-size:13px;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px;{{ b.tabPlayStyle }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M8 5.5v13l11-6.5-11-6.5z" fill="currentColor"></path></svg>Oyna</div>
+      <div onClick="{{ b.setTabProfile }}" style-active="transform:scale(.96)" style="flex:1;cursor:pointer;padding:9px 0;border-radius:19px;font-family:'Fredoka';font-weight:600;font-size:13px;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px;{{ b.tabProfileStyle }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2.2"></circle><path d="M4.5 20c0-4.2 3.9-6.4 7.5-6.4s7.5 2.2 7.5 6.4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"></path></svg>Profil</div>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ b.isJoin }}" hint-placeholder-val="{{ false }}">
+<div style="height:100%;display:flex;flex-direction:column;padding-top:60px;box-sizing:border-box">
+  <div style="display:flex;align-items:center;padding:8px 22px 4px">
+    <div onClick="{{ b.backHome }}" style-active="transform:scale(.92)" style="cursor:pointer;width:36px;height:36px;border-radius:18px;background:#fff;box-shadow:0 4px 10px rgba(124,58,237,.15);display:flex;align-items:center;justify-content:center;font-size:16px;color:#2B1440">←</div>
+  </div>
+  <div style="padding:14px 22px 2px;font-family:'Fredoka';font-size:21px;font-weight:600;color:#2B1440">Kod ile Katıl</div>
+  <div style="padding:0 22px 18px;font-family:'Quicksand';font-size:13px;color:#8B6FB3;font-weight:700">Arkadaşının oda kodunu gir</div>
+  <div style="display:flex;gap:8px;padding:0 22px 16px;justify-content:center">
+    <sc-for list="{{ b.joinBoxes }}" as="box" hint-placeholder-count="5">
+      <div style="width:46px;height:58px;border-radius:14px;background:#fff;box-shadow:0 4px 12px rgba(124,58,237,.14);border-bottom:4px solid #7C3AED;display:flex;align-items:center;justify-content:center;font-family:'Fredoka';font-weight:600;font-size:22px;color:#2B1440">{{ box.value }}</div>
+    </sc-for>
+  </div>
+  <div onClick="{{ b.fillDemoCode }}" style-active="transform:scale(.97)" style="cursor:pointer;margin:0 22px 14px;text-align:center;font-family:'Quicksand';font-weight:800;font-size:12px;color:#FF4D8D;text-decoration:underline">Örnek kod ile doldur (34521)</div>
+  <div style="flex:1;padding:0 22px 20px;display:flex;flex-direction:column;justify-content:flex-end;box-sizing:border-box">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+      <div onClick="{{ b.digit1 }}" style-active="transform:scale(.93)" style="cursor:pointer;background:#fff;border-radius:16px;height:52px;display:flex;align-items:center;justify-content:center;font-family:'Fredoka';font-weight:600;font-size:19px;color:#2B1440;box-shadow:0 4px 10px rgba(124,58,237,.12);transition:transform .1s">1</div>
+      <div onClick="{{ b.digit2 }}" style-active="transform:scale(.93)" style="cursor:pointer;background:#fff;border-radius:16px;height:52px;display:flex;align-items:center;justify-content:center;font-family:'Fredoka';font-weight:600;font-size:19px;color:#2B1440;box-shadow:0 4px 10px rgba(124,58,237,.12);transition:transform .1s">2</div>
+      <div onClick="{{ b.digit3 }}" style-active="transform:scale(.93)" style="cursor:pointer;background:#fff;border-radius:16px;height:52px;display:flex;align-items:center;justify-content:center;font-family:'Fredoka';font-weight:600;font-size:19px;color:#2B1440;box-shadow:0 4px 10px rgba(124,58,237,.12);transition:transform .1s">3</div>
+      <div onClick="{{ b.digit4 }}" style-active="transform:scale(.93)" style="cursor:pointer;background:#fff;border-radius:16px;height:52px;display:flex;align-items:center;justify-content:center;font-family:'Fredoka';font-weight:600;font-size:19px;color:#2B1440;box-shadow:0 4px 10px rgba(124,58,237,.12);transition:transform .1s">4</div>
+      <div onClick="{{ b.digit5 }}" style-active="transform:scale(.93)" style="cursor:pointer;background:#fff;border-radius:16px;height:52px;display:flex;align-items:center;justify-content:center;font-family:'Fredoka';font-weight:600;font-size:19px;color:#2B1440;box-shadow:0 4px 10px rgba(124,58,237,.12);transition:transform .1s">5</div>
+      <div onClick="{{ b.digit6 }}" style-active="transform:scale(.93)" style="cursor:pointer;background:#fff;border-radius:16px;height:52px;display:flex;align-items:center;justify-content:center;font-family:'Fredoka';font-weight:600;font-size:19px;color:#2B1440;box-shadow:0 4px 10px rgba(124,58,237,.12);transition:transform .1s">6</div>
+      <div onClick="{{ b.digit7 }}" style-active="transform:scale(.93)" style="cursor:pointer;background:#fff;border-radius:16px;height:52px;display:flex;align-items:center;justify-content:center;font-family:'Fredoka';font-weight:600;font-size:19px;color:#2B1440;box-shadow:0 4px 10px rgba(124,58,237,.12);transition:transform .1s">7</div>
+      <div onClick="{{ b.digit8 }}" style-active="transform:scale(.93)" style="cursor:pointer;background:#fff;border-radius:16px;height:52px;display:flex;align-items:center;justify-content:center;font-family:'Fredoka';font-weight:600;font-size:19px;color:#2B1440;box-shadow:0 4px 10px rgba(124,58,237,.12);transition:transform .1s">8</div>
+      <div onClick="{{ b.digit9 }}" style-active="transform:scale(.93)" style="cursor:pointer;background:#fff;border-radius:16px;height:52px;display:flex;align-items:center;justify-content:center;font-family:'Fredoka';font-weight:600;font-size:19px;color:#2B1440;box-shadow:0 4px 10px rgba(124,58,237,.12);transition:transform .1s">9</div>
+      <div style="height:52px"></div>
+      <div onClick="{{ b.digit0 }}" style-active="transform:scale(.93)" style="cursor:pointer;background:#fff;border-radius:16px;height:52px;display:flex;align-items:center;justify-content:center;font-family:'Fredoka';font-weight:600;font-size:19px;color:#2B1440;box-shadow:0 4px 10px rgba(124,58,237,.12);transition:transform .1s">0</div>
+      <div onClick="{{ b.keypadDelete }}" style-active="transform:scale(.93)" style="cursor:pointer;background:#fff;border-radius:16px;height:52px;display:flex;align-items:center;justify-content:center;font-family:'Fredoka';font-weight:600;font-size:17px;color:#2B1440;box-shadow:0 4px 10px rgba(124,58,237,.12);transition:transform .1s">⌫</div>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ b.isLobby }}" hint-placeholder-val="{{ false }}">
+<div style="height:100%;display:flex;flex-direction:column;padding-top:60px;box-sizing:border-box">
+  <div style="display:flex;align-items:center;padding:8px 22px 4px">
+    <div onClick="{{ b.backHome }}" style-active="transform:scale(.92)" style="cursor:pointer;width:36px;height:36px;border-radius:18px;background:#fff;box-shadow:0 4px 10px rgba(124,58,237,.15);display:flex;align-items:center;justify-content:center;font-size:16px;color:#2B1440">←</div>
+  </div>
+  <div style="margin:8px 24px 4px;background:#fff;border-radius:20px;box-shadow:0 8px 20px rgba(124,58,237,.14);border:2px dashed rgba(124,58,237,.35);padding:14px;text-align:center">
+    <div style="font-family:'Quicksand';font-weight:800;font-size:11px;color:#8B6FB3;letter-spacing:1.5px">ODA KODU</div>
+    <div style="font-family:'Fredoka';font-weight:700;font-size:36px;color:#7C3AED;letter-spacing:6px">{{ b.roomCode }}</div>
+  </div>
+  <div style="flex:1;padding:14px 24px;display:grid;grid-template-columns:1fr 1fr;gap:14px;align-content:start">
+    <sc-for list="{{ b.lobbySlots }}" as="slot" hint-placeholder-count="4">
+      <div style="background:#fff;border-radius:20px;box-shadow:0 6px 16px rgba(124,58,237,.12);padding:16px 8px;display:flex;flex-direction:column;align-items:center;gap:7px">
+        <div style="width:56px;height:56px;border-radius:28px;padding:2px;background:linear-gradient(135deg,#7C3AED,#FF4D8D)">
+          <div style="width:100%;height:100%;border-radius:26px;background:#fff;display:flex;align-items:center;justify-content:center;font-family:'Fredoka';font-weight:600;font-size:19px;color:#7C3AED">{{ slot.initial }}</div>
+        </div>
+        <div style="font-family:'Fredoka';font-weight:600;font-size:14px;color:#2B1440">{{ slot.name }}</div>
+        <sc-if value="{{ slot.joined }}" hint-placeholder-val="{{ true }}"><div style="font-family:'Quicksand';font-weight:800;font-size:11px;color:#16C6B6">✓ Hazır</div></sc-if>
+        <sc-if value="{{ slot.waiting }}" hint-placeholder-val="{{ false }}"><div style="font-family:'Quicksand';font-weight:800;font-size:11px;color:#8B6FB3;animation:himBob 1s infinite">Bekleniyor…</div></sc-if>
+      </div>
+    </sc-for>
+  </div>
+  <div style="padding:10px 24px 26px">
+    <div onClick="{{ b.startGame }}" style-active="transform:scale(.98)" style="position:relative;overflow:hidden;text-align:center;background:linear-gradient(135deg,#7C3AED,#FF4D8D);border-radius:24px;padding:16px;font-family:'Fredoka';font-weight:600;font-size:17px;color:#fff;box-shadow:0 12px 24px rgba(124,58,237,.35);transition:all .15s;{{ b.startBtnStyle }}">
+      <div style="position:absolute;top:0;left:0;right:0;height:50%;background:linear-gradient(180deg,rgba(255,255,255,.3),rgba(255,255,255,0));pointer-events:none"></div>
+      <span style="position:relative">Oyunu Başlat</span>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ b.isGame }}" hint-placeholder-val="{{ false }}">
+<div style="height:100%;display:flex;flex-direction:column;padding-top:54px;box-sizing:border-box;position:relative">
+  <div style="display:flex;justify-content:space-around;padding:6px 14px">
+    <sc-for list="{{ b.opponents }}" as="opp" hint-placeholder-count="3">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+        <div style="width:44px;height:44px;border-radius:22px;padding:2px;background:linear-gradient(135deg,#26E0CB,#16C6B6)">
+          <div style="width:100%;height:100%;border-radius:20px;background:#fff;display:flex;align-items:center;justify-content:center;font-family:'Fredoka';font-weight:600;font-size:15px;color:#16C6B6">{{ opp.initial }}</div>
+        </div>
+        <div style="font-family:'Quicksand';font-weight:700;font-size:11px;color:#8B6FB3">{{ opp.name }}</div>
+        <div style="background:rgba(124,58,237,.1);border-radius:10px;padding:2px 8px;font-family:'Fredoka';font-weight:600;font-size:11px;color:#2B1440;display:flex;align-items:center;gap:4px"><svg width="11" height="11" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="13" height="15" rx="3" fill="currentColor" opacity="0.45" transform="rotate(-10 8.5 14.5)"></rect><rect x="7" y="4" width="13" height="15" rx="3" fill="currentColor"></rect></svg>4</div>
+      </div>
+    </sc-for>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;position:relative">
+    <div style="position:absolute;width:190px;height:190px;border-radius:50%;background:radial-gradient(circle,rgba(124,58,237,.12),transparent 70%)"></div>
+    <sc-if value="{{ b.penaltyFlash }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;top:0px;background:#FF4D8D;color:#fff;padding:8px 16px;border-radius:16px;font-family:'Fredoka';font-weight:600;font-size:13px;animation:himShake .4s;z-index:5;box-shadow:0 6px 16px rgba(255,77,141,.4)">Erken bastın! Ceza puanı</div>
+    </sc-if>
+    <div style="position:relative;background:#fff;border-radius:50%;padding:10px;box-shadow:0 8px 20px rgba(124,58,237,.14)">
+      <svg width="60" height="60" viewBox="0 0 64 64" style="transform:rotate(-90deg)">
+        <circle cx="32" cy="32" r="18" fill="none" stroke="rgba(124,58,237,.12)" stroke-width="6"></circle>
+        <circle cx="32" cy="32" r="18" fill="none" stroke="#7C3AED" stroke-width="6" stroke-linecap="round" stroke-dasharray="113.097" style="stroke-dashoffset:{{ b.timerDashOffset }}"></circle>
+      </svg>
+    </div>
+    <div style="position:relative;font-family:'Fredoka';font-weight:600;font-size:13px;color:#2B1440">{{ b.roundLabel }} · {{ b.tickLabel }}</div>
+  </div>
+  <div style="padding:6px 18px 6px;text-align:center;font-family:'Quicksand';font-weight:800;font-size:12px;min-height:16px">
+    <sc-if value="{{ b.handComplete }}" hint-placeholder-val="{{ false }}"><span style="color:#16C6B6">4'lün tamam — HIMBIL'e bas!</span></sc-if>
+    <sc-if value="{{ b.notHandComplete }}" hint-placeholder-val="{{ true }}"><span style="color:#8B6FB3">İşine yaramayan kartı seç, komşuna ver</span></sc-if>
+  </div>
+  <div style="display:flex;gap:9px;padding:8px 18px 4px;justify-content:center">
+    <sc-for list="{{ b.hand }}" as="card" hint-placeholder-count="4">
+      <div onClick="{{ card.onTap }}" style="cursor:pointer;position:relative;width:70px;height:96px;background:#fff;border-radius:16px;border:3px dashed #7C3AED;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(124,58,237,.16);transition:transform .2s;{{ card.liftStyle }}">
+        <sc-if value="{{ card.isBanana }}" hint-placeholder-val="{{ true }}"><svg width="36" height="36" viewBox="0 0 32 32" fill="none"><path d="M9 26c8 2 16-4 17-14 1-3-1-4-2-2-3 9-9 13-16 12-1 0-1 3 1 4z" fill="#FFCB3D"></path><path d="M8 25c-2-1-3-3-2-5" stroke="#E0A526" stroke-width="1.5" stroke-linecap="round"></path><circle cx="25" cy="10" r="1.6" fill="#8A5A2B"></circle></svg></sc-if>
+        <sc-if value="{{ card.isGrape }}" hint-placeholder-val="{{ false }}"><svg width="34" height="34" viewBox="0 0 32 32" fill="none"><path d="M15 6c3-2 6-1 6 2" stroke="#4C8C3B" stroke-width="1.6" stroke-linecap="round"></path><circle cx="12" cy="12" r="4" fill="#9B59D0"></circle><circle cx="19" cy="12" r="4" fill="#9B59D0"></circle><circle cx="9" cy="18" r="4" fill="#8E4CC7"></circle><circle cx="16" cy="18" r="4" fill="#9B59D0"></circle><circle cx="22" cy="18" r="4" fill="#8E4CC7"></circle><circle cx="12" cy="24" r="4" fill="#9B59D0"></circle><circle cx="19" cy="24" r="4" fill="#8E4CC7"></circle></svg></sc-if>
+        <sc-if value="{{ card.isWatermelon }}" hint-placeholder-val="{{ false }}"><svg width="36" height="36" viewBox="0 0 32 32" fill="none"><path d="M4 16a12 12 0 0 0 24 0z" fill="#3F8F4F"></path><path d="M6.5 16a9.5 9.5 0 0 0 19 0z" fill="#E8F5E0"></path><path d="M8.5 16a7.5 7.5 0 0 0 15 0z" fill="#F0455C"></path><circle cx="13" cy="18.5" r="0.9" fill="#2B1440"></circle><circle cx="16" cy="20" r="0.9" fill="#2B1440"></circle><circle cx="19" cy="18.5" r="0.9" fill="#2B1440"></circle></svg></sc-if>
+        <sc-if value="{{ card.isOrange }}" hint-placeholder-val="{{ false }}"><svg width="34" height="34" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="18" r="10" fill="#F4941E"></circle><path d="M16 8c1-3 4-4 6-3-1 3-4 4-6 3z" fill="#4C8C3B"></path></svg></sc-if>
+        <sc-if value="{{ card.isStrawberry }}" hint-placeholder-val="{{ false }}"><svg width="34" height="34" viewBox="0 0 32 32" fill="none"><path d="M16 28c6-1 10-7 9-13-1-5-5-6-9-4-4-2-8-1-9 4-1 6 3 12 9 13z" fill="#F0455C"></path><path d="M10 10l2 4M16 9v4M22 10l-2 4" stroke="#3F8F4F" stroke-width="2" stroke-linecap="round"></path><circle cx="12" cy="16" r="0.8" fill="#FFE9A8"></circle><circle cx="16" cy="14" r="0.8" fill="#FFE9A8"></circle><circle cx="20" cy="16" r="0.8" fill="#FFE9A8"></circle><circle cx="13" cy="21" r="0.8" fill="#FFE9A8"></circle><circle cx="19" cy="21" r="0.8" fill="#FFE9A8"></circle><circle cx="16" cy="24" r="0.8" fill="#FFE9A8"></circle></svg></sc-if>
+      </div>
+    </sc-for>
+  </div>
+  <div style="padding:14px 20px 24px;display:flex;flex-direction:column;align-items:center;gap:8px">
+    <div onClick="{{ b.onSlam }}" style-active="transform:scale(.94)" style="cursor:pointer;position:relative;overflow:hidden;width:116px;height:116px;border-radius:58px;background:linear-gradient(135deg,#7C3AED,#FF4D8D);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Fredoka';font-weight:600;font-size:19px;box-shadow:0 14px 26px rgba(124,58,237,.45);transition:transform .12s;{{ b.himbilAnim }}">
+      <div style="position:absolute;top:6px;left:14px;right:14px;height:34%;border-radius:50%;background:rgba(255,255,255,.28);pointer-events:none"></div>
+      <span style="position:relative">HIMBIL!</span>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ b.isSlam }}" hint-placeholder-val="{{ false }}">
+<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(180deg,#7C3AED,#FF4D8D);padding-top:40px;box-sizing:border-box;position:relative;overflow:hidden">
+  <div style="position:absolute;width:280px;height:280px;border-radius:50%;background:repeating-conic-gradient(rgba(255,255,255,.15) 0deg 8deg, transparent 8deg 16deg);animation:himRay 14s linear infinite"></div>
+  <div style="position:relative;font-family:'Fredoka';font-weight:700;font-size:42px;color:#fff;animation:himPop .5s ease;text-shadow:0 6px 18px rgba(0,0,0,.2)">HIMBIL!</div>
+  <div style="position:relative;width:88%;margin-top:18px;display:flex;flex-direction:column;gap:8px">
+    <sc-for list="{{ b.ranking }}" as="r" hint-placeholder-count="4">
+      <div style="opacity:0;animation:himRise .5s ease forwards;animation-delay:{{ r.delayMs }}ms;background:rgba(255,255,255,.96);border-radius:14px;padding:10px 14px;display:flex;align-items:center;gap:10px;box-shadow:0 6px 14px rgba(0,0,0,.12)">
+        <div style="width:26px;height:26px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-family:system-ui,sans-serif;font-weight:800;font-size:12px;color:#fff;background:{{ r.badgeBg }}">{{ r.rank }}</div>
+        <div style="flex:1;font-family:'Quicksand';font-weight:800;font-size:14px;color:#2B1440">{{ r.name }}</div>
+        <div style="font-family:'Fredoka';font-weight:600;font-size:14px;color:#16C6B6">+{{ r.points }}</div>
+      </div>
+    </sc-for>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ b.isRoundResult }}" hint-placeholder-val="{{ false }}">
+<div style="height:100%;display:flex;flex-direction:column;padding-top:60px;box-sizing:border-box">
+  <div style="text-align:center;padding:6px 22px 18px">
+    <div style="font-family:'Quicksand';font-weight:800;font-size:12px;color:#8B6FB3;letter-spacing:1px">TUR {{ b.roundNum }} SONUÇLARI</div>
+  </div>
+  <div style="flex:1;padding:0 24px;display:flex;flex-direction:column;gap:10px">
+    <sc-for list="{{ b.ranking }}" as="r" hint-placeholder-count="4">
+      <div style="background:#fff;border-radius:16px;box-shadow:0 6px 16px rgba(124,58,237,.1);padding:12px 16px;display:flex;align-items:center;gap:12px">
+        <div style="width:28px;height:28px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:system-ui,sans-serif;font-weight:800;font-size:13px;color:#fff;background:{{ r.badgeBg }}">{{ r.rank }}</div>
+        <div style="flex:1;font-family:'Fredoka';font-weight:600;font-size:15px;color:#2B1440">{{ r.name }}</div>
+        <div style="font-family:'Fredoka';font-weight:600;font-size:16px;color:#7C3AED">+{{ r.points }}</div>
+      </div>
+    </sc-for>
+  </div>
+  <div style="padding:16px 24px 26px">
+    <div onClick="{{ b.onNextRound }}" style-active="transform:scale(.98)" style="cursor:pointer;position:relative;overflow:hidden;text-align:center;background:linear-gradient(135deg,#7C3AED,#FF4D8D);border-radius:24px;padding:16px;font-family:'Fredoka';font-weight:600;font-size:16px;color:#fff;box-shadow:0 12px 24px rgba(124,58,237,.35);transition:transform .15s">
+      <div style="position:absolute;top:0;left:0;right:0;height:50%;background:linear-gradient(180deg,rgba(255,255,255,.3),rgba(255,255,255,0));pointer-events:none"></div>
+      <span style="position:relative">{{ b.nextLabel }}</span>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ b.isMatchEnd }}" hint-placeholder-val="{{ false }}">
+<div style="height:100%;display:flex;flex-direction:column;padding-top:56px;box-sizing:border-box;position:relative;overflow:hidden">
+  <div style="position:absolute;top:-20px;left:6%;width:8px;height:14px;border-radius:2px;background:#7C3AED;animation:confettiFall 2.8s linear infinite;animation-delay:0s"></div>
+  <div style="position:absolute;top:-20px;left:16%;width:10px;height:10px;border-radius:50%;background:#FFC93C;animation:confettiFall 3.2s linear infinite;animation-delay:.4s"></div>
+  <div style="position:absolute;top:-20px;left:27%;width:8px;height:14px;border-radius:2px;background:#16C6B6;animation:confettiFall 3s linear infinite;animation-delay:.9s"></div>
+  <div style="position:absolute;top:-20px;left:39%;width:9px;height:9px;border-radius:50%;background:#FF4D8D;animation:confettiFall 2.6s linear infinite;animation-delay:1.3s"></div>
+  <div style="position:absolute;top:-20px;left:51%;width:8px;height:14px;border-radius:2px;background:#FFC93C;animation:confettiFall 3.4s linear infinite;animation-delay:.15s"></div>
+  <div style="position:absolute;top:-20px;left:63%;width:10px;height:10px;border-radius:50%;background:#7C3AED;animation:confettiFall 2.9s linear infinite;animation-delay:1.7s"></div>
+  <div style="position:absolute;top:-20px;left:75%;width:8px;height:14px;border-radius:2px;background:#FF4D8D;animation:confettiFall 3.1s linear infinite;animation-delay:.6s"></div>
+  <div style="position:absolute;top:-20px;left:85%;width:9px;height:9px;border-radius:50%;background:#16C6B6;animation:confettiFall 2.7s linear infinite;animation-delay:2s"></div>
+  <div style="position:absolute;top:-20px;left:93%;width:8px;height:14px;border-radius:2px;background:#7C3AED;animation:confettiFall 3.3s linear infinite;animation-delay:1.1s"></div>
+  <div style="text-align:center;padding:8px 22px 4px">
+    <div style="width:70px;height:70px;border-radius:35px;background:linear-gradient(135deg,#7C3AED,#FF4D8D);margin:0 auto 8px;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 22px rgba(124,58,237,.4);animation:himGlow 2s ease infinite"><svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M7 4h10v4a5 5 0 0 1-10 0V4z" stroke="#fff" stroke-width="2" stroke-linejoin="round"></path><path d="M7 5H4.5A2.5 2.5 0 0 0 7 9.5M17 5h2.5A2.5 2.5 0 0 1 17 9.5" stroke="#fff" stroke-width="2" stroke-linecap="round"></path><path d="M12 13v3M9.5 20h5M10 17h4v3h-4z" stroke="#fff" stroke-width="2" stroke-linejoin="round"></path></svg></div>
+    <div style="font-family:'Fredoka';font-weight:700;font-size:21px;color:#2B1440">{{ b.winnerName }} kazandı!</div>
+  </div>
+  <div style="flex:1;padding:12px 24px;display:flex;flex-direction:column;gap:10px">
+    <sc-for list="{{ b.finalRanking }}" as="r" hint-placeholder-count="4">
+      <div style="background:#fff;border-radius:16px;box-shadow:0 6px 16px rgba(124,58,237,.1);padding:12px 16px;display:flex;align-items:center;gap:12px">
+        <div style="width:28px;height:28px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:system-ui,sans-serif;font-weight:800;font-size:13px;color:#fff;background:{{ r.badgeBg }}">{{ r.rank }}</div>
+        <div style="flex:1;font-family:'Fredoka';font-weight:600;font-size:15px;color:#2B1440">{{ r.name }}</div>
+        <div style="font-family:'Fredoka';font-weight:600;font-size:16px;color:#16C6B6">{{ r.total }}</div>
+      </div>
+    </sc-for>
+  </div>
+  <div style="padding:10px 24px 26px;display:flex;gap:10px">
+    <div onClick="{{ b.playAgain }}" style-active="transform:scale(.97)" style="cursor:pointer;flex:1;text-align:center;background:linear-gradient(135deg,#7C3AED,#FF4D8D);border-radius:22px;padding:15px;font-family:'Fredoka';font-weight:600;font-size:14px;color:#fff;box-shadow:0 10px 20px rgba(124,58,237,.35);transition:transform .15s">Tekrar Oyna</div>
+    <div onClick="{{ b.backHome }}" style-active="transform:scale(.97)" style="cursor:pointer;flex:1;text-align:center;background:#fff;box-shadow:0 6px 16px rgba(124,58,237,.12);border-radius:22px;padding:15px;font-family:'Fredoka';font-weight:600;font-size:14px;color:#2B1440;transition:transform .15s">Ana Menü</div>
+  </div>
+</div>
+</sc-if>
+
+</div>
+</x-import>
+</div>
+
+</div>
+<p class="dv-next">Deneyebileceğin: "<a class="dv-oid" href="#1a">1a</a> ve <a class="dv-oid" href="#1b">1b</a>'yi karşılaştır" · "kart nesnelerini değiştir" · "yeni bir yön dene"</p>
+</section>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+// ---- Hımbıl'a özel avatar seti (uygulamaya özgü, 15 karakter) ----
+const AV_DARK = '#2E1D12';
+const AV_CREAM = '#FFF6E8';
+function avEyeOval(cx, cy, rx, ry) {
+  rx = rx || 4.2; ry = ry || 6;
+  return '<ellipse cx="' + cx + '" cy="' + cy + '" rx="' + rx + '" ry="' + ry + '" fill="' + AV_DARK + '"/>' +
+    '<circle cx="' + (cx - rx * 0.35) + '" cy="' + (cy - ry * 0.35) + '" r="' + Math.max(rx * 0.28, 1) + '" fill="#fff" opacity=".85"/>';
+}
+function avEyeClosedArc(cx, cy) {
+  return '<path d="M ' + (cx - 5) + ' ' + cy + ' Q ' + cx + ' ' + (cy - 6) + ' ' + (cx + 5) + ' ' + cy + '" stroke="' + AV_DARK + '" stroke-width="3" fill="none" stroke-linecap="round"/>';
+}
+function avEyeTiredArc(cx, cy) {
+  return '<path d="M ' + (cx - 5) + ' ' + (cy - 2) + ' Q ' + cx + ' ' + (cy + 3) + ' ' + (cx + 5) + ' ' + (cy - 2) + '" stroke="' + AV_DARK + '" stroke-width="3" fill="none" stroke-linecap="round"/>';
+}
+function avEyeSleepyLid(cx, cy) {
+  return '<rect x="' + (cx - 5) + '" y="' + (cy - 1.5) + '" width="10" height="3" rx="1.5" fill="' + AV_DARK + '"/>';
+}
+function avEyeBigCircle(cx, cy, r) {
+  r = r || 7;
+  return '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="' + AV_DARK + '"/>' +
+    '<circle cx="' + (cx - 2) + '" cy="' + (cy - 2.4) + '" r="2" fill="#fff" opacity=".9"/>';
+}
+function avEyeHeart(cx, cy) {
+  return '<path d="M' + cx + ' ' + (cy + 4.5) + ' C ' + (cx - 6.5) + ' ' + (cy - 1.5) + ' ' + (cx - 3) + ' ' + (cy - 7) + ' ' + cx + ' ' + (cy - 3) + ' C ' + (cx + 3) + ' ' + (cy - 7) + ' ' + (cx + 6.5) + ' ' + (cy - 1.5) + ' ' + cx + ' ' + (cy + 4.5) + ' Z" fill="#E14B3B"/>';
+}
+function avEyeStar(cx, cy) {
+  var r1 = 5.5, r2 = 2.2;
+  return '<path d="M' + cx + ' ' + (cy - r1) + ' L' + (cx + r2) + ' ' + (cy - r2) + ' L' + (cx + r1) + ' ' + cy + ' L' + (cx + r2) + ' ' + (cy + r2) + ' L' + cx + ' ' + (cy + r1) + ' L' + (cx - r2) + ' ' + (cy + r2) + ' L' + (cx - r1) + ' ' + cy + ' L' + (cx - r2) + ' ' + (cy - r2) + ' Z" fill="#F0A93B"/>';
+}
+function avEyebrowAngled(cx, cy, tilt) {
+  return '<rect x="' + (cx - 5.5) + '" y="' + (cy - 9) + '" width="11" height="2.6" rx="1.3" fill="' + AV_DARK + '" transform="rotate(' + tilt + ' ' + cx + ' ' + (cy - 9) + ')"/>';
+}
+function avMouthSmile(cx, cy) {
+  return '<path d="M ' + (cx - 9) + ' ' + cy + ' Q ' + cx + ' ' + (cy + 9) + ' ' + (cx + 9) + ' ' + cy + '" stroke="' + AV_DARK + '" stroke-width="3.2" fill="none" stroke-linecap="round"/>';
+}
+function avMouthOpenLaugh(cx, cy) {
+  return '<path d="M ' + (cx - 8) + ' ' + (cy - 2) + ' Q ' + cx + ' ' + (cy + 10) + ' ' + (cx + 8) + ' ' + (cy - 2) + ' Q ' + cx + ' ' + (cy + 4) + ' ' + (cx - 8) + ' ' + (cy - 2) + ' Z" fill="#7A2E22"/>' +
+    '<ellipse cx="' + cx + '" cy="' + (cy + 3.5) + '" rx="3.4" ry="2" fill="#FF8B7A"/>';
+}
+function avMouthO(cx, cy, rx, ry) {
+  rx = rx || 3.2; ry = ry || 4;
+  return '<ellipse cx="' + cx + '" cy="' + (cy + 2) + '" rx="' + rx + '" ry="' + ry + '" fill="#7A2E22"/>';
+}
+function avMouthFlatSmall(cx, cy) {
+  return '<rect x="' + (cx - 4) + '" y="' + cy + '" width="8" height="2.6" rx="1.3" fill="' + AV_DARK + '"/>';
+}
+function avMouthSmirk(cx, cy) {
+  return '<path d="M ' + (cx - 7) + ' ' + (cy + 1) + ' Q ' + (cx + 2) + ' ' + (cy + 7) + ' ' + (cx + 8) + ' ' + (cy - 2) + '" stroke="' + AV_DARK + '" stroke-width="3" fill="none" stroke-linecap="round"/>';
+}
+function avMouthTongue(cx, cy) {
+  return avMouthSmile(cx, cy) + '<path d="M ' + (cx - 3) + ' ' + (cy + 4) + ' Q ' + cx + ' ' + (cy + 13) + ' ' + (cx + 3) + ' ' + (cy + 4) + ' Z" fill="#FF8B7A"/>';
+}
+function avMouthYawn(cx, cy) {
+  return '<ellipse cx="' + cx + '" cy="' + (cy + 3) + '" rx="6" ry="7" fill="#7A2E22"/>';
+}
+function avMouthDetermined(cx, cy) {
+  return '<rect x="' + (cx - 6) + '" y="' + cy + '" width="12" height="2.6" rx="1.3" fill="' + AV_DARK + '"/>';
+}
+function avBlush(cx1, cx2, cy, color, rx, ry) {
+  color = color || '#FF8A73'; rx = rx || 5; ry = ry || 3.2;
+  return '<ellipse cx="' + cx1 + '" cy="' + cy + '" rx="' + rx + '" ry="' + ry + '" fill="' + color + '" opacity=".5"/>' +
+    '<ellipse cx="' + cx2 + '" cy="' + cy + '" rx="' + rx + '" ry="' + ry + '" fill="' + color + '" opacity=".5"/>';
+}
+function avFreckles(cx, cy) {
+  var s = '';
+  [-6, -2, 2].forEach(function (dx) { s += '<circle cx="' + (cx + dx) + '" cy="' + cy + '" r="1" fill="' + AV_DARK + '" opacity=".4"/>'; });
+  return s;
+}
+function avBody(color, r, cx, cy) {
+  r = r || 40; cx = cx || 50; cy = cy || 56;
+  return '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="' + color + '"/>';
+}
+function avBelly(fill) {
+  fill = fill || AV_CREAM;
+  return '<ellipse cx="50" cy="78" rx="19" ry="14" fill="' + fill + '" opacity=".95"/>';
+}
+function avBellyStriped(color) {
+  return avBelly() + '<path d="M33 74 Q50 82 67 74" stroke="' + color + '" stroke-width="2.4" fill="none" opacity=".35"/>' +
+    '<path d="M35 84 Q50 90 65 84" stroke="' + color + '" stroke-width="2.4" fill="none" opacity=".35"/>';
+}
+function avRoundEars(color) {
+  return '<circle cx="24" cy="22" r="11" fill="' + color + '"/><circle cx="76" cy="22" r="11" fill="' + color + '"/>' +
+    '<circle cx="24" cy="23" r="5" fill="' + AV_CREAM + '"/><circle cx="76" cy="23" r="5" fill="' + AV_CREAM + '"/>';
+}
+function avAntenna(color) {
+  return '<line x1="50" y1="17" x2="50" y2="5" stroke="' + color + '" stroke-width="4" stroke-linecap="round"/>' +
+    '<circle cx="50" cy="5" r="5" fill="' + AV_CREAM + '" stroke="' + color + '" stroke-width="2"/>';
+}
+function avLeafFeature() {
+  return '<path d="M50 17 L50 7" stroke="#2F7A4D" stroke-width="2.2" stroke-linecap="round"/>' +
+    '<ellipse cx="50" cy="8" rx="6.5" ry="11" fill="#4FA36B" transform="rotate(-18 50 8)"/>';
+}
+function avCatEars(color) {
+  return '<path d="M20 24 L28 2 L39 20 Z" fill="' + color + '"/><path d="M80 24 L72 2 L61 20 Z" fill="' + color + '"/>';
+}
+function avHorn(color) {
+  return '<path d="M50 4 L59 22 L41 22 Z" fill="' + color + '"/><circle cx="50" cy="6" r="3" fill="' + AV_CREAM + '"/>';
+}
+function avTailCurl(color) {
+  return '<path d="M85 68 Q99 64 97 78 Q95 90 82 87" stroke="' + color + '" stroke-width="7" fill="none" stroke-linecap="round"/>';
+}
+function avBunnyEars(color) {
+  return '<rect x="33" y="-8" width="11" height="34" rx="5.5" fill="' + color + '" transform="rotate(-9 38.5 9)"/>' +
+    '<rect x="56" y="-8" width="11" height="34" rx="5.5" fill="' + color + '" transform="rotate(9 61.5 9)"/>' +
+    '<rect x="36" y="-2" width="5" height="20" rx="2.5" fill="' + AV_CREAM + '" opacity=".8" transform="rotate(-9 38.5 9)"/>' +
+    '<rect x="59" y="-2" width="5" height="20" rx="2.5" fill="' + AV_CREAM + '" opacity=".8" transform="rotate(9 61.5 9)"/>';
+}
+function avSpotsFeature(color) {
+  return '<circle cx="32" cy="76" r="4" fill="' + color + '" opacity=".3"/>' +
+    '<circle cx="63" cy="84" r="3" fill="' + color + '" opacity=".3"/>' +
+    '<circle cx="71" cy="64" r="3.5" fill="' + color + '" opacity=".3"/>';
+}
+function avFlowerFeature() {
+  var petals = '';
+  [0, 72, 144, 216, 288].forEach(function (ang) {
+    petals += '<circle cx="' + (24 + 5 * Math.cos(ang * Math.PI / 180)) + '" cy="' + (18 + 5 * Math.sin(ang * Math.PI / 180)) + '" r="4.4" fill="#F2D06B"/>';
+  });
+  return petals + '<circle cx="24" cy="18" r="3" fill="#E0762F"/>';
+}
+function avScallopBumps(color) {
+  var s = '';
+  [26, 50, 74].forEach(function (cx) {
+    s += '<path d="M' + (cx - 7) + ' 20 L' + cx + ' 6 L' + (cx + 7) + ' 20 Z" fill="' + color + '"/>';
+  });
+  return s;
+}
+function avTuftCurl(color) {
+  return '<path d="M46 16 Q42 4 54 6 Q62 8 56 16" stroke="' + color + '" stroke-width="5" fill="none" stroke-linecap="round"/>';
+}
+function avFloppyEar(color) {
+  return '<ellipse cx="83" cy="44" rx="9" ry="19" fill="' + color + '" transform="rotate(18 83 44)"/>' +
+    '<ellipse cx="83" cy="44" rx="4.5" ry="12" fill="' + AV_CREAM + '" opacity=".7" transform="rotate(18 83 44)"/>';
+}
+function avSvgWrap(inner) {
+  return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">' + inner + '</svg>';
+}
+function avDataUri(svg) {
+  return 'data:image/svg+xml,' + encodeURIComponent(svg);
+}
+function avImgRef(url) {
+  return function (el) { if (el && url && el.getAttribute('src') !== url) el.setAttribute('src', url); };
+}
+const AVATAR_DEFS = [
+  { id: 'elmacik', name: 'Elmacık', color: '#E14B3B', build: function (c) { return avRoundEars(c) + avBody(c) + avBelly() + avEyeOval(39, 50) + avEyeOval(61, 50) + avBlush(30, 70, 64) + avMouthSmile(50, 62); } },
+  { id: 'bal', name: 'Bal', color: '#F0A93B', build: function (c) { return avBody(c) + avAntenna(c) + avBelly() + avEyeBigCircle(39, 48, 6) + avEyeBigCircle(61, 48, 6) + avMouthO(50, 64); } },
+  { id: 'filiz', name: 'Filiz', color: '#3F8F6B', build: function (c) { return avBody(c) + avLeafFeature() + avBelly() + avEyeClosedArc(39, 48) + avEyeClosedArc(61, 48) + avBlush(30, 70, 62) + avMouthOpenLaugh(50, 62); } },
+  { id: 'deniz', name: 'Deniz', color: '#3B6EA5', build: function (c) { return avCatEars(c) + avBody(c) + avBelly() + '<rect x="28" y="45" width="44" height="11" rx="5.5" fill="' + AV_DARK + '"/><rect x="31" y="47.5" width="15" height="6" rx="3" fill="#5D7C93" opacity=".6"/><rect x="54" y="47.5" width="15" height="6" rx="3" fill="#5D7C93" opacity=".6"/>' + avMouthSmirk(50, 62); } },
+  { id: 'mora', name: 'Mora', color: '#8E5FC7', build: function (c) { return avHorn(c) + avBody(c) + avBelly() + avEyeSleepyLid(39, 50) + avEyeSleepyLid(61, 50) + avMouthFlatSmall(50, 62); } },
+  { id: 'toprak', name: 'Toprak', color: '#D9754F', build: function (c) { return avTailCurl(c) + avBody(c) + avBelly() + avEyeOval(39, 50) + avEyeOval(61, 50) + avMouthSmirk(50, 62); } },
+  { id: 'gullu', name: 'Güllü', color: '#D9678A', build: function (c) { return avBunnyEars(c) + avBody(c) + avBelly() + avEyeOval(39, 52, 3.2, 4.6) + avEyeOval(61, 52, 3.2, 4.6) + avBlush(28, 72, 62, '#FF6F91', 6, 4) + avMouthFlatSmall(50, 64); } },
+  { id: 'yosun', name: 'Yosun', color: '#2F9C8F', build: function (c) { return avBody(c) + avBelly() + avSpotsFeature(c) + avEyeOval(39, 50) + avEyeOval(61, 50) + avFreckles(39, 57) + avFreckles(61, 57) + avMouthSmile(50, 62); } },
+  { id: 'gokce', name: 'Gökçe', color: '#4FA0CC', build: function (c) { return avBody(c) + avFlowerFeature() + avBelly() + avEyeHeart(39, 50) + avEyeHeart(61, 50) + avMouthSmile(50, 62); } },
+  { id: 'fistik', name: 'Fıstık', color: '#93A83E', build: function (c) { return avBody(c) + avBellyStriped('#5C7A1E') + avEyeOval(39, 50) + avEyeOval(61, 50) + avMouthTongue(50, 60); } },
+  { id: 'saricik', name: 'Sarıcık', color: '#E3B93A', build: function (c) { return avScallopBumps(c) + avBody(c) + avBelly() + avEyeStar(39, 48) + avEyeStar(61, 48) + avMouthSmile(50, 62); } },
+  { id: 'uykucu', name: 'Uykucu', color: '#6C6FCB', build: function (c) { return avBody(c) + avBelly() + avEyeTiredArc(39, 50) + avEyeTiredArc(61, 50) + avMouthYawn(50, 62); } },
+  { id: 'kayisi', name: 'Kayısı', color: '#F2895B', build: function (c) { return avTuftCurl(c) + avBody(c) + avBelly() + avEyeClosedArc(39, 50) + avEyeOval(61, 50) + avMouthSmile(50, 62); } },
+  { id: 'erik', name: 'Erik', color: '#A8628F', build: function (c) { return avFloppyEar(c) + avBody(c) + avBelly() + avEyeBigCircle(39, 49, 7) + avEyeBigCircle(61, 49, 7) + avMouthO(50, 66, 3.6, 4.6); } },
+  { id: 'nane', name: 'Nane', color: '#4FB89A', build: function (c) { return avRoundEars(c) + avBody(c) + avBelly() + avEyebrowAngled(39, 47, -8) + avEyebrowAngled(61, 47, 8) + avEyeOval(39, 51, 3.6, 5) + avEyeOval(61, 51, 3.6, 5) + avMouthDetermined(50, 63); } }
+];
+const AVATAR_SET = AVATAR_DEFS.map(function (a) {
+  return { id: a.id, name: a.name, color: a.color, url: avDataUri(avSvgWrap(a.build(a.color))) };
+});
+const AVATAR_BY_ID = {};
+AVATAR_SET.forEach(function (a) { AVATAR_BY_ID[a.id] = a; });
+// ---- /avatar seti ----
+
+const NAMES_POOL = [
+  { name: 'Sen', initial: 'S', you: true, avatarId: null },
+  { name: 'Ayşe', initial: 'A', you: false, avatarId: 'gullu' },
+  { name: 'Mehmet', initial: 'M', you: false, avatarId: 'toprak' },
+  { name: 'Zeynep', initial: 'Z', you: false, avatarId: 'filiz' },
+  { name: 'Deniz', initial: 'D', you: false, avatarId: 'deniz' },
+  { name: 'Elif', initial: 'E', you: false, avatarId: 'gokce' },
+];
+function getPlayers(n) {
+  return NAMES_POOL.slice(0, n).map((p, i) => ({ id: i, ...p, avatarUrl: p.avatarId ? AVATAR_BY_ID[p.avatarId].url : null }));
+}
+const POINTS_BY_COUNT = {
+  3: [100, 60, 30],
+  4: [100, 75, 50, 25],
+  5: [100, 80, 60, 40, 20],
+  6: [100, 80, 60, 40, 25, 10],
+};
+function pointsFor(n) { return POINTS_BY_COUNT[n] || POINTS_BY_COUNT[4]; }
+function slamOrderFor(round, n) {
+  const idxs = Array.from({ length: n }, (_, i) => i);
+  if (round === 1) {
+    return [0, ...idxs.slice(1).reverse()];
+  }
+  const rest = idxs.slice(1);
+  const first = rest[rest.length - 1];
+  return [first, 0, ...rest.slice(0, rest.length - 1)];
+}
+
+const SCRIPTED = {
+  1: [
+    ['banana', 'grape', 'watermelon', 'orange'],
+    ['banana', 'banana', 'grape', 'watermelon'],
+    ['banana', 'banana', 'banana', 'grape'],
+    ['banana', 'banana', 'banana', 'banana'],
+  ],
+  2: [
+    ['strawberry', 'grape', 'watermelon', 'orange'],
+    ['strawberry', 'strawberry', 'grape', 'watermelon'],
+    ['strawberry', 'strawberry', 'strawberry', 'watermelon'],
+    ['strawberry', 'strawberry', 'strawberry', 'strawberry'],
+  ],
+};
+
+const TICK_DURATION = 4;
+const TOTAL_ROUNDS = 2;
+const CIRC = 2 * Math.PI * 18;
+
+const GLOBAL_LEADERBOARD = [
+  { rank: 1, name: 'Deniz K.', score: 2450 },
+  { rank: 2, name: 'Sen', score: 1875 },
+  { rank: 3, name: 'Ayşe Y.', score: 1620 },
+  { rank: 4, name: 'Mehmet A.', score: 1400 },
+  { rank: 5, name: 'Zeynep T.', score: 1180 },
+];
+
+const PROFILE_STATS = { games: 47, wins: 19, winRate: '%40', bestStreak: 5 };
+
+const CARD_SKINS = [
+  { id: 'klasik', name: 'Klasik', owned: true, price: 0 },
+  { id: 'karnaval', name: 'Karnaval', owned: true, price: 0 },
+  { id: 'altin', name: 'Altın', owned: false, price: 500 },
+  { id: 'yildiz', name: 'Yıldız Tozu', owned: false, price: 750 },
+];
+const AVATAR_FRAMES = [
+  { id: 'standart', name: 'Standart', owned: true, price: 0 },
+  { id: 'alev', name: 'Alev', owned: true, price: 0 },
+  { id: 'tac', name: 'Taç', owned: false, price: 400 },
+  { id: 'elmas', name: 'Elmas', owned: false, price: 900 },
+];
+
+function freshSide() {
+  return {
+    screen: 'home',
+    tab: 'play',
+    joinCode: '',
+    roomCode: '',
+    playerCount: 4,
+    lobbyReady: false,
+    round: 1,
+    tick: 0,
+    hand: SCRIPTED[1][0],
+    selected: null,
+    phase: 'swap',
+    timeLeft: TICK_DURATION,
+    penaltyFlash: false,
+    passAnim: null,
+    onboardStep: 0,
+    onboardAvatarIdx: 0,
+    onboardName: 'Oyuncu123',
+    settingsSound: true,
+    settingsNotif: true,
+    settingsHaptic: true,
+    settingsLang: 'tr',
+    howtoStep: 0,
+    darkMode: false,
+    storeTab: 'cards',
+    equippedSkin: 'klasik',
+    equippedFrame: 'standart',
+    coins: 1250,
+  };
+}
+
+class Component extends DCLogic {
+  state = { a: { ...freshSide(), screen: 'onboarding' }, b: freshSide() };
+
+  componentWillUnmount() {
+    this.stopTimer('a');
+    this.stopTimer('b');
+  }
+
+  setSide(side, patch) {
+    this.setState(prev => ({ ...prev, [side]: { ...prev[side], ...patch } }));
+  }
+
+  startTimer(side) {
+    this.stopTimer(side);
+    this['_timer_' + side] = setInterval(() => {
+      const s = this.state[side];
+      if (!s || s.screen !== 'game' || s.phase !== 'swap' || s.passAnim) return;
+      const next = +(s.timeLeft - 0.1).toFixed(1);
+      if (next <= 0) {
+        this.stopTimer(side);
+        this.beginPass(side, Math.floor(Math.random() * s.hand.length));
+      } else {
+        this.setSide(side, { timeLeft: next });
+      }
+    }, 100);
+  }
+
+  stopTimer(side) {
+    const key = '_timer_' + side;
+    if (this[key]) { clearInterval(this[key]); this[key] = null; }
+  }
+
+  onCardTap(side, idx) {
+    const s = this.state[side];
+    if (s.screen !== 'game' || s.phase !== 'swap' || s.selected !== null || s.passAnim) return;
+    this.stopTimer(side);
+    this.setSide(side, { selected: idx });
+    setTimeout(() => this.beginPass(side, idx), 300);
+  }
+
+  beginPass(side, idx) {
+    const s = this.state[side];
+    if (!s || s.screen !== 'game' || s.phase !== 'swap') return;
+    const nextTick = s.tick + 1;
+    const nextHand = SCRIPTED[s.round][nextTick];
+    this.setSide(side, { selected: idx, passAnim: { idx, stage: 'out' } });
+    setTimeout(() => {
+      const s2 = this.state[side];
+      if (!s2 || s2.screen !== 'game') return;
+      this.setSide(side, { hand: nextHand, passAnim: { idx, stage: 'relayNorth' } });
+      setTimeout(() => {
+        const s3 = this.state[side];
+        if (!s3 || s3.screen !== 'game') return;
+        this.setSide(side, { passAnim: { idx, stage: 'relayWest' } });
+        setTimeout(() => {
+          const s4 = this.state[side];
+          if (!s4 || s4.screen !== 'game') return;
+          this.setSide(side, { passAnim: { idx, stage: 'in' } });
+          setTimeout(() => {
+            const s5 = this.state[side];
+            if (!s5 || s5.screen !== 'game') return;
+            const done = nextTick >= 3;
+            this.setSide(side, { passAnim: null, tick: nextTick, selected: null, timeLeft: TICK_DURATION, phase: done ? 'ready' : 'swap' });
+            if (done) this.stopTimer(side); else this.startTimer(side);
+          }, 380);
+        }, 340);
+      }, 340);
+    }, 420);
+  }
+
+  onSlam(side) {
+    const s = this.state[side];
+    if (s.screen !== 'game') return;
+    if (s.phase === 'ready') {
+      this.stopTimer(side);
+      this.setSide(side, { screen: 'slam' });
+      setTimeout(() => this.setSide(side, { screen: 'roundResult' }), 1700);
+    } else {
+      this.setSide(side, { penaltyFlash: true });
+      setTimeout(() => this.setSide(side, { penaltyFlash: false }), 900);
+    }
+  }
+
+  setTab(side, tab) { this.setSide(side, { tab }); }
+
+  quickPlay(side) {
+    const roomCode = String(Math.floor(10000 + Math.random() * 90000));
+    this.setSide(side, { screen: 'lobby', roomCode, lobbyReady: false });
+    setTimeout(() => this.setSide(side, { lobbyReady: true }), 1600);
+  }
+
+  setPlayerCount(side, n) {
+    const s = this.state[side];
+    if (s.screen !== 'home') return;
+    this.setSide(side, { playerCount: n });
+  }
+
+  openJoin(side) { this.setSide(side, { screen: 'join', joinCode: '' }); }
+
+  keypadDigit(side, d) {
+    const s = this.state[side];
+    if (s.screen !== 'join' || s.joinCode.length >= 5) return;
+    const code = s.joinCode + d;
+    this.setSide(side, { joinCode: code });
+    if (code.length === 5) setTimeout(() => this.enterLobbyFromCode(side), 500);
+  }
+
+  keypadDelete(side) {
+    const s = this.state[side];
+    if (s.screen !== 'join') return;
+    this.setSide(side, { joinCode: s.joinCode.slice(0, -1) });
+  }
+
+  fillDemoCode(side) {
+    this.setSide(side, { joinCode: '34521' });
+    setTimeout(() => this.enterLobbyFromCode(side), 500);
+  }
+
+  enterLobbyFromCode(side) {
+    const s = this.state[side];
+    this.setSide(side, { screen: 'lobby', roomCode: s.joinCode || '34521', lobbyReady: false });
+    setTimeout(() => this.setSide(side, { lobbyReady: true }), 1400);
+  }
+
+  startGame(side) {
+    const s = this.state[side];
+    if (!s.lobbyReady) return;
+    this.setSide(side, { screen: 'game', round: 1, tick: 0, hand: SCRIPTED[1][0], phase: 'swap', selected: null, timeLeft: TICK_DURATION });
+    this.startTimer(side);
+  }
+
+  nextRound(side) {
+    const s = this.state[side];
+    if (s.round < TOTAL_ROUNDS) {
+      const round = s.round + 1;
+      this.setSide(side, { screen: 'game', round, tick: 0, hand: SCRIPTED[round][0], phase: 'swap', selected: null, timeLeft: TICK_DURATION });
+      this.startTimer(side);
+    } else {
+      this.setSide(side, { screen: 'matchEnd' });
+    }
+  }
+
+  backHome(side) {
+    this.stopTimer(side);
+    this.setSide(side, freshSide());
+  }
+
+  playAgain(side) {
+    this.stopTimer(side);
+    this.setSide(side, freshSide());
+  }
+
+  setOnboardAvatar(side, idx) { this.setSide(side, { onboardAvatarIdx: idx }); }
+  goOnboardStep(side, step) { this.setSide(side, { onboardStep: step }); }
+  setOnboardName(side, e) { this.setSide(side, { onboardName: e.target.value }); }
+  finishOnboarding(side) { this.setSide(side, { screen: 'home' }); }
+
+  openSettings(side) { this.setSide(side, { screen: 'settings' }); }
+  openHowto(side) { this.setSide(side, { screen: 'howto', howtoStep: 0 }); }
+  openStore(side) { this.setSide(side, { screen: 'store' }); }
+  closeToHome(side) { this.setSide(side, { screen: 'home' }); }
+
+  toggleSetting(side, key) {
+    const s = this.state[side];
+    this.setSide(side, { [key]: !s[key] });
+  }
+  setLang(side, lang) { this.setSide(side, { settingsLang: lang }); }
+
+  howtoNext(side) {
+    const s = this.state[side];
+    if (s.howtoStep < 3) this.setSide(side, { howtoStep: s.howtoStep + 1 });
+    else this.setSide(side, { screen: 'home' });
+  }
+  setHowtoStep(side, step) { this.setSide(side, { howtoStep: step }); }
+
+  setStoreTab(side, tab) { this.setSide(side, { storeTab: tab }); }
+  toggleDarkMode(side) { this.toggleSetting(side, 'darkMode'); }
+  equipSkin(side, item) { if (item.owned) this.setSide(side, { equippedSkin: item.id }); }
+  equipFrame(side, item) { if (item.owned) this.setSide(side, { equippedFrame: item.id }); }
+
+  computeSide(side) {
+    const s = this.state[side];
+    const isA = side === 'a';
+    const toggleTrackStyle = (on) => on ? 'background:linear-gradient(160deg,#FF6F5A,#E14B3B);' : 'background:rgba(46,29,18,.15);';
+    const toggleKnobStyle = (on) => on ? 'transform:translateX(18px);' : 'transform:translateX(0);';
+    const dm = isA && s.darkMode;
+    const cardBg = dm ? '#33251A' : '#FFFDF8';
+    const cardBg2 = dm ? '#3D2C1B' : '#FFF3DE';
+    const ticketBg2 = dm ? '#3D2C1B' : '#FFF1DC';
+    const textPrimary = dm ? '#F5EDE2' : '#2E1D12';
+    const textMuted = dm ? '#C2AF98' : '#8A7660';
+    const phoneBg = dm
+      ? 'radial-gradient(circle at 14% 6%, rgba(240,169,59,.12), transparent 42%),radial-gradient(circle at 92% 18%, rgba(225,75,59,.12), transparent 38%),radial-gradient(circle at 50% 100%, rgba(63,143,107,.08), transparent 45%),#1C130C'
+      : 'radial-gradient(circle at 14% 6%, rgba(240,169,59,.22), transparent 42%),radial-gradient(circle at 92% 18%, rgba(225,75,59,.14), transparent 38%),radial-gradient(circle at 50% 100%, rgba(63,143,107,.08), transparent 45%),#FBF3E4';
+    const badgeBg = (rank) => rank === 1 ? 'linear-gradient(160deg,#FFE29A,#F0A93B)' : rank === 2 ? 'linear-gradient(160deg,#EDEDED,#B9B9C2)' : rank === 3 ? 'linear-gradient(160deg,#E3A97A,#B87333)' : 'linear-gradient(160deg,#D9D3C8,#AFA593)';
+    const timerDashOffset = CIRC * (1 - s.timeLeft / TICK_DURATION);
+    const passStage = s.passAnim ? s.passAnim.stage : null;
+    const passIdx = s.passAnim ? s.passAnim.idx : -1;
+    const hand = s.hand.map((type, idx) => {
+      let liftStyle = 'transform:none;';
+      if (passIdx === idx && passStage === 'out') liftStyle = 'animation:cardFlyOutSelf .42s ease forwards;';
+      else if (passIdx === idx && (passStage === 'relayNorth' || passStage === 'relayWest')) liftStyle = 'opacity:0;';
+      else if (passIdx === idx && passStage === 'in') liftStyle = 'animation:cardFlyInSelf .38s cubic-bezier(.2,.8,.3,1);';
+      else if (s.selected === idx) liftStyle = 'transform:translateY(-14px) scale(1.06);';
+      return {
+        type, idx,
+        isBanana: type === 'banana',
+        isGrape: type === 'grape',
+        isWatermelon: type === 'watermelon',
+        isOrange: type === 'orange',
+        isStrawberry: type === 'strawberry',
+        selected: s.selected === idx,
+        liftStyle,
+        onTap: () => this.onCardTap(side, idx),
+      };
+    });
+    const eastPulseStyle = passStage === 'out' ? 'animation:stackPulse .42s ease;' : '';
+    const northPulseStyle = passStage === 'relayNorth' ? 'animation:stackPulse .34s ease;' : '';
+    const westPulseStyle = passStage === 'relayWest' || passStage === 'in' ? 'animation:stackPulse .34s ease;' : '';
+    const n = s.playerCount || 4;
+    const PLAYERS = getPlayers(n);
+    PLAYERS[0] = { ...PLAYERS[0], avatarUrl: AVATAR_SET[s.onboardAvatarIdx || 0].url };
+    const POINTS = pointsFor(n);
+    const opponents = PLAYERS.filter(p => !p.you).map(p => ({ ...p, avatarRef: avImgRef(p.avatarUrl) }));
+    const opponentWest = opponents[0] || null;
+    const opponentNorth = opponents[1] || null;
+    const opponentEast = opponents[2] || null;
+    const isFourPlayerLayout = opponents.length === 3;
+    const order = slamOrderFor(s.round, n);
+    const ranking = order.map((pid, i) => {
+      const p = PLAYERS.find(pp => pp.id === pid);
+      return { rank: i + 1, badgeBg: badgeBg(i + 1), name: p.name, you: p.you, points: POINTS[i], delayMs: i * 260 };
+    });
+    const totals = {};
+    PLAYERS.forEach(p => { totals[p.id] = 0; });
+    [1, 2].forEach(r => { slamOrderFor(r, n).forEach((pid, i) => { totals[pid] += POINTS[i]; }); });
+    const finalRanking = PLAYERS.map(p => ({ id: p.id, name: p.name, you: p.you, total: totals[p.id] }))
+      .sort((x, y) => y.total - x.total)
+      .map((p, i) => ({ ...p, rank: i + 1, badgeBg: badgeBg(i + 1) }));
+
+    const joinBoxes = [0, 1, 2, 3, 4].map(i => ({ filled: i < s.joinCode.length, value: s.joinCode[i] || '' }));
+    const lobbySlots = PLAYERS.map((p, i) => {
+      const joined = i === 0 || s.lobbyReady;
+      return { name: p.name, initial: p.initial, you: p.you, isBot: !p.you, avatarRef: avImgRef(p.avatarUrl), joined, waiting: !joined };
+    });
+    const playerCountOptions = [3, 4, 5, 6].map(count => ({
+      count,
+      active: n === count,
+      style: n === count
+        ? (isA ? 'background:linear-gradient(160deg,#FF6F5A,#E14B3B);color:#fff;' : 'background:linear-gradient(135deg,#7C3AED,#FF4D8D);color:#fff;')
+        : (isA ? 'color:' + textMuted + ';' : 'color:#8B6FB3;'),
+      onTap: () => this.setPlayerCount(side, count),
+    }));
+
+    return {
+      isHome: s.screen === 'home',
+      isJoin: s.screen === 'join',
+      isLobby: s.screen === 'lobby',
+      isGame: s.screen === 'game',
+      isSlam: s.screen === 'slam',
+      isRoundResult: s.screen === 'roundResult',
+      isMatchEnd: s.screen === 'matchEnd',
+      isOnboarding: s.screen === 'onboarding',
+      isSettings: s.screen === 'settings',
+      isHowto: s.screen === 'howto',
+      isStore: s.screen === 'store',
+      openSettings: () => this.openSettings(side),
+      openHowto: () => this.openHowto(side),
+      openStore: () => this.openStore(side),
+      closeToHome: () => this.closeToHome(side),
+      onboardStepAvatar: s.onboardStep === 0,
+      onboardStepName: s.onboardStep === 1,
+      onboardName: s.onboardName,
+      onNameChange: (e) => this.setOnboardName(side, e),
+      onboardAvatars: AVATAR_SET.map((av, i) => ({ ref: avImgRef(av.url), name: av.name, selected: s.onboardAvatarIdx === i, ringStyle: s.onboardAvatarIdx === i ? 'box-shadow:0 0 0 3px #fff, 0 0 0 4px ' + av.color + ';' : 'box-shadow:none;', onTap: () => this.setOnboardAvatar(side, i) })),
+      onboardAvatarRef: avImgRef(AVATAR_SET[s.onboardAvatarIdx || 0].url),
+      onboardInitial: (s.onboardName || '?').charAt(0).toUpperCase(),
+      goOnboardName: () => this.goOnboardStep(side, 1),
+      goOnboardAvatar: () => this.goOnboardStep(side, 0),
+      finishOnboarding: () => this.finishOnboarding(side),
+      settingsSound: s.settingsSound,
+      settingsNotif: s.settingsNotif,
+      settingsHaptic: s.settingsHaptic,
+      soundTrackStyle: toggleTrackStyle(s.settingsSound),
+      soundKnobStyle: toggleKnobStyle(s.settingsSound),
+      notifTrackStyle: toggleTrackStyle(s.settingsNotif),
+      notifKnobStyle: toggleKnobStyle(s.settingsNotif),
+      hapticTrackStyle: toggleTrackStyle(s.settingsHaptic),
+      hapticKnobStyle: toggleKnobStyle(s.settingsHaptic),
+      toggleSound: () => this.toggleSetting(side, 'settingsSound'),
+      toggleNotif: () => this.toggleSetting(side, 'settingsNotif'),
+      toggleHaptic: () => this.toggleSetting(side, 'settingsHaptic'),
+      darkMode: dm,
+      darkTrackStyle: toggleTrackStyle(dm),
+      darkKnobStyle: toggleKnobStyle(dm),
+      toggleDark: () => this.toggleDarkMode(side),
+      cardBg, cardBg2, ticketBg2, textPrimary, textMuted, phoneBg,
+      langTr: s.settingsLang === 'tr',
+      langEn: s.settingsLang === 'en',
+      langTrStyle: s.settingsLang === 'tr' ? 'background:linear-gradient(160deg,#FF6F5A,#E14B3B);color:#fff;' : 'color:#8A7660;',
+      langEnStyle: s.settingsLang === 'en' ? 'background:linear-gradient(160deg,#FF6F5A,#E14B3B);color:#fff;' : 'color:#8A7660;',
+      setLangTr: () => this.setLang(side, 'tr'),
+      setLangEn: () => this.setLang(side, 'en'),
+      howto0: s.howtoStep === 0,
+      howto1: s.howtoStep === 1,
+      howto2: s.howtoStep === 2,
+      howto3: s.howtoStep === 3,
+      howtoDots: [0, 1, 2, 3].map(i => ({
+        dotStyle: s.howtoStep === i ? 'background:#E14B3B;width:22px;' : 'background:rgba(46,29,18,.15);width:8px;',
+        onTap: () => this.setHowtoStep(side, i),
+      })),
+      howtoNext: () => this.howtoNext(side),
+      howtoBtnLabel: s.howtoStep === 3 ? 'Anladım!' : 'İleri',
+      storeTabCards: s.storeTab === 'cards',
+      storeTabFrames: s.storeTab === 'frames',
+      storeTabCardsStyle: s.storeTab === 'cards' ? 'background:linear-gradient(160deg,#FF6F5A,#E14B3B);color:#fff;' : 'color:#8A7660;',
+      storeTabFramesStyle: s.storeTab === 'frames' ? 'background:linear-gradient(160deg,#FF6F5A,#E14B3B);color:#fff;' : 'color:#8A7660;',
+      setStoreTabCards: () => this.setStoreTab(side, 'cards'),
+      setStoreTabFrames: () => this.setStoreTab(side, 'frames'),
+      coins: s.coins,
+      cardSkins: CARD_SKINS.map(item => {
+        const equipped = s.equippedSkin === item.id;
+        const preview = {
+          klasik: 'background:linear-gradient(160deg,#FFFDF8,#FFF3DE);border:3px solid #E14B3B;',
+          karnaval: 'background:linear-gradient(160deg,#FFE29A,#F0A93B);border:3px solid #B93424;',
+          altin: 'background:linear-gradient(160deg,#FFF3C4,#E8B93B);border:3px solid #C97F1E;',
+          yildiz: 'background:linear-gradient(160deg,#3B2E5C,#1F1738);border:3px solid #8E5FC7;',
+        }[item.id];
+        return {
+          ...item, equipped,
+          previewStyle: preview,
+          selectedStyle: equipped ? 'box-shadow:0 0 0 3px #fff, 0 0 0 6px #E14B3B;' : '',
+          priceLabel: equipped ? 'Kullanılıyor' : item.owned ? 'Dokun: Kullan' : item.price + ' jeton',
+          priceStyle: equipped ? 'color:#3F8F6B;' : item.owned ? 'color:#3B6EA5;' : 'color:#8A7660;',
+          onTap: () => this.equipSkin(side, item),
+        };
+      }),
+      avatarFrames: AVATAR_FRAMES.map(item => {
+        const equipped = s.equippedFrame === item.id;
+        const frame = {
+          standart: 'background:linear-gradient(160deg,#D9D3C8,#AFA593);',
+          alev: 'background:linear-gradient(160deg,#FF6F5A,#E14B3B);',
+          tac: 'background:linear-gradient(160deg,#FFE29A,#F0A93B);',
+          elmas: 'background:linear-gradient(160deg,#BFE9F5,#5FB9D8);',
+        }[item.id];
+        return {
+          ...item, equipped,
+          frameStyle: frame,
+          selectedStyle: equipped ? 'box-shadow:0 0 0 3px #fff, 0 0 0 6px #E14B3B;' : '',
+          priceLabel: equipped ? 'Kullanılıyor' : item.owned ? 'Dokun: Kullan' : item.price + ' jeton',
+          priceStyle: equipped ? 'color:#3F8F6B;' : item.owned ? 'color:#3B6EA5;' : 'color:#8A7660;',
+          onTap: () => this.equipFrame(side, item),
+        };
+      }),
+      tabPlay: s.tab === 'play',
+      tabProfile: s.tab === 'profile',
+      setTabPlay: () => this.setTab(side, 'play'),
+      setTabProfile: () => this.setTab(side, 'profile'),
+      quickPlay: () => this.quickPlay(side),
+      openJoin: () => this.openJoin(side),
+      backHome: () => this.backHome(side),
+      joinCode: s.joinCode,
+      joinBoxes,
+      digit0: () => this.keypadDigit(side, '0'),
+      digit1: () => this.keypadDigit(side, '1'),
+      digit2: () => this.keypadDigit(side, '2'),
+      digit3: () => this.keypadDigit(side, '3'),
+      digit4: () => this.keypadDigit(side, '4'),
+      digit5: () => this.keypadDigit(side, '5'),
+      digit6: () => this.keypadDigit(side, '6'),
+      digit7: () => this.keypadDigit(side, '7'),
+      digit8: () => this.keypadDigit(side, '8'),
+      digit9: () => this.keypadDigit(side, '9'),
+      keypadDelete: () => this.keypadDelete(side),
+      fillDemoCode: () => this.fillDemoCode(side),
+      roomCode: s.roomCode,
+      lobbySlots,
+      playerCountOptions,
+      lobbyReady: s.lobbyReady,
+      startBtnStyle: s.lobbyReady ? 'opacity:1;cursor:pointer;' : 'opacity:.45;cursor:default;pointer-events:none;',
+      startGame: () => this.startGame(side),
+      tabPlayStyle: s.tab === 'play'
+        ? (isA ? 'background:linear-gradient(160deg,#FF6F5A,#E14B3B);color:#fff;box-shadow:0 4px 10px rgba(225,75,59,.3);' : 'background:linear-gradient(135deg,#7C3AED,#FF4D8D);color:#fff;box-shadow:0 4px 10px rgba(124,58,237,.3);')
+        : (isA ? 'color:#8A7660;' : 'color:#8B6FB3;'),
+      tabProfileStyle: s.tab === 'profile'
+        ? (isA ? 'background:linear-gradient(160deg,#FF6F5A,#E14B3B);color:#fff;box-shadow:0 4px 10px rgba(225,75,59,.3);' : 'background:linear-gradient(135deg,#7C3AED,#FF4D8D);color:#fff;box-shadow:0 4px 10px rgba(124,58,237,.3);')
+        : (isA ? 'color:#8A7660;' : 'color:#8B6FB3;'),
+      roundNum: s.round,
+      totalRounds: TOTAL_ROUNDS,
+      roundLabel: 'Tur ' + s.round + '/' + TOTAL_ROUNDS,
+      tickLabel: 'Takas ' + Math.min(s.tick + 1, 3) + '/3',
+      timerDashOffset,
+      opponents,
+      opponentWest,
+      opponentNorth,
+      opponentEast,
+      isFourPlayerLayout,
+      notFourPlayerLayout: !isFourPlayerLayout,
+      westPulseStyle,
+      eastPulseStyle,
+      northPulseStyle,
+      hand,
+      handComplete: s.phase === 'ready',
+      notHandComplete: s.phase !== 'ready',
+      himbilAnim: s.phase === 'ready' ? (isA ? 'animation:himPulseA 1.1s infinite;' : 'animation:himPulseB 1.1s infinite;') : '',
+      onSlam: () => this.onSlam(side),
+      penaltyFlash: s.penaltyFlash,
+      ranking,
+      nextLabel: s.round < TOTAL_ROUNDS ? 'Sonraki Tur →' : 'Final Sonuçlar →',
+      onNextRound: () => this.nextRound(side),
+      finalRanking,
+      winnerName: finalRanking[0] ? finalRanking[0].name : '',
+      playAgain: () => this.playAgain(side),
+      profileStats: PROFILE_STATS,
+      leaderboard: GLOBAL_LEADERBOARD,
+    };
+  }
+
+  renderVals() {
+    return { a: this.computeSide('a'), b: this.computeSide('b') };
+  }
+}
+</script>
+</body>
+</html>

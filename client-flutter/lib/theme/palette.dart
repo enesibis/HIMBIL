@@ -16,6 +16,13 @@ class Palette {
   static const Color redPressedEnd = Color(0xFFD6432F);
   static const Color redShadow = Color(0xFFA82E20);
 
+  /// Kapalı (rakip) kart kenarlığı — açık kartlardan (red) biraz daha koyu.
+  static const Color cardBackBorder = Color(0xFFB93424);
+
+  /// Avatar çerçevesi ve rakip isim rengi için mavi degrade tonları.
+  static const Color avatarRingStart = Color(0xFF5B8FC7);
+  static const Color avatarRingEnd = Color(0xFF3B6EA5);
+
   static const Color mustard = Color(0xFFF0A93B);
   static const Color mustardLight = Color(0xFFFFCB7A);
 

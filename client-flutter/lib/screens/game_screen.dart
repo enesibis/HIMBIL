@@ -9,9 +9,11 @@ import '../theme/palette.dart';
 import '../theme/text_styles.dart';
 import '../widgets/carnival_background.dart';
 import '../widgets/countdown_ring.dart';
+import '../widgets/flying_card.dart';
 import '../widgets/game_over_overlay.dart';
 import '../widgets/gradient_cta.dart';
 import '../widgets/himbil_card.dart';
+import '../widgets/opponent_fan.dart';
 import '../widgets/player_avatar.dart';
 import '../widgets/soft_button.dart';
 import 'round_result_screen.dart';
@@ -39,11 +41,17 @@ class _GameScreenState extends State<GameScreen> {
   int? _selectedIndex;
   String _phase = 'swapping';
   double _countdownProgress = 1.0;
+  double _secondsLeft = 0;
   String? _toastText;
   Timer? _toastTimer;
   int _humanScore = 0;
   final Map<String, int> _botScores = {'bot_west': 0, 'bot_north': 0, 'bot_east': 0};
   ({String winnerId, Map<String, int> scores})? _gameOver;
+
+  /// Sıralı pas zinciri sürerken dolu olan, uçan kartın orijinal el
+  /// slotu — bu süre boyunca yeni seçim ve zamanlayıcı güncellemesi
+  /// engellenir (design_handoff: "zincir sürerken geri sayım duraklatılır").
+  int? _passSlot;
 
   final GlobalKey<GradientCtaState> _slamKey = GlobalKey<GradientCtaState>();
   final Map<String, GlobalKey<PlayerAvatarState>> _avatarKeys = {
@@ -51,6 +59,10 @@ class _GameScreenState extends State<GameScreen> {
     'bot_north': GlobalKey<PlayerAvatarState>(),
     'bot_east': GlobalKey<PlayerAvatarState>(),
   };
+  final GlobalKey<CardFanPulseState> _northFanKey = GlobalKey<CardFanPulseState>();
+  final GlobalKey<CardFanPulseState> _westFanKey = GlobalKey<CardFanPulseState>();
+  final GlobalKey<CardFanPulseState> _eastFanKey = GlobalKey<CardFanPulseState>();
+  final List<GlobalKey<FlyingCardState>> _flyKeys = List.generate(4, (_) => GlobalKey<FlyingCardState>());
 
   @override
   void initState() {
@@ -69,12 +81,19 @@ class _GameScreenState extends State<GameScreen> {
       }
       ..onHandsUpdated = (hands, changedSlot) {
         if (!mounted) return;
-        setState(() => _humanHand = hands[0]);
+        if (changedSlot == -1) {
+          setState(() => _humanHand = hands[0]);
+          return;
+        }
+        _runPassRelay(hands[0], changedSlot);
       }
       ..onCountdownTick = (secondsLeft) {
-        if (!mounted) return;
+        if (!mounted || _passSlot != null) return;
         final maxDuration = _controller.phase == 'slamWindow' ? GameController.slamWindowDuration : GameController.swapTickDuration;
-        setState(() => _countdownProgress = secondsLeft / maxDuration);
+        setState(() {
+          _countdownProgress = secondsLeft / maxDuration;
+          _secondsLeft = secondsLeft;
+        });
       }
       ..onSlamAttemptRecorded = (playerId) {
         if (playerId == GameController.humanId) {
@@ -90,6 +109,50 @@ class _GameScreenState extends State<GameScreen> {
       }
       ..onRoundScored = _handleRoundScored;
     _controller.start();
+  }
+
+  /// Sıralı pas zinciri: Güney'in kartı Doğu'ya uçar (Doğu yığını pulse),
+  /// Kuzey'e aktarılır (Kuzey pulse, bu anda el veri olarak güncellenir ama
+  /// gelen kart hâlâ gizli), Batı'ya aktarılır (Batı pulse), son olarak yeni
+  /// kart Batı'dan Güney'e uçarak gelir. Süreler ve easing'ler
+  /// design_handoff_kart_tasarimlari_ve_animasyonlar/README.md'deki
+  /// keyframe'lerle birebir eşleşir.
+  Future<void> _runPassRelay(List<CardModel> newHand, int slot) async {
+    final flyKey = _flyKeys[slot];
+    setState(() => _passSlot = slot);
+
+    flyKey.currentState?.jumpTo();
+    _eastFanKey.currentState?.pulse(duration: const Duration(milliseconds: 420));
+    await flyKey.currentState?.animateTo(
+      offset: const Offset(130, -50),
+      scale: 0.45,
+      rotationDeg: 20,
+      opacity: 0,
+      duration: const Duration(milliseconds: 420),
+      curve: Curves.ease,
+    );
+    if (!mounted) return;
+
+    setState(() => _humanHand = newHand);
+    _northFanKey.currentState?.pulse(duration: const Duration(milliseconds: 340));
+    await Future.delayed(const Duration(milliseconds: 340));
+    if (!mounted) return;
+
+    _westFanKey.currentState?.pulse(duration: const Duration(milliseconds: 340));
+    await Future.delayed(const Duration(milliseconds: 340));
+    if (!mounted) return;
+
+    flyKey.currentState?.jumpTo(offset: const Offset(-130, -50), scale: 0.45, rotationDeg: -18, opacity: 0);
+    await flyKey.currentState?.animateTo(
+      offset: Offset.zero,
+      scale: 1,
+      rotationDeg: 0,
+      opacity: 1,
+      duration: const Duration(milliseconds: 380),
+      curve: const Cubic(0.2, 0.8, 0.3, 1.0),
+    );
+    if (!mounted) return;
+    setState(() => _passSlot = null);
   }
 
   Future<void> _handleRoundScored(int roundNumber, List<SlamResult> results, Map<String, int> scores, String? winnerId) async {
@@ -131,7 +194,7 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   void _onCardTapped(int index) {
-    if (_phase != 'swapping') return;
+    if (_phase != 'swapping' || _passSlot != null) return;
     setState(() => _selectedIndex = index);
     _controller.submitHumanChoice(_humanHand[index].id);
   }
@@ -141,6 +204,11 @@ class _GameScreenState extends State<GameScreen> {
     final result = _controller.submitHumanSlam();
     if (result == 'already') _showToast('Zaten bastın');
   }
+
+  // Slam penceresi elinde 4'lü olmayan bir insana asla görsel olarak
+  // belli edilmemeli — aksi halde kartlara bakmadan ipucunun yeşile
+  // dönmesini beklemek başlı başına kazanan bir strateji olur.
+  bool get _humanHasQuartet => Rules.detectQuartet(_humanHand) != null;
 
   void _playAgain() {
     _controller.dispose();
@@ -163,12 +231,13 @@ class _GameScreenState extends State<GameScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final showSlamHint = _phase == 'slamWindow' && _humanHasQuartet;
     final hintText = switch (_phase) {
       'swapping' => 'İşine yaramayan kartı seç, komşuna ver',
-      'slamWindow' => "4'lün tamam — HIMBIL'e bas!",
+      'slamWindow' => showSlamHint ? "4'lün tamam — HIMBIL'e bas!" : 'İşine yaramayan kartı seç, komşuna ver',
       _ => 'Puanlar hesaplanıyor...',
     };
-    final hintColor = _phase == 'slamWindow' ? Palette.green : Palette.textSecondary;
+    final hintColor = showSlamHint ? Palette.green : Palette.textSecondary;
 
     return Scaffold(
       body: CarnivalBackground(
@@ -178,7 +247,7 @@ class _GameScreenState extends State<GameScreen> {
               child: Column(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                     child: Row(
                       children: [
                         SoftButton(
@@ -192,80 +261,41 @@ class _GameScreenState extends State<GameScreen> {
                       ],
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                  _buildNorthBlock(),
+                  Expanded(
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        PlayerAvatar(key: _avatarKeys['bot_west'], name: _botLabels['bot_west']!, score: _botScores['bot_west']!),
-                        PlayerAvatar(key: _avatarKeys['bot_north'], name: _botLabels['bot_north']!, score: _botScores['bot_north']!),
-                        PlayerAvatar(key: _avatarKeys['bot_east'], name: _botLabels['bot_east']!, score: _botScores['bot_east']!),
+                        _buildSideColumn(botId: 'bot_west', east: false),
+                        Expanded(child: _buildCenterArea()),
+                        _buildSideColumn(botId: 'bot_east', east: true),
                       ],
                     ),
                   ),
-                  Expanded(
-                    child: Stack(
-                      alignment: Alignment.center,
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
+                    child: Text(hintText, style: AppText.nunito(size: 12, weight: FontWeight.w800, color: hintColor), textAlign: TextAlign.center),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(18, 8, 18, 4),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Container(
-                          width: 190,
-                          height: 190,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            gradient: RadialGradient(colors: [Palette.red.withValues(alpha: 0.1), Palette.red.withValues(alpha: 0)]),
-                          ),
-                        ),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            CountdownRing(progress: _countdownProgress, size: 60),
-                            const SizedBox(height: 12),
-                            Text(hintText, style: AppText.nunito(size: 13, weight: FontWeight.w800, color: hintColor), textAlign: TextAlign.center),
-                          ],
-                        ),
-                        if (_toastText != null)
-                          Positioned(
-                            top: 0,
-                            child: AnimatedOpacity(
-                              opacity: _toastText != null ? 1 : 0,
-                              duration: const Duration(milliseconds: 200),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                decoration: BoxDecoration(
-                                  color: Palette.red,
-                                  borderRadius: BorderRadius.circular(16),
-                                  boxShadow: [BoxShadow(color: Palette.red.withValues(alpha: 0.4), blurRadius: 16)],
-                                ),
-                                child: Text(_toastText!, style: AppText.baloo(size: 13, weight: FontWeight.w700, color: Colors.white)),
-                              ),
+                        for (var i = 0; i < _humanHand.length; i++) ...[
+                          if (i > 0) const SizedBox(width: 9),
+                          FlyingCard(
+                            key: _flyKeys[i],
+                            child: HimbilCard(
+                              objectType: _humanHand[i].objectType,
+                              selected: _selectedIndex == i,
+                              onTap: () => _onCardTapped(i),
                             ),
                           ),
+                        ],
                       ],
                     ),
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      for (var i = 0; i < _humanHand.length; i++) ...[
-                        if (i > 0) const SizedBox(width: 9),
-                        AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 280),
-                          transitionBuilder: (child, animation) => ScaleTransition(
-                            scale: CurvedAnimation(parent: animation, curve: Curves.easeOutBack),
-                            child: FadeTransition(opacity: animation, child: child),
-                          ),
-                          child: HimbilCard(
-                            key: ValueKey(_humanHand[i].id),
-                            objectType: _humanHand[i].objectType,
-                            selected: _selectedIndex == i,
-                            onTap: () => _onCardTapped(i),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
                   Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    padding: const EdgeInsets.fromLTRB(20, 14, 20, 20),
                     child: Column(
                       children: [
                         GradientCta(
@@ -279,8 +309,8 @@ class _GameScreenState extends State<GameScreen> {
                           titleSize: 17,
                           onTap: _onSlamTap,
                         ),
-                        const SizedBox(height: 14),
-                        Text('Puanın: $_humanScore', style: AppText.baloo(size: 16, weight: FontWeight.w700)),
+                        const SizedBox(height: 10),
+                        Text('Puanın: $_humanScore', style: AppText.baloo(size: 15, weight: FontWeight.w700)),
                       ],
                     ),
                   ),
@@ -291,6 +321,98 @@ class _GameScreenState extends State<GameScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildNorthBlock() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(14, 4, 14, 0),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              PlayerAvatar(key: _avatarKeys['bot_north'], name: _botLabels['bot_north']!),
+              const SizedBox(width: 6),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(_botLabels['bot_north']!, style: AppText.nunito(size: 12, weight: FontWeight.w700, color: Palette.textSecondary)),
+                  Text('${_botScores['bot_north']} puan', style: AppText.baloo(size: 10, weight: FontWeight.w700, color: Palette.red)),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 3),
+          CardFanPulse(key: _northFanKey, child: const NorthCardFan()),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSideColumn({required String botId, required bool east}) {
+    return SizedBox(
+      width: 74,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          PlayerAvatar(key: _avatarKeys[botId], name: _botLabels[botId]!),
+          const SizedBox(height: 4),
+          Text(
+            '${_botLabels[botId]} · ${_botScores[botId]}',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+            style: AppText.nunito(size: 11, weight: FontWeight.w700, color: Palette.textSecondary),
+          ),
+          const SizedBox(height: 4),
+          CardFanPulse(key: east ? _eastFanKey : _westFanKey, child: SideCardFan(east: east)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCenterArea() {
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        Container(
+          width: 190,
+          height: 190,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: RadialGradient(colors: [Palette.red.withValues(alpha: 0.1), Palette.red.withValues(alpha: 0)]),
+          ),
+        ),
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CountdownRing(progress: _countdownProgress, size: 60),
+            const SizedBox(height: 12),
+            Text(
+              'Tur ${_controller.roundNumber + 1} · ${_secondsLeft.toStringAsFixed(1)}s',
+              style: AppText.baloo(size: 13, weight: FontWeight.w700, color: Palette.textPrimary),
+            ),
+          ],
+        ),
+        if (_toastText != null)
+          Positioned(
+            top: 0,
+            child: AnimatedOpacity(
+              opacity: _toastText != null ? 1 : 0,
+              duration: const Duration(milliseconds: 200),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Palette.red,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [BoxShadow(color: Palette.red.withValues(alpha: 0.4), blurRadius: 16)],
+                ),
+                child: Text(_toastText!, style: AppText.baloo(size: 13, weight: FontWeight.w700, color: Colors.white)),
+              ),
+            ),
+          ),
+      ],
     );
   }
 
