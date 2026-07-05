@@ -19,28 +19,8 @@ class AvatarColorOption {
   const AvatarColorOption({required this.label, required this.gradient});
 }
 
-/// Avatar çerçeve stili.
-enum AvatarFrame { classic, thick, dual, glow }
-
-extension AvatarFrameLabel on AvatarFrame {
-  String get label => switch (this) {
-        AvatarFrame.classic => 'Klasik',
-        AvatarFrame.thick => 'Kalın',
-        AvatarFrame.dual => 'Çift Halka',
-        AvatarFrame.glow => 'Parıltı',
-      };
-
-  /// Mağazadaki jeton fiyatı — Klasik onboarding'de serbestçe seçilebildiği
-  /// için varsayılan/ücretsiz kalır.
-  int get storePrice => switch (this) {
-        AvatarFrame.classic => 0,
-        AvatarFrame.thick => 150,
-        AvatarFrame.dual => 300,
-        AvatarFrame.glow => 450,
-      };
-}
-
 /// Onboarding'deki "Avatarını Oluştur" adımında sunulan sabit seçenek listeleri.
+/// Çerçeve seçenekleri için `AvatarFrameSkins` (mağazadan satın alınabilir).
 /// Karakter illüstrasyonları `design/avatars/` kaynağından (`assets/avatars/`).
 class AvatarOptions {
   AvatarOptions._();
@@ -73,6 +53,4 @@ class AvatarOptions {
     AvatarColorOption(label: 'Pembe', gradient: [Color(0xFFF06595), Color(0xFFD6336C)]),
     AvatarColorOption(label: 'Turkuaz', gradient: [Color(0xFF26E0CB), Color(0xFF16C6B6)]),
   ];
-
-  static const frames = AvatarFrame.values;
 }

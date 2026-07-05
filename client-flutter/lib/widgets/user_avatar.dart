@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
-import '../theme/avatar_options.dart';
-import '../theme/palette.dart';
+import '../theme/avatar_frames.dart';
 import '../theme/text_styles.dart';
 
 /// Uygulama genelinde (Ana Menü, Lobi, onboarding önizlemesi) kullanılan,
 /// oluşturulan profile göre karakter illüstrasyonu/renk/çerçeve ile render
-/// edilen avatar. `imagePath` null ise isim baş harfi gösterilir.
+/// edilen avatar. `imagePath` null ise isim baş harfi gösterilir. `frame`,
+/// mağazadan satın alınabilen `AvatarFrameSkins` kataloğundaki bir id'dir;
+/// avatar kutunun ~%72'si çapında ortalanır, çerçeve görseli üstüne
+/// tam kutu boyutunda bindirilir (bkz. design_handoff_cerceve_paketi).
 class UserAvatar extends StatefulWidget {
   final double size;
   final String? imagePath;
   final String initial;
   final List<Color> gradient;
-  final AvatarFrame frame;
+  final String frame;
   final bool pulse;
 
   const UserAvatar({
@@ -73,70 +76,33 @@ class _UserAvatarState extends State<UserAvatar> with SingleTickerProviderStateM
   }
 
   Widget _buildFramed() {
-    switch (widget.frame) {
-      case AvatarFrame.classic:
-        return _ring(ringWidth: widget.size * 0.055, glow: false);
-      case AvatarFrame.thick:
-        return _ring(ringWidth: widget.size * 0.11, glow: false);
-      case AvatarFrame.glow:
-        return _ring(ringWidth: widget.size * 0.055, glow: true);
-      case AvatarFrame.dual:
-        final outer = widget.size;
-        final gapRing = outer - widget.size * 0.12;
-        final innerRing = gapRing - widget.size * 0.1;
-        return Container(
-          width: outer,
-          height: outer,
-          padding: EdgeInsets.all(widget.size * 0.045),
-          decoration: BoxDecoration(gradient: _gradient(), shape: BoxShape.circle),
-          child: Container(
-            width: gapRing,
-            height: gapRing,
-            padding: EdgeInsets.all(widget.size * 0.045),
-            decoration: const BoxDecoration(color: Palette.bgCream, shape: BoxShape.circle),
-            child: Container(
-              width: innerRing,
-              height: innerRing,
-              padding: EdgeInsets.all(widget.size * 0.06),
-              decoration: BoxDecoration(gradient: _gradient(), shape: BoxShape.circle),
-              child: _core(),
-            ),
-          ),
-        );
-    }
-  }
-
-  Widget _ring({required double ringWidth, required bool glow}) {
-    return Container(
+    final avatarSize = widget.size * 0.72;
+    return SizedBox(
       width: widget.size,
       height: widget.size,
-      padding: EdgeInsets.all(ringWidth),
-      decoration: BoxDecoration(
-        gradient: _gradient(),
-        shape: BoxShape.circle,
-        boxShadow: glow
-            ? [
-                BoxShadow(color: widget.gradient.last.withValues(alpha: 0.55), blurRadius: widget.size * 0.5, spreadRadius: widget.size * 0.02),
-                BoxShadow(color: widget.gradient.first.withValues(alpha: 0.35), blurRadius: widget.size * 0.25),
-              ]
-            : [
-                BoxShadow(color: widget.gradient.last.withValues(alpha: 0.3), blurRadius: widget.size * 0.22, offset: Offset(0, widget.size * 0.08)),
-              ],
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          SizedBox(width: avatarSize, height: avatarSize, child: _core()),
+          IgnorePointer(
+            child: SvgPicture.asset(AvatarFrameSkins.byId(widget.frame).assetPath, width: widget.size, height: widget.size),
+          ),
+        ],
       ),
-      child: _core(),
     );
   }
-
-  LinearGradient _gradient() => LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: widget.gradient);
 
   Widget _core() {
     if (widget.imagePath != null) {
       return ClipOval(child: Image.asset(widget.imagePath!, fit: BoxFit.cover));
     }
     return Container(
-      decoration: const BoxDecoration(color: Palette.surface, shape: BoxShape.circle),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: widget.gradient),
+        shape: BoxShape.circle,
+      ),
       alignment: Alignment.center,
-      child: Text(widget.initial, style: AppText.baloo(size: widget.size * 0.4, weight: FontWeight.w800, color: widget.gradient.last)),
+      child: Text(widget.initial, style: AppText.baloo(size: widget.size * 0.28, weight: FontWeight.w800, color: Colors.white)),
     );
   }
 }

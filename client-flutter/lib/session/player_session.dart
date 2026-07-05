@@ -1,5 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../theme/avatar_frames.dart';
 import '../theme/avatar_options.dart';
 import '../theme/card_skins.dart';
 
@@ -15,7 +16,7 @@ class PlayerSession {
   static const _keyAge = 'player_age';
   static const _keyCharacterIndex = 'avatar_character_index';
   static const _keyColorIndex = 'avatar_color_index';
-  static const _keyFrameIndex = 'avatar_frame_index';
+  static const _keyFrameId = 'avatar_frame_id';
   static const _keyTokens = 'player_tokens';
   static const _keyOwnedCardSkins = 'owned_card_skins';
   static const _keySelectedCardSkin = 'selected_card_skin';
@@ -28,12 +29,12 @@ class PlayerSession {
   static int age = 18;
   static int avatarCharacterIndex = 0;
   static int avatarColorIndex = 0;
-  static AvatarFrame avatarFrame = AvatarFrame.classic;
+  static String avatarFrame = AvatarFrameSkins.defaultFrameId;
 
   static int tokens = _startingTokens;
   static Set<String> ownedCardSkinIds = {'klasik', 'karnaval'};
   static String selectedCardSkinId = CardSkins.defaultSkinId;
-  static Set<AvatarFrame> ownedFrames = {AvatarFrame.classic};
+  static Set<String> ownedFrameIds = {for (final f in AvatarFrameSkins.all) if (f.isFree) f.id};
 
   static String get initial => name.isNotEmpty ? name.substring(0, 1).toUpperCase() : '?';
 
@@ -44,7 +45,7 @@ class PlayerSession {
 
   static bool ownsCardSkin(String id) => ownedCardSkinIds.contains(id);
 
-  static bool ownsFrame(AvatarFrame frame) => ownedFrames.contains(frame);
+  static bool ownsFrame(String id) => ownedFrameIds.contains(id);
 
   static Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
@@ -53,21 +54,17 @@ class PlayerSession {
     age = prefs.getInt(_keyAge) ?? 18;
     avatarCharacterIndex = prefs.getInt(_keyCharacterIndex) ?? 0;
     avatarColorIndex = prefs.getInt(_keyColorIndex) ?? 0;
-    final frameIndex = prefs.getInt(_keyFrameIndex) ?? 0;
-    avatarFrame = AvatarFrame.values[frameIndex.clamp(0, AvatarFrame.values.length - 1)];
+    avatarFrame = prefs.getString(_keyFrameId) ?? AvatarFrameSkins.defaultFrameId;
 
     tokens = prefs.getInt(_keyTokens) ?? _startingTokens;
     selectedCardSkinId = prefs.getString(_keySelectedCardSkin) ?? CardSkins.defaultSkinId;
     ownedCardSkinIds = (prefs.getStringList(_keyOwnedCardSkins) ?? const ['klasik', 'karnaval']).toSet();
     ownedCardSkinIds.add(selectedCardSkinId);
 
-    final ownedFrameNames = prefs.getStringList(_keyOwnedFrames);
-    ownedFrames = ownedFrameNames == null
-        ? {AvatarFrame.classic}
-        : ownedFrameNames.map((n) => AvatarFrame.values.byName(n)).toSet();
+    final savedFrames = prefs.getStringList(_keyOwnedFrames);
+    ownedFrameIds = savedFrames?.toSet() ?? {for (final f in AvatarFrameSkins.all) if (f.isFree) f.id};
     // Onboarding'de serbestçe seçilmiş olabileceği için mevcut çerçeve her zaman sahiplenilmiş sayılır.
-    ownedFrames.add(AvatarFrame.classic);
-    ownedFrames.add(avatarFrame);
+    ownedFrameIds.add(avatarFrame);
   }
 
   static Future<void> completeOnboarding() async {
@@ -78,9 +75,9 @@ class PlayerSession {
     await prefs.setInt(_keyAge, age);
     await prefs.setInt(_keyCharacterIndex, avatarCharacterIndex);
     await prefs.setInt(_keyColorIndex, avatarColorIndex);
-    await prefs.setInt(_keyFrameIndex, AvatarFrame.values.indexOf(avatarFrame));
-    ownedFrames.add(avatarFrame);
-    await prefs.setStringList(_keyOwnedFrames, ownedFrames.map((f) => f.name).toList());
+    await prefs.setString(_keyFrameId, avatarFrame);
+    ownedFrameIds.add(avatarFrame);
+    await prefs.setStringList(_keyOwnedFrames, ownedFrameIds.toList());
   }
 
   /// Kartı satın alır; yeterli jeton yoksa veya zaten sahipse false döner.
@@ -104,22 +101,22 @@ class PlayerSession {
   }
 
   /// Çerçeveyi satın alır; yeterli jeton yoksa veya zaten sahipse false döner.
-  static Future<bool> purchaseFrame(AvatarFrame frame) async {
-    if (ownsFrame(frame)) return true;
-    final price = frame.storePrice;
+  static Future<bool> purchaseFrame(String id) async {
+    if (ownsFrame(id)) return true;
+    final price = AvatarFrameSkins.byId(id).price;
     if (tokens < price) return false;
     tokens -= price;
-    ownedFrames.add(frame);
+    ownedFrameIds.add(id);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_keyTokens, tokens);
-    await prefs.setStringList(_keyOwnedFrames, ownedFrames.map((f) => f.name).toList());
+    await prefs.setStringList(_keyOwnedFrames, ownedFrameIds.toList());
     return true;
   }
 
-  static Future<void> selectFrame(AvatarFrame frame) async {
-    if (!ownsFrame(frame)) return;
-    avatarFrame = frame;
+  static Future<void> selectFrame(String id) async {
+    if (!ownsFrame(id)) return;
+    avatarFrame = id;
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt(_keyFrameIndex, AvatarFrame.values.indexOf(frame));
+    await prefs.setString(_keyFrameId, id);
   }
 }

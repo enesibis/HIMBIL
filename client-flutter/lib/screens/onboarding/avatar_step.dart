@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../theme/avatar_frames.dart';
 import '../../theme/avatar_options.dart';
 import '../../theme/palette.dart';
 import '../../theme/text_styles.dart';
@@ -8,14 +9,16 @@ import '../../widgets/user_avatar.dart';
 
 /// Onboarding 4. adım: avatar oluşturma — karakter, renk ve çerçeve
 /// stili tek tek seçilir; üstte canlı önizleme her değişiklikte "pop" animasyonuyla güncellenir.
+/// Çerçeve seçimi burada sadece ücretsiz seçeneklerle sınırlıdır — diğer
+/// 13 çerçeve (design_handoff_cerceve_paketi) Mağaza'dan jetonla satın alınır.
 class AvatarStep extends StatelessWidget {
   final String initial;
   final int characterIndex;
   final int colorIndex;
-  final AvatarFrame frame;
+  final String frame;
   final ValueChanged<int> onCharacterSelected;
   final ValueChanged<int> onColorSelected;
-  final ValueChanged<AvatarFrame> onFrameSelected;
+  final ValueChanged<String> onFrameSelected;
 
   const AvatarStep({
     super.key,
@@ -151,18 +154,19 @@ class AvatarStep extends StatelessWidget {
   }
 
   Widget _frameRow(List<Color> gradient, String? imagePath) {
+    final freeFrames = AvatarFrameSkins.all.where((f) => f.isFree);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        for (final f in AvatarOptions.frames) _frameChoice(f, gradient, imagePath),
+        for (final f in freeFrames) _frameChoice(f, gradient, imagePath),
       ],
     );
   }
 
-  Widget _frameChoice(AvatarFrame f, List<Color> gradient, String? imagePath) {
-    final selected = f == frame;
+  Widget _frameChoice(AvatarFrameSkin f, List<Color> gradient, String? imagePath) {
+    final selected = f.id == frame;
     return GestureDetector(
-      onTap: () => onFrameSelected(f),
+      onTap: () => onFrameSelected(f.id),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
@@ -173,9 +177,9 @@ class AvatarStep extends StatelessWidget {
         ),
         child: Column(
           children: [
-            UserAvatar(size: 48, imagePath: imagePath, initial: initial, gradient: gradient, frame: f),
+            UserAvatar(size: 48, imagePath: imagePath, initial: initial, gradient: gradient, frame: f.id),
             const SizedBox(height: 6),
-            Text(f.label, style: AppText.nunito(size: 10.5, weight: FontWeight.w800, color: selected ? Palette.red : Palette.textSecondary)),
+            Text(f.name, style: AppText.nunito(size: 10.5, weight: FontWeight.w800, color: selected ? Palette.red : Palette.textSecondary)),
           ],
         ),
       ),

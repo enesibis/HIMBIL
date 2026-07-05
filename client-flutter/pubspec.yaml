@@ -79,6 +79,7 @@ flutter:
     - assets/avatars/
     - assets/card_backs/
     - assets/fruits/
+    - assets/frames/
 
   # Baloo2 ve Nunito variable font (wght eksenli); tek asset yeterli çünkü
   # ağırlık seçimi AppText içinde TextStyle.fontVariations ile yapılıyor —

@@ -12,7 +12,7 @@ class CompleteStep extends StatelessWidget {
   final String initial;
   final int characterIndex;
   final int colorIndex;
-  final AvatarFrame frame;
+  final String frame;
 
   const CompleteStep({
     super.key,

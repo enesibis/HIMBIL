@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../session/player_session.dart';
-import '../theme/avatar_options.dart';
+import '../theme/avatar_frames.dart';
 import '../theme/card_skins.dart';
 import '../theme/palette.dart';
 import '../theme/text_styles.dart';
@@ -131,13 +131,13 @@ class _StoreTabState extends State<StoreTab> {
       mainAxisSpacing: 12,
       crossAxisSpacing: 12,
       childAspectRatio: 0.9,
-      children: [for (final frame in AvatarOptions.frames) _frameItem(frame)],
+      children: [for (final frame in AvatarFrameSkins.all) _frameItem(frame)],
     );
   }
 
-  Widget _frameItem(AvatarFrame frame) {
-    final owned = PlayerSession.ownsFrame(frame);
-    final equipped = PlayerSession.avatarFrame == frame;
+  Widget _frameItem(AvatarFrameSkin frame) {
+    final owned = PlayerSession.ownsFrame(frame.id);
+    final equipped = PlayerSession.avatarFrame == frame.id;
     return _StoreItem(
       equipped: equipped,
       preview: UserAvatar(
@@ -145,11 +145,11 @@ class _StoreTabState extends State<StoreTab> {
         imagePath: PlayerSession.avatarCharacter.imagePath,
         initial: PlayerSession.initial,
         gradient: PlayerSession.avatarColor.gradient,
-        frame: frame,
+        frame: frame.id,
       ),
-      name: frame.label,
+      name: frame.name,
       owned: owned,
-      price: frame.storePrice,
+      price: frame.price,
       onBuy: () => _buyFrame(frame),
       onEquip: () => _equipFrame(frame),
     );
@@ -170,18 +170,18 @@ class _StoreTabState extends State<StoreTab> {
     if (mounted) setState(() {});
   }
 
-  Future<void> _buyFrame(AvatarFrame frame) async {
-    final ok = await PlayerSession.purchaseFrame(frame);
+  Future<void> _buyFrame(AvatarFrameSkin frame) async {
+    final ok = await PlayerSession.purchaseFrame(frame.id);
     if (!ok) {
       _showInsufficientFunds();
       return;
     }
-    await PlayerSession.selectFrame(frame);
+    await PlayerSession.selectFrame(frame.id);
     if (mounted) setState(() {});
   }
 
-  Future<void> _equipFrame(AvatarFrame frame) async {
-    await PlayerSession.selectFrame(frame);
+  Future<void> _equipFrame(AvatarFrameSkin frame) async {
+    await PlayerSession.selectFrame(frame.id);
     if (mounted) setState(() {});
   }
 
