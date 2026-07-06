@@ -35,9 +35,8 @@ const _profileStats = [
   _ProfileStat(value: '5', label: 'En İyi Seri', icon: Icons.local_fire_department_rounded, badgeGradient: [Color(0xFF5B8FC7), Palette.blue]),
 ];
 
-const _leaderboard = [
+const _otherLeaderboardRows = [
   _LeaderboardRow(rank: 1, name: 'Deniz K.', score: 2450),
-  _LeaderboardRow(rank: 2, name: 'Sen', score: 1875),
   _LeaderboardRow(rank: 3, name: 'Ayşe Y.', score: 1620),
   _LeaderboardRow(rank: 4, name: 'Mehmet A.', score: 1400),
   _LeaderboardRow(rank: 5, name: 'Zeynep T.', score: 1180),
@@ -138,7 +137,7 @@ class _HomeScreenState extends State<HomeScreen> {
             shadowBarColor: Palette.redShadow,
             borderRadius: 28,
             titleSize: 20,
-            onTap: () => _goToLobby(context),
+            onTap: () => _goToQuickPlay(context),
           ),
           const SizedBox(height: 20),
           Row(
@@ -159,7 +158,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   label: 'Oda Kur',
                   icon: Icons.add_rounded,
                   iconColor: Palette.mustard,
-                  onTap: () => _goToLobby(context),
+                  onTap: () => _goToCreateRoom(context),
                 ),
               ),
               const SizedBox(width: 14),
@@ -178,6 +177,12 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
+  List<_LeaderboardRow> get _leaderboard => [
+        ..._otherLeaderboardRows.where((r) => r.rank < 2),
+        _LeaderboardRow(rank: 2, name: PlayerSession.name, score: 1875),
+        ..._otherLeaderboardRows.where((r) => r.rank > 2),
+      ];
 
   Widget _profileTab() {
     return SingleChildScrollView(
@@ -266,7 +271,11 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _goToLobby(BuildContext context) {
+  void _goToQuickPlay(BuildContext context) {
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LobbyScreen.quickPlay()));
+  }
+
+  void _goToCreateRoom(BuildContext context) {
     Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LobbyScreen()));
   }
 

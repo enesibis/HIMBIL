@@ -86,7 +86,9 @@ class GameController extends ChangeNotifier {
   /// "already" - bu pencerede zaten basmıştın
   /// "too_early" - pencere açık ama elinde 4'lü yok ve henüz kimse basmadı;
   ///   sadece 4'lü sahibi ya da ondan sonra tepki verenler puan alabilir
-  /// "false_start" - şu an hiçbir yerde 4'lü yok; cezalandırıldın
+  /// "false_start" - 'swapping' fazında, hiçbir yerde 4'lü yokken basıldı;
+  ///   cezalandırıldın
+  /// "ignored" - tur zaten bitmiş (puanlama/geçiş anı) — ne ceza ne puan
   String submitHumanSlam() {
     if (phase == 'slamWindow') {
       if (_recordedPlayers.contains(0)) return 'already';
@@ -96,9 +98,13 @@ class GameController extends ChangeNotifier {
       return 'recorded';
     }
 
-    scores[humanId] = (scores[humanId] ?? 0) + Rules.falseSlamPenalty;
-    onFalseSlamPenalty?.call(humanId, scores[humanId]!);
-    return 'false_start';
+    if (phase == 'swapping') {
+      scores[humanId] = (scores[humanId] ?? 0) + Rules.falseSlamPenalty;
+      onFalseSlamPenalty?.call(humanId, scores[humanId]!);
+      return 'false_start';
+    }
+
+    return 'ignored';
   }
 
   void _onTick(Timer timer) {

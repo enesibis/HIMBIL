@@ -18,14 +18,18 @@ class SlamCelebrationScreen extends StatefulWidget {
 const List<Color> _rankBadgeColors = [Palette.rankGold, Palette.rankSilver, Palette.rankBronze, Palette.rankNeutral];
 
 class _SlamCelebrationScreenState extends State<SlamCelebrationScreen> with TickerProviderStateMixin {
-  late final AnimationController _rayController;
+  AnimationController? _rayController;
   late final AnimationController _popController;
+
+  bool get _missedRound => widget.ranking.isEmpty;
 
   @override
   void initState() {
     super.initState();
-    _rayController = AnimationController(vsync: this, duration: const Duration(seconds: 14))..repeat();
     _popController = AnimationController(vsync: this, duration: const Duration(milliseconds: 500))..forward();
+    if (!_missedRound) {
+      _rayController = AnimationController(vsync: this, duration: const Duration(seconds: 14))..repeat();
+    }
 
     Future.delayed(const Duration(milliseconds: 1900), () {
       if (mounted) Navigator.of(context).pop();
@@ -34,13 +38,14 @@ class _SlamCelebrationScreenState extends State<SlamCelebrationScreen> with Tick
 
   @override
   void dispose() {
-    _rayController.dispose();
+    _rayController?.dispose();
     _popController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_missedRound) return _buildMissedRound(context);
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -56,7 +61,7 @@ class _SlamCelebrationScreenState extends State<SlamCelebrationScreen> with Tick
             Positioned(
               top: 40,
               child: RotationTransition(
-                turns: _rayController,
+                turns: _rayController!,
                 child: Container(
                   width: 280,
                   height: 280,
@@ -103,6 +108,35 @@ class _SlamCelebrationScreenState extends State<SlamCelebrationScreen> with Tick
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  /// Kimse zamanında basmadığında (slam penceresi boş kapandığında) tam
+  /// ekran "HIMBIL!" kutlaması yanıltıcı olur — bunun yerine sade,
+  /// konfetisiz bir "tur kaçırıldı" geçişi gösterilir.
+  Widget _buildMissedRound(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Palette.bgCream,
+      body: SafeArea(
+        child: Center(
+          child: FadeTransition(
+            opacity: _popController,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.timer_off_rounded, size: 44, color: Palette.textSecondary),
+                const SizedBox(height: 14),
+                Text('Bu Tur Kaçırıldı', style: AppText.baloo(size: 20, weight: FontWeight.w700)),
+                const SizedBox(height: 4),
+                Text(
+                  'Kimse zamanında basamadı',
+                  style: AppText.nunito(size: 13, weight: FontWeight.w700, color: Palette.textSecondary),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );

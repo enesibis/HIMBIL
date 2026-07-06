@@ -39,12 +39,32 @@ void main() {
     expect(find.textContaining('HIZLI OYNA'), findsOneWidget);
   });
 
-  testWidgets('Oyna -> Lobi -> Oyunu Başlat -> Oyun ekranı', (WidgetTester tester) async {
+  testWidgets('Hızlı Oyna -> otomatik eşleşme -> Oyun ekranı', (WidgetTester tester) async {
     _setPhoneSize(tester);
     await tester.pumpWidget(const HimbilApp());
     await _skipSplash(tester);
 
     await tester.tap(find.textContaining('HIZLI OYNA'));
+    await tester.pumpAndSettle();
+
+    // Hızlı Oyna'da paylaşılacak bir oda kodu yok; manuel başlatma da yok.
+    expect(find.text('HIZLI EŞLEŞME'), findsOneWidget);
+    expect(find.text('ODA KODU'), findsNothing);
+    expect(find.text('Oyunu Başlat'), findsNothing);
+
+    // Botların "Hazır" olması + otomatik oyun başlangıcı için bekle.
+    await tester.pump(const Duration(milliseconds: 1600));
+    await tester.pumpAndSettle();
+
+    expect(find.text('< Menü'), findsOneWidget);
+  });
+
+  testWidgets('Oda Kur -> Lobi -> Oyunu Başlat -> Oyun ekranı', (WidgetTester tester) async {
+    _setPhoneSize(tester);
+    await tester.pumpWidget(const HimbilApp());
+    await _skipSplash(tester);
+
+    await tester.tap(find.text('Oda Kur'));
     await tester.pumpAndSettle();
 
     expect(find.text('ODA KODU'), findsOneWidget);

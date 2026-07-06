@@ -199,6 +199,60 @@ class _GameScreenState extends State<GameScreen> {
     _controller.submitHumanChoice(_humanHand[index].id);
   }
 
+  Future<void> _confirmExitToMenu() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => Dialog(
+        backgroundColor: Palette.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(22, 22, 22, 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Turdan çıkılsın mı?', style: AppText.baloo(size: 18, weight: FontWeight.w700), textAlign: TextAlign.center),
+              const SizedBox(height: 8),
+              Text(
+                'Menüye dönersen bu tur ve puanların kaybolur.',
+                style: AppText.nunito(size: 13, weight: FontWeight.w700, color: Palette.textSecondary),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 18),
+              Row(
+                children: [
+                  Expanded(
+                    child: SoftButton(
+                      label: 'Vazgeç',
+                      width: double.infinity,
+                      height: 46,
+                      borderRadius: 16,
+                      fontSize: 14,
+                      onTap: () => Navigator.of(dialogContext).pop(false),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: SoftButton(
+                      label: 'Çık',
+                      width: double.infinity,
+                      height: 46,
+                      borderRadius: 16,
+                      fontSize: 14,
+                      background: Palette.red,
+                      textColor: Colors.white,
+                      onTap: () => Navigator.of(dialogContext).pop(true),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    if (confirmed == true && mounted) Navigator.of(context).pop();
+  }
+
   void _onSlamTap() {
     _slamKey.currentState?.bounce();
     final result = _controller.submitHumanSlam();
@@ -256,7 +310,7 @@ class _GameScreenState extends State<GameScreen> {
                           height: 40,
                           borderRadius: 18,
                           fontSize: 13,
-                          onTap: () => Navigator.of(context).pop(),
+                          onTap: _confirmExitToMenu,
                         ),
                       ],
                     ),

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../theme/palette.dart';
@@ -18,6 +20,7 @@ class JoinScreen extends StatefulWidget {
 class _JoinScreenState extends State<JoinScreen> {
   final List<String> _digits = List.filled(5, '');
   int _cursor = 0;
+  Timer? _navigateTimer;
 
   void _pressDigit(String d) {
     if (_cursor >= 5) return;
@@ -30,6 +33,7 @@ class _JoinScreenState extends State<JoinScreen> {
 
   void _backspace() {
     if (_cursor == 0) return;
+    _navigateTimer?.cancel();
     setState(() {
       _cursor--;
       _digits[_cursor] = '';
@@ -48,10 +52,18 @@ class _JoinScreenState extends State<JoinScreen> {
   }
 
   void _goToLobbySoon() {
-    Future.delayed(const Duration(milliseconds: 500), () {
-      if (!mounted) return;
-      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const LobbyScreen()));
+    _navigateTimer?.cancel();
+    _navigateTimer = Timer(const Duration(milliseconds: 500), () {
+      if (!mounted || _cursor != 5) return;
+      final code = _digits.join();
+      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => LobbyScreen(joinCode: code)));
     });
+  }
+
+  @override
+  void dispose() {
+    _navigateTimer?.cancel();
+    super.dispose();
   }
 
   @override
