@@ -106,19 +106,23 @@
 
 ## 🟠 4. Sunucu tarafında yapılması gerekenler
 
-- [ ] **31. package.json'ı düzelt** — [server/package.json](../server/package.json)
+- [x] **31. package.json'ı düzelt** — [server/package.json](../server/package.json)
   Var olmayan dosyayı gösteren `"main": "index.js"` satırını sil; `"engines": {"node": ">=22"}` ekle; boş `description/author`'ı doldur.
 
-- [ ] **32. ESLint + Prettier ekle** — sunucuda hiç linter yok; `typescript-eslint` önerilen preset yeterli.
+- [x] **32. ESLint + Prettier ekle** — sunucuda hiç linter yok; `typescript-eslint` önerilen preset yeterli.
+  `eslint.config.js` (flat config, `typescript-eslint` recommended + `eslint-config-prettier`) ve `.prettierrc.json` eklendi; `npm run lint` / `npm run format` script'leri. Bu arada ortaya çıkan mevcut bir `no-unused-vars` hatası (`deck.test.ts`'te ölü bir yerel değişken) da temizlendi.
 
-- [ ] **33. (Aşama 3 tasarım kuralı) Geçersiz intent tick'i çökertmesin**
+- [x] **33. (Aşama 3 tasarım kuralı) Geçersiz intent tick'i çökertmesin**
   [swap.ts:52-56](../server/game/swap.ts#L52-L56) geçersiz kartta throw ediyor — saf fonksiyon için doğru. Colyseus room katmanında bunu yakala: geçersiz `cardId` gelen oyuncuya timeout kuralı uygula (`null` → rastgele kart) + logla. Motoru değiştirme, sözleşmeyi room'a koy.
+  `server/rooms/` henüz boş olduğu için (Aşama 3 başlamadı) kod olarak uygulanacak bir room yok; sözleşme `resolveSwapTick`'in doc yorumuna ve kılavuzun §4'üne ("Geçersiz intent sözleşmesi") yazıldı — Room inşa edilirken doğrudan referans alınabilir.
 
-- [ ] **34. (Üretim öncesi) Seed'li RNG'ye geç** — [deck.ts:55](../server/game/deck.ts#L55)
+- [x] **34. (Üretim öncesi) Seed'li RNG'ye geç** — [deck.ts:55](../server/game/deck.ts#L55)
   Maç başına kaydedilen seed ile deterministik PRNG (örn. mulberry32); "deste hileliydi" şikayetinde maç aynen tekrar oynatılabilir.
+  `mulberry32(seed)` eklendi ve test edildi (`shuffle(deck, mulberry32(seed))` aynı seed'den birebir aynı sonucu üretiyor). Seed'i maç başına üretip kaydetmek room katmanının işi (Aşama 3); burada eklenen sadece deterministik PRNG'nin kendisi.
 
-- [ ] **35. Yanlış-slam kuralını sunucu spec'i olarak yaz**
+- [x] **35. Yanlış-slam kuralını sunucu spec'i olarak yaz**
   `FALSE_SLAM_PENALTY` TS'te tanımlı ama kullanılmıyor ([scoring.ts:5](../server/game/scoring.ts#L5)); kuralın gerçek tanımı yalnız Dart'ta yaşıyor. Aşama 3'ten önce davranışı (swapping'de basış = -25; pencerede 4'lüsüz ilk basış = no-op) sunucu tarafında test edilmiş fonksiyon olarak kodla.
+  `submitSlamPress(playerId, state)` eklendi ([scoring.ts](../server/game/scoring.ts)) — saf fonksiyon, `recorded`/`already`/`tooEarly`/`falseStart`/`ignored` çıktılarını Dart'taki `submitHumanSlam` ile aynı kurallara göre üretir (forgiveness UX'i hariç, o client-local bir onboarding detayı). 6 yeni test.
 
 ---
 

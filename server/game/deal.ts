@@ -12,7 +12,7 @@ export function dealHands(deck: Card[], numPlayers: number): DealResult {
   const needed = numPlayers * HAND_SIZE;
   if (deck.length < needed) {
     throw new Error(
-      `deck too small: need ${needed} cards for ${numPlayers} players, have ${deck.length}`
+      `deck too small: need ${needed} cards for ${numPlayers} players, have ${deck.length}`,
     );
   }
 

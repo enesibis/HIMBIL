@@ -25,12 +25,20 @@ export interface SwapTickResult {
  * The incoming card replaces the outgoing one in the same hand slot, so a
  * player's other 3 cards never change position — only the slot they gave
  * away visibly changes.
+ *
+ * Throws if a choice names a `cardId` not present in that player's hand.
+ * This is intentional — a pure rule function should not silently coerce
+ * bad input. The Colyseus room layer (Stage 3, not yet built) is the
+ * contract holder: it must catch this, treat the offending player as if
+ * they had timed out (`cardId: null` → random card), and log the event,
+ * rather than letting a malformed/stale client intent crash the tick. See
+ * "Geçersiz intent sözleşmesi" in docs/himbil-proje-kilavuzu.md §4.
  */
 export function resolveSwapTick(
   hands: Hand[],
   choices: SwapChoice[],
   direction: Direction,
-  rng: () => number = Math.random
+  rng: () => number = Math.random,
 ): SwapTickResult {
   const numPlayers = hands.length;
   if (choices.length !== numPlayers) {
@@ -50,9 +58,7 @@ export function resolveSwapTick(
 
     const cardIndex = hand.findIndex((c) => c.id === cardId);
     if (cardIndex === -1) {
-      throw new Error(
-        `player ${i} chose card ${cardId} which is not in their hand`
-      );
+      throw new Error(`player ${i} chose card ${cardId} which is not in their hand`);
     }
 
     outgoing.push(hand[cardIndex]);

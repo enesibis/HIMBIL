@@ -73,6 +73,7 @@ Fiziksel oyundaki "herkes aynı anda sürekli kart fırlatıyor" hali netcode'a 
 - Tick çözülünce **herkes aynı anda** komşusuna verir, diğer komşudan alır → yine 4 kart.
 - **Tick ilerlemesi:** ya herkes kartını kilitleyince, ya da timeout'ta (örn. 3 sn) seçmeyenler için sunucu rastgele atar. Bu, oyunu akışta tutar ve "hızlı karar verme" gerilimini yaratır.
 - **Avantaj:** "Hımbıl'dan önce kart vermek zorundasın" kuralı bu modelde **otomatik** sağlanır — takas zaten bir kart vermeyi içeriyor. (İlk-oyuncu istisnası fiziksel oyun artığı, dijitalde gerek yok.)
+- **Geçersiz intent sözleşmesi (Aşama 3 için):** `resolveSwapTick` ([server/game/swap.ts](../server/game/swap.ts)) elde olmayan bir `cardId` gelirse `throw` eder — saf kural fonksiyonu için bu doğru davranış, motoru değiştirmeye gerek yok. Room katmanı bunu **yakalamalı** ve o oyuncuyu timeout'ta seçmeyen oyuncuyla aynı şekilde ele almalı (rastgele kart ata) + olayı loglamalı. Yani geçersiz intent, tick'i çökertmek yerine sessizce timeout'a düşer. Bu sözleşim henüz kodlanmadı çünkü `server/rooms/` boş (bkz. §7 Aşama 3); Room yazılırken burası referans alınmalı.
 
 ### Model B — Serbest Akış (async)
 Herkes istediği an kart fırlatır. Kaosa daha sadık ama akış kontrolü (kuyruk birikmesi, el boyutu dalgalanması) ciddi karmaşıklık ekler. **Önerilmiyor.**

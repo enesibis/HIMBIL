@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createDeck, pickObjectTypes, shuffle } from "../deck.js";
+import { createDeck, mulberry32, pickObjectTypes, shuffle } from "../deck.js";
 
 describe("pickObjectTypes", () => {
   it("returns exactly numPlayers distinct object types", () => {
@@ -47,16 +47,20 @@ describe("shuffle", () => {
   it("is deterministic for a fixed rng", () => {
     const items = [1, 2, 3, 4, 5];
     const rngValues = [0.9, 0.1, 0.5, 0.3, 0.7];
-    let i = 0;
-    const rng = () => rngValues[i++ % rngValues.length];
-    const a = shuffle(items, (() => {
-      let j = 0;
-      return () => rngValues[j++ % rngValues.length];
-    })());
-    const b = shuffle(items, (() => {
-      let j = 0;
-      return () => rngValues[j++ % rngValues.length];
-    })());
+    const a = shuffle(
+      items,
+      (() => {
+        let j = 0;
+        return () => rngValues[j++ % rngValues.length];
+      })(),
+    );
+    const b = shuffle(
+      items,
+      (() => {
+        let j = 0;
+        return () => rngValues[j++ % rngValues.length];
+      })(),
+    );
     expect(a).toEqual(b);
   });
 
@@ -65,5 +69,40 @@ describe("shuffle", () => {
     const copy = items.slice();
     shuffle(items, () => 0.99);
     expect(items).toEqual(copy);
+  });
+});
+
+describe("mulberry32", () => {
+  it("produces the same sequence of floats for the same seed", () => {
+    const a = mulberry32(42);
+    const b = mulberry32(42);
+    const sequenceA = Array.from({ length: 10 }, () => a());
+    const sequenceB = Array.from({ length: 10 }, () => b());
+    expect(sequenceA).toEqual(sequenceB);
+  });
+
+  it("produces a different sequence for a different seed", () => {
+    const a = mulberry32(1);
+    const b = mulberry32(2);
+    const sequenceA = Array.from({ length: 10 }, () => a());
+    const sequenceB = Array.from({ length: 10 }, () => b());
+    expect(sequenceA).not.toEqual(sequenceB);
+  });
+
+  it("only produces floats in [0, 1)", () => {
+    const rng = mulberry32(123456789);
+    for (let i = 0; i < 1000; i++) {
+      const value = rng();
+      expect(value).toBeGreaterThanOrEqual(0);
+      expect(value).toBeLessThan(1);
+    }
+  });
+
+  it("lets a seeded shuffle be replayed byte-for-byte from its seed", () => {
+    const deck = Array.from({ length: 16 }, (_, i) => i);
+    const seed = 987654321;
+    const first = shuffle(deck, mulberry32(seed));
+    const replay = shuffle(deck, mulberry32(seed));
+    expect(replay).toEqual(first);
   });
 });

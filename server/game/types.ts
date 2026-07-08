@@ -17,12 +17,7 @@ export interface DealResult {
   stock: Card[];
 }
 
-export type GamePhase =
-  | "waiting"
-  | "swapping"
-  | "slamWindow"
-  | "scoring"
-  | "finished";
+export type GamePhase = "waiting" | "swapping" | "slamWindow" | "scoring" | "finished";
 
 export interface SlamResult {
   playerId: string;

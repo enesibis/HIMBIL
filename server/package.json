@@ -1,20 +1,28 @@
 {
   "name": "himbil-server",
   "version": "1.0.0",
-  "main": "index.js",
+  "description": "Authoritative Colyseus game server for Hımbıl, a real-time multiplayer card game.",
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
-    "build": "tsc"
+    "build": "tsc",
+    "lint": "eslint .",
+    "format": "prettier --write ."
   },
   "keywords": [],
-  "author": "",
+  "author": "Enes İbiş",
   "license": "ISC",
-  "description": "",
   "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
   "devDependencies": {
     "@types/node": "^26.1.0",
+    "eslint": "^9.39.4",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.9.4",
     "typescript": "^6.0.3",
+    "typescript-eslint": "^8.63.0",
     "vitest": "^4.1.9"
   }
 }
