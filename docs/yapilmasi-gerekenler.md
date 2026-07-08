@@ -128,18 +128,20 @@
 
 ## 🟡 5. Test tarafında yapılması gerekenler
 
-- [ ] **36. Dart `Rules` için parity testleri yaz** *(en kritik test işi)* — `test/rules_test.dart`
-  [server/game/__tests__/](../server/game/__tests__/) altındaki 24 senaryonun birebir Dart portu. İki motor sessizce ayrışmasın; Aşama 3 geçişinin güvencesi bu.
+- [x] **36. Dart `Rules` için parity testleri yaz** *(en kritik test işi)* — `test/rules_test.dart`
+  [server/game/__tests__/](../server/game/__tests__/) altındaki 24 senaryonun birebir Dart portu (deal 4 + swap 5 + quartet 3 + deck'in pickObjectTypes/createDeck/shuffle kısmı 9 + scoring'in scoreSlamOrder kısmı 3). `mulberry32` (deck.ts) ve `submitSlamPress` (scoring.ts) bu 24'e dahil değil — ikisi de TS tarafına Dart portundan SONRA (madde 34/35) eklendi ve Dart karşılıkları yok: mulberry32 yalnız sunucu/oda katmanı için, submitSlamPress'in davranışı Dart'ta ayrı bir stateful `GameController.submitHumanSlam` olarak yaşıyor (bkz. madde 37). `Rules.objectPool`'un 4 türle sabitlenmiş olması nedeniyle (bkz. CLAUDE.md'deki bilinen ayrışma notu) "numPlayers != 4'te stock'ta kart kalır" senaryosu özel bir pool override'ıyla test edildi.
 
-- [ ] **37. GameController unit testleri yaz** — exploit guard'ları regresyon testi olmalı:
-  "4'lüsüz oyuncu pencerede ilk basış olamaz (`too_early`)", "swapping'de basış -25", "aynı pencerede ikinci basış `already`", bot slam sıralaması, 300 puanda winner. `fake_async` ile zamanı ilerlet.
+- [x] **37. GameController unit testleri yaz** — `test/game_controller_test.dart`
+  Exploit guard'ları regresyon testi: "4'lüsüz oyuncu pencerede ilk basış olamaz (`tooEarly`)", "swapping'de basış -25 (ilk yanlış affedilir)", "aynı pencerede ikinci basış `already`", "gerçek 4'lüsü olan bot ilk basan olur ve 100 puan alır", "300 puana zaten ulaşmış oyuncu tur bittiğinde kazanan ilan edilir". Son iki test `fake_async` ile zamanı ilerletiyor; `hands`/`phase` public alanları üzerinden deterministik bir el düzeni kurup (insan → bot_east'e belirli bir kartı geçer) rastgele bot gecikmelerine rağmen tekrarlanabilir sonuç garantileniyor.
 
-- [ ] **38. Slam hint görünmezliği için widget regresyon testi** — [game_screen.dart:288](../client-flutter/lib/screens/game_screen.dart#L288)
-  "İnsanın 4'lüsü yokken `4'lün tamam — HIMBIL'e bas!` metni asla render edilmez" testi.
+- [x] **38. Slam hint görünmezliği için widget regresyon testi** — `test/game_screen_slam_hint_test.dart`
+  Gerçek `GameScreen`'i pompalayıp (fake-async tabanlı `tester.pump`) her karede: `4'lün tamam — HIMBIL'e bas!` metni görünüyorsa, ağaçtaki 4 `HimbilCard`'ın (insanın eli — botlar başka widget kullanıyor) gerçekten aynı `objectType`'ta olduğunu doğruluyor. Private `_controller`/`_humanHand` state'ine erişmeden, tamamen public widget ağacı üzerinden kara kutu regresyon testi.
 
-- [ ] **39. PlayerSession testleri** — satın alma / bakiye düşme / persist + geri yükleme.
+- [x] **39. PlayerSession testleri** — `test/player_session_test.dart`
+  Kart derisi/çerçeve satın alma (yeterli/yetersiz jeton, zaten sahip olma), `selectCardSkin`/`selectFrame`'in sahiplenilmemiş id'lerde no-op olması, `addTokens`, `recordMatchResult` (galibiyet/mağlubiyet serisi), ve `load()`'un önceki bir `PlayerSession`'ın `SharedPreferences`'a yazdığı bakiye/envanter/istatistikleri birebir geri yüklediğini doğrulayan testler.
 
-- [ ] **40. Sunucuya eksik senaryolar** — 4 oyuncu + `direction: -1`, aynı tick'te iki oyuncunun 4'lü tamamlaması, kart korunumu invariant'ı (property-based, `fast-check`).
+- [x] **40. Sunucuya eksik senaryolar** — `server/game/__tests__/scenarios.test.ts`
+  4 oyuncu + `direction: -1` (yön işaretinin komşuyu gerçekten değiştirdiğini 2 oyunculu testin aksine gösteren tam halka rotasyonu), aynı `resolveSwapTick` çağrısında iki farklı oyuncunun aynı anda 4'lü tamamlaması (`swap.ts` + `quartet.ts` entegrasyonu), ve `fast-check` ile property-based kart korunumu invariant'ı (rastgele el boyutları + yön için, çıktıdaki kart multiset'i girdiyle birebir aynı kalır). `fast-check` yeni bir devDependency olarak eklendi.
 
 ---
 
