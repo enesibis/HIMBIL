@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../audio/sound_service.dart';
 import '../../session/player_session.dart';
 import '../../theme/palette.dart';
 import '../../widgets/carnival_background.dart';
@@ -55,6 +56,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   void _next() {
     if (!_canContinue) return;
+    SoundService.instance.playSfx(Sfx.stepForward);
     if (_step == 1) PlayerSession.instance.name = _nameController.text.trim();
     if (_step == _totalSteps - 1) {
       _finish();
@@ -109,7 +111,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       2,
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 28),
-                        child: AgeStep(age: PlayerSession.instance.age, onChanged: (v) => setState(() => PlayerSession.instance.age = v)),
+                        child: AgeStep(
+                          age: PlayerSession.instance.age,
+                          onChanged: (v) {
+                            SoundService.instance.playSfx(Sfx.buttonTap);
+                            setState(() => PlayerSession.instance.age = v);
+                          },
+                        ),
                       ),
                     ),
                     _parallaxPage(
@@ -121,9 +129,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           characterIndex: PlayerSession.instance.avatarCharacterIndex,
                           colorIndex: PlayerSession.instance.avatarColorIndex,
                           frame: PlayerSession.instance.avatarFrame,
-                          onCharacterSelected: (i) => setState(() => PlayerSession.instance.avatarCharacterIndex = i),
-                          onColorSelected: (i) => setState(() => PlayerSession.instance.avatarColorIndex = i),
-                          onFrameSelected: (f) => setState(() => PlayerSession.instance.avatarFrame = f),
+                          onCharacterSelected: (i) {
+                            SoundService.instance.playSfx(Sfx.avatarSelect);
+                            setState(() => PlayerSession.instance.avatarCharacterIndex = i);
+                          },
+                          onColorSelected: (i) {
+                            SoundService.instance.playSfx(Sfx.avatarSelect);
+                            setState(() => PlayerSession.instance.avatarColorIndex = i);
+                          },
+                          onFrameSelected: (f) {
+                            SoundService.instance.playSfx(Sfx.avatarSelect);
+                            setState(() => PlayerSession.instance.avatarFrame = f);
+                          },
                         ),
                       ),
                     ),

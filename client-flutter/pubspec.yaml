@@ -13,6 +13,16 @@ dependencies:
   cupertino_icons: ^1.0.8
   shared_preferences: ^2.5.5
   flutter_svg: ^2.3.0
+  audioplayers: ^6.1.0
+  web_socket_channel: ^3.0.3
+  http: ^1.6.0
+  sentry_flutter: ^8.14.2
+  flutter_localizations:
+    sdk: flutter
+  intl: ^0.20.2
+  share_plus: ^13.2.0
+  app_links: ^7.0.0
+  meta: ^1.17.0
 
 dev_dependencies:
   flutter_test:
@@ -34,6 +44,7 @@ flutter_launcher_icons:
 
 flutter:
   uses-material-design: true
+  generate: true
 
   assets:
     - assets/images/himbil_logo.png
@@ -41,6 +52,8 @@ flutter:
     - assets/card_backs/
     - assets/fruits/
     - assets/frames/
+    - assets/sounds/
+    - assets/music/
 
   # Baloo2 ve Nunito variable font (wght eksenli); tek asset yeterli çünkü
   # ağırlık seçimi AppText içinde TextStyle.fontVariations ile yapılıyor —

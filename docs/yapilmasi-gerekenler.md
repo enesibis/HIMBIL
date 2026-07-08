@@ -160,33 +160,33 @@
 
 ## 🚀 7. Eklenmesi gerekenler (altyapı ve ürün — öncelik sırasıyla)
 
-- [ ] **48. GitHub Actions CI kur** — iki job: `server` (npm ci → test → build) ve `client` (pub get → analyze → test). ~Yarım saatlik iş, kaliteyi kilitler.
+- [x] **48. GitHub Actions CI kur** — [.github/workflows/ci.yml](../.github/workflows/ci.yml): `server` (npm ci → test → build) ve `client` (pub get → analyze → test) job'ları, yerelde doğrulandı.
 
-- [ ] **49. Aşama 3: Colyseus entegrasyonu** *(ana iş)* — `server/rooms/` + `server/schema/` doldur, kural motorunu Room'a sar; client'a `lib/net/` WS katmanı ekle, `GameController`'ın yerel üretimini sunucu state dinlemeye çevir. Beraberinde: manifest'e INTERNET izni, `--dart-define` ile dev/prod sunucu adresi. Sunucu tasarım notu: geri sayımı "kalan süre" değil **deadline** olarak gönder (süre-sızıntısı sınıfı sorunlar tekrarlanmasın).
+- [x] **49. Aşama 3: Colyseus entegrasyonu** *(ana iş)* — `server/rooms/HimbilRoom.ts` + `server/schema/messages.ts` yazıldı, kural motoru (`server/game/`) `HimbilGameSession` ile Room'a sarıldı. **Sapma:** Dart/Flutter için resmi bir Colyseus client SDK'sı olmadığından, `client-flutter/lib/net/` altında Colyseus'un ikili wire protokolünün (msgpack + JOIN_ROOM/ROOM_DATA çerçeveleri) elle, byte-seviyesinde doğru bir Dart implementasyonu yazıldı (`msgpack.dart`, `colyseus_protocol.dart`, `himbil_net_client.dart`) — `@colyseus/schema` state-sync yerine düz JSON mesajlar kullanılıyor, bkz. dosya içi doc yorumları. Gerçek sunucuya karşı 4 sahte istemciyle uçtan uca doğrulandı (oda kur → kodla katıl → oyun başlat → takas tick'i → hiçbir elin sızmaması). Manifest'e INTERNET izni eklendi; `--dart-define=HIMBIL_SERVER_HOST/PORT/TLS` ile dev/prod adresi (`net/net_config.dart`). Slam penceresi deadline (kalan süre değil, epoch ms) olarak gönderiliyor. **Bilinçli olarak yapılmadı:** `GameController`'ın yerel/bot-driven state üretimini sunucu state'ine bağlamak — mevcut çalışan bot-only deneyimi iki gerçek cihazda test etmeden bozma riskine karşı, bu adım ayrı bir entegrasyon çalışmasına bırakıldı.
 
-- [ ] **50. Oda kodu güvenliği (Aşama 4)** — 5 rakam ([lobby_screen.dart:48](../client-flutter/lib/screens/lobby_screen.dart#L48)) → 6 haneli alfanümerik + sunucuda katılım denemesi rate limit.
+- [x] **50. Oda kodu güvenliği (Aşama 4)** — sunucu: [roomCode.ts](../server/rooms/roomCode.ts) 6 haneli alfanümerik (karışabilecek 0/O/1/I hariç) + `JoinRateLimiter` (`HimbilRoom.onAuth`'ta IP başına pencereli limit). İstemci: `lib/net/room_code.dart` aynı alfabeyle yerel kod üretiyor, `join_screen.dart` artık 6 haneli alfanümerik girişi sistem klavyesiyle alıyor (5 haneli sayısal tuş takımı yerine).
 
-- [ ] **51. Crashlytics/Sentry ekle** — store'a çıkmadan önce crash görünürlüğü şart.
+- [x] **51. Sentry ekle** — `main.dart`, `--dart-define=SENTRY_DSN` ile (boşsa no-op). **Kalan iş (sen yapmalısın):** gerçek bir Sentry (ya da Firebase Crashlytics) projesi oluşturup DSN'i sağlamak — harici hesap gerektiriyor.
 
-- [ ] **52. Temel analytics** — tur süresi, false-slam oranı, D1/D7 retention; balans kararları veriyle alınsın.
+- [x] **52. Temel analytics** — `lib/analytics/analytics_service.dart`: `round_completed` (süre), `false_slam`/`slam_recorded` (oran hesaplanabilir), `match_ended`; D1/D7 retention yerel `active days` kümesinden hesaplanıyor. Şimdilik yerel log (gerçek backend yok) — `AnalyticsSink` arayüzü sayesinde ileride tek satırla değiştirilebilir.
 
-- [ ] **53. Ayarlar ekranı** — ses/titreşim/dil anahtarları + gizlilik politikası linki (store zorunluluğu).
+- [x] **53. Ayarlar ekranı** — [settings_screen.dart](../client-flutter/lib/screens/settings_screen.dart): ses/müzik anahtarları (`SoundService`'e kalıcı olarak bağlı) + dil satırı (bkz. #56) + [privacy_policy_screen.dart](../client-flutter/lib/screens/privacy_policy_screen.dart). Ana Menü'ye dişli ikonuyla bağlandı.
 
-- [ ] **54. Profil düzenleme** — onboarding sonrası isim/yaş/karakter/renk şu an **hiç** değiştirilemiyor (yalnız çerçeve Mağaza'dan değişiyor).
+- [x] **54. Profil düzenleme** — [profile_edit_screen.dart](../client-flutter/lib/screens/profile_edit_screen.dart): onboarding'in `AgeStep`/`AvatarStep` widget'ları yeniden kullanıldı, isim için ayrı kompakt alan. Profil sekmesinden "Düzenle" ile açılıyor.
 
-- [ ] **55. Ses efektleri + haptik** — özellikle slam anına `HapticFeedback.heavyImpact()` + ses; oyunun "juice"u burada.
+- [x] **55. Ses efektleri + haptik** — kullanıcı kendisi üstlendi (`lib/audio/`, `assets/sounds/`, `assets/music/`); dokunulmadı.
 
-- [ ] **56. i18n altyapısı** — tüm metinler TR hardcoded; `flutter_localizations` + ARB'yi metinler çoğalmadan kur.
+- [x] **56. i18n altyapısı** — `flutter_localizations` + ARB kuruldu (`l10n.yaml`, `lib/l10n/app_tr.arb`, `generate: true`). **Sapma:** altyapı gerçekten çalışıyor durumda ama yalnız bu oturumda yazılan iki ekranda (Ayarlar, Profil Düzenleme) kullanılıyor — geri kalan onlarca hardcoded TR metnini aynı yola taşımak ayrı, büyük bir mekanik iş (ayrıca çoğu ekran bu oturumda eşzamanlı düzenleniyordu, çakışma riskine girilmedi).
 
-- [ ] **57. Erişilebilirlik** — `GestureDetector` butonlarına `Semantics(button: true)`, 36px geri okları → 48px dokunma hedefi, `fontScale` büyükte taşma kontrolü.
+- [x] **57. Erişilebilirlik** — paylaşılan buton widget'larına (`CircleBackButton`, `SoftButton`, `GradientCta`, `HomeBottomNav`) `Semantics(button: true)`; `CircleBackButton` görsel daire 36px kalıp dokunma alanı 48px'e çıkarıldı; `MaterialApp.builder`'da `fontScale` [0.85, 1.3] aralığına kırpıldı (sabit piksel yerleşimli ekranlar tam erişilebilirlik aralığında kırılıyordu).
 
-- [ ] **58. Oda daveti paylaşımı** — `share_plus` + deep link (`himbil://join/34521`); Kodla Katıl akışının gerçek değeri bu.
+- [x] **58. Oda daveti paylaşımı** — `share_plus` + `himbil://join/<KOD>` deep link (Android intent-filter, iOS `CFBundleURLTypes`, `lib/net/deep_link_service.dart`). Lobi'deki oda koduna "Daveti Paylaş" butonu bağlandı.
 
-- [ ] **59. Reconnect/disconnect dayanıklılığı (Aşama 6)** — grace timer + bot devralma + "bağlantı koptu" UI'ı.
+- [x] **59. Reconnect/disconnect dayanıklılığı (Aşama 6)** — sunucu: `HimbilRoom.onDrop` + `allowReconnection` (30sn grace). İstemci: `HimbilNetClient` beklenmedik kopuşu (onaylı çıkıştan ayırt ederek) algılayıp otomatik yeniden bağlanmayı dener (~28sn, sunucunun grace süresiyle uyumlu); `ConnectionStatusBanner` widget'ı hazır. Gerçek sunucuya karşı bağlantıyı bilerek koparıp otomatik toparlanma uçtan uca doğrulandı. Ayrıca bu çalışma sırasında gerçek bir hata bulundu ve düzeltildi: `disconnect()` sunucuya "onaylı çıkış" kapanış kodunu (4000) hiç göndermiyordu, yani "< Menü" ile çıkmak bile sunucuda 30sn'lik grace hakkını israf ediyordu. **Bilinçli olarak yapılmadı:** bot devralma (disconnected oyuncunun yerini bir bot'un alması) — MVP davranışı, o oyuncunun takas seçimleri timeout kuralına (rastgele kart) düşüyor, turu durdurmuyor.
 
-- [ ] **60. Misafir hesap + sunucu envanteri (Aşama 7)** — jeton/envanter `shared_preferences`'tan sunucuya; jeton bakiyesini kolon değil **transaction ledger** olarak tut. IAP'ı bu taşınmadan önce **ekleme** (rootlu cihazda jeton düzenlenebilir).
+- [x] **60. Misafir hesap + sunucu envanteri (Aşama 7)** — `server/persistence/` (SQLite, `better-sqlite3`): `guest_accounts` + **append-only `token_ledger`** (bakiye = `SUM(amount)`, hiçbir zaman mutable bir kolon değil) + `inventory_items`. `server/routes/guestRoutes.ts`: `POST /guest/register`, `POST /guest/me` — bilerek **jeton veren bir endpoint yok**, `awardTokens` yalnız güvenilir sunucu kodundan çağrılabilir. Gerçek sunucuya karşı doğrulandı (register/me + mevcut oda akışında regresyon yok). **Bilinçli olarak yapılmadı:** client'ın `PlayerSession`'ını bu API'ye taşımak — IAP'tan önce yapılması gereken, ayrı ve dikkatli bir geçiş (yapılması-gerekenler'in kendi notu), mevcut çalışan yerel akışı riske atmamak için bu oturumda başlatılmadı.
 
-- [ ] **61. Düşük öncelikliler** — dark mode, golden testler, 3/5/6 oyunculu masalar (sunucu motoru hazır, client `numPlayers = 4`'e sabit), turnuva/sezon ligi, izleyici modu, admin panel.
+- [x] **61. Düşük öncelikliler (güvenli alt-küme)** — golden testler (`test/golden/`: Ayarlar + Gizlilik ekranları) ve admin panel (`@colyseus/monitor`, `server/routes/monitorRoutes.ts` — yalnız `HIMBIL_ADMIN_TOKEN` ortam değişkeni set edilmişse mount edilir, token'sız istekler 404). **Kapsam dışı bırakıldı:** dark mode (uygulama renkleri `Theme.of(context)` değil düz `Palette.xxx` sabitleri üzerinden geliyor — gerçek bir karanlık tema, onlarca ekranı yeniden temalamayı gerektiren ayrı bir refactor, sahte/yarım bir toggle eklemek yanıltıcı olurdu), 3/5/6 oyunculu masalar, turnuva/sezon ligi, izleyici modu — her biri kendi başına büyük, ayrı bir tasarım/uygulama turu hak eden özellikler.
 
 ---
 

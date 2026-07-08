@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../audio/sound_service.dart';
 import '../theme/palette.dart';
 import '../theme/text_styles.dart';
 
@@ -36,27 +37,36 @@ class _SoftButtonState extends State<SoftButton> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: (_) => setState(() => _scale = 0.96),
-      onTapUp: (_) => setState(() => _scale = 1.0),
-      onTapCancel: () => setState(() => _scale = 1.0),
-      onTap: widget.onTap,
-      child: AnimatedScale(
-        scale: _scale,
-        duration: const Duration(milliseconds: 90),
-        child: Container(
-          width: widget.width,
-          height: widget.height,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: widget.background,
-            borderRadius: BorderRadius.circular(widget.borderRadius),
-            border: Border.all(color: Palette.textPrimary.withValues(alpha: 0.05), width: 2),
-            boxShadow: [
-              BoxShadow(color: Palette.textPrimary.withValues(alpha: 0.07), blurRadius: 14, offset: const Offset(0, 4)),
-            ],
+    return Semantics(
+      button: true,
+      label: widget.label,
+      child: GestureDetector(
+        onTapDown: (_) => setState(() => _scale = 0.96),
+        onTapUp: (_) => setState(() => _scale = 1.0),
+        onTapCancel: () => setState(() => _scale = 1.0),
+        onTap: () {
+          SoundService.instance.playSfx(Sfx.buttonTap);
+          widget.onTap();
+        },
+        child: AnimatedScale(
+          scale: _scale,
+          duration: const Duration(milliseconds: 90),
+          child: Container(
+            width: widget.width,
+            height: widget.height,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: widget.background,
+              borderRadius: BorderRadius.circular(widget.borderRadius),
+              border: Border.all(color: Palette.textPrimary.withValues(alpha: 0.05), width: 2),
+              boxShadow: [
+                BoxShadow(color: Palette.textPrimary.withValues(alpha: 0.07), blurRadius: 14, offset: const Offset(0, 4)),
+              ],
+            ),
+            child: ExcludeSemantics(
+              child: Text(widget.label, style: AppText.baloo(size: widget.fontSize, weight: FontWeight.w700, color: widget.textColor)),
+            ),
           ),
-          child: Text(widget.label, style: AppText.baloo(size: widget.fontSize, weight: FontWeight.w700, color: widget.textColor)),
         ),
       ),
     );

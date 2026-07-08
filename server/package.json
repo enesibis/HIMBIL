@@ -6,6 +6,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx watch index.ts",
     "lint": "eslint .",
     "format": "prettier --write ."
   },
@@ -17,13 +19,24 @@
     "node": ">=22"
   },
   "devDependencies": {
+    "@colyseus/testing": "^0.17.11",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/express": "^5.0.6",
     "@types/node": "^26.1.0",
+    "@types/supertest": "^7.2.0",
     "eslint": "^9.39.4",
     "eslint-config-prettier": "^10.1.8",
     "fast-check": "^4.8.0",
     "prettier": "^3.9.4",
+    "supertest": "^7.2.2",
+    "tsx": "^4.23.0",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.63.0",
     "vitest": "^4.1.9"
+  },
+  "dependencies": {
+    "@colyseus/ws-transport": "^0.17.13",
+    "better-sqlite3": "^12.11.1",
+    "colyseus": "^0.17.10"
   }
 }

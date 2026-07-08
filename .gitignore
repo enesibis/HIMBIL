@@ -2,6 +2,11 @@
 server/node_modules/
 server/dist/
 
+# Guest-account/inventory SQLite store (madde #60) — dev/local data, not source.
+server/*.sqlite3
+server/*.sqlite3-wal
+server/*.sqlite3-shm
+
 # OS
 .DS_Store
 Thumbs.db

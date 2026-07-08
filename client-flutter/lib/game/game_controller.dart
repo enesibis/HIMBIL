@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import '../analytics/analytics_service.dart';
 import '../session/player_session.dart';
 import 'bot_ai.dart';
 import 'rules.dart';
@@ -64,6 +65,7 @@ class GameController {
   bool _firstPressHappened = false;
   bool _falseStartForgiven = false;
   Timer? _ticker;
+  DateTime? _roundStartedAt;
 
   static const Duration _tickInterval = Duration(milliseconds: 100);
 
@@ -84,6 +86,7 @@ class GameController {
   }
 
   void startNewRound() {
+    _roundStartedAt = DateTime.now();
     final objectTypes = Rules.pickObjectTypes(numPlayers);
     var deck = Rules.createDeck(numPlayers, objectTypes);
     deck = Rules.shuffle(deck);
@@ -107,16 +110,19 @@ class GameController {
       final humanHasQuartet = Rules.detectQuartet(hands[0]) != null;
       if (!humanHasQuartet && _recordedPlayers.isEmpty) return SlamOutcome.tooEarly;
       _recordSlamAttempt(0);
+      AnalyticsService.instance.logEvent('slam_recorded', {'roundNumber': roundNumber});
       return SlamOutcome.recorded;
     }
 
     if (phase == GamePhase.swapping) {
       if (!_falseStartForgiven) {
         _falseStartForgiven = true;
+        AnalyticsService.instance.logEvent('false_slam', {'roundNumber': roundNumber, 'forgiven': true});
         return SlamOutcome.falseStartForgiven;
       }
       scores[humanId] = (scores[humanId] ?? 0) + Rules.falseSlamPenalty;
       onFalseSlamPenalty?.call(humanId, scores[humanId]!);
+      AnalyticsService.instance.logEvent('false_slam', {'roundNumber': roundNumber, 'forgiven': false});
       return SlamOutcome.falseStart;
     }
 
@@ -224,6 +230,11 @@ class GameController {
     }
     _setPhase(GamePhase.scoring);
     roundNumber++;
+    final startedAt = _roundStartedAt;
+    AnalyticsService.instance.logEvent('round_completed', {
+      'roundNumber': roundNumber,
+      'durationMs': startedAt == null ? null : DateTime.now().difference(startedAt).inMilliseconds,
+    });
     final winnerId = _findWinner();
     if (winnerId != null) _awardMatchRewards(winnerId);
     onRoundScored?.call(roundNumber, results, Map<String, int>.from(scores), winnerId);
@@ -237,6 +248,7 @@ class GameController {
     final reward = placementTokenRewards[humanRank.clamp(0, placementTokenRewards.length - 1)];
     PlayerSession.instance.addTokens(reward, 'match_reward');
     PlayerSession.instance.recordMatchResult(won: winnerId == humanId);
+    AnalyticsService.instance.logEvent('match_ended', {'won': winnerId == humanId, 'roundNumber': roundNumber});
     onMatchTokensAwarded?.call(reward);
   }
 

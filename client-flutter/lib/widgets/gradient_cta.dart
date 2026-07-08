@@ -45,90 +45,99 @@ class GradientCtaState extends State<GradientCta> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: (_) => setState(() => _scale = 0.95),
-      onTapUp: (_) => setState(() => _scale = 1.0),
-      onTapCancel: () => setState(() => _scale = 1.0),
-      onTap: widget.onTap,
-      child: AnimatedScale(
-        scale: _scale,
-        duration: const Duration(milliseconds: 90),
-        child: SizedBox(
-          width: widget.width,
-          height: widget.height + 12,
-          child: Stack(
-            children: [
-              Positioned(
-                top: 12,
-                child: Container(
-                  width: widget.width,
-                  height: widget.height,
-                  decoration: BoxDecoration(
-                    color: widget.shadowBarColor,
-                    borderRadius: BorderRadius.circular(widget.borderRadius),
-                  ),
-                ),
-              ),
-              Container(
+    final label = widget.subtitle == null ? widget.title : '${widget.title}. ${widget.subtitle}';
+    return Semantics(
+      button: true,
+      label: label,
+      child: GestureDetector(
+        onTapDown: (_) => setState(() => _scale = 0.95),
+        onTapUp: (_) => setState(() => _scale = 1.0),
+        onTapCancel: () => setState(() => _scale = 1.0),
+        onTap: widget.onTap,
+        child: ExcludeSemantics(child: _buildVisual()),
+      ),
+    );
+  }
+
+  Widget _buildVisual() {
+    return AnimatedScale(
+      scale: _scale,
+      duration: const Duration(milliseconds: 90),
+      child: SizedBox(
+        width: widget.width,
+        height: widget.height + 12,
+        child: Stack(
+          children: [
+            Positioned(
+              top: 12,
+              child: Container(
                 width: widget.width,
                 height: widget.height,
                 decoration: BoxDecoration(
-                  color: widget.color,
+                  color: widget.shadowBarColor,
                   borderRadius: BorderRadius.circular(widget.borderRadius),
-                  boxShadow: [
-                    BoxShadow(
-                      color: widget.color.withValues(alpha: 0.32),
-                      blurRadius: 26,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
                 ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(widget.borderRadius),
-                  child: Stack(
-                    children: [
-                      Positioned(
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        child: Container(
-                          height: widget.height * 0.5,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Colors.white.withValues(alpha: 0.3),
-                                Colors.white.withValues(alpha: 0.0),
-                              ],
-                            ),
+              ),
+            ),
+            Container(
+              width: widget.width,
+              height: widget.height,
+              decoration: BoxDecoration(
+                color: widget.color,
+                borderRadius: BorderRadius.circular(widget.borderRadius),
+                boxShadow: [
+                  BoxShadow(
+                    color: widget.color.withValues(alpha: 0.32),
+                    blurRadius: 26,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(widget.borderRadius),
+                child: Stack(
+                  children: [
+                    Positioned(
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      child: Container(
+                        height: widget.height * 0.5,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.white.withValues(alpha: 0.3),
+                              Colors.white.withValues(alpha: 0.0),
+                            ],
                           ),
                         ),
                       ),
-                      Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
+                    ),
+                    Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            widget.title,
+                            style: AppText.baloo(size: widget.titleSize, weight: FontWeight.w800, color: Colors.white),
+                          ),
+                          if (widget.subtitle != null) ...[
+                            const SizedBox(height: 4),
                             Text(
-                              widget.title,
-                              style: AppText.baloo(size: widget.titleSize, weight: FontWeight.w800, color: Colors.white),
+                              widget.subtitle!,
+                              style: AppText.nunito(size: 13, weight: FontWeight.w700, color: Colors.white.withValues(alpha: 0.88)),
                             ),
-                            if (widget.subtitle != null) ...[
-                              const SizedBox(height: 4),
-                              Text(
-                                widget.subtitle!,
-                                style: AppText.nunito(size: 13, weight: FontWeight.w700, color: Colors.white.withValues(alpha: 0.88)),
-                              ),
-                            ],
                           ],
-                        ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

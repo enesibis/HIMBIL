@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../audio/sound_service.dart';
 import '../theme/palette.dart';
 import '../theme/text_styles.dart';
 import '../widgets/rank_row.dart';
@@ -171,7 +172,10 @@ class _RankCardState extends State<_RankCard> with SingleTickerProviderStateMixi
     super.initState();
     _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 450));
     Future.delayed(Duration(milliseconds: widget.delayMs), () {
-      if (mounted) _controller.forward();
+      if (mounted) {
+        SoundService.instance.playSfx(Sfx.rankPop);
+        _controller.forward();
+      }
     });
   }
 

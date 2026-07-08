@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../audio/sound_service.dart';
 import '../session/player_session.dart';
 import '../theme/palette.dart';
 import '../theme/text_styles.dart';
@@ -30,6 +31,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   @override
   void initState() {
     super.initState();
+    SoundService.instance.playMusic(MusicTrack.splashJingle, loop: false);
     _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: _timelineMs))
       ..forward()
       ..addStatusListener((status) {

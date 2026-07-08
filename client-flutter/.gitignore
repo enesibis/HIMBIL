@@ -33,6 +33,11 @@ migrate_working_dir/
 /build/
 /coverage/
 
+# Generated localization bindings (madde #56) — `l10n.yaml` + `generate: true`
+# regenerate these from lib/l10n/app_tr.arb on every pub get/build/analyze.
+/lib/l10n/app_localizations.dart
+/lib/l10n/app_localizations_*.dart
+
 # Symbolication related
 app.*.symbols
 

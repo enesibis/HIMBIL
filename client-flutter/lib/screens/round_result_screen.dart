@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../audio/sound_service.dart';
 import '../theme/palette.dart';
 import '../theme/text_styles.dart';
 import '../widgets/carnival_background.dart';
@@ -66,7 +67,10 @@ class RoundResultScreen extends StatelessWidget {
                     shadowBarColor: Palette.redShadow,
                     borderRadius: 24,
                     titleSize: 17,
-                    onTap: () => Navigator.of(context).pop(),
+                    onTap: () {
+                      SoundService.instance.playSfx(Sfx.buttonTap);
+                      Navigator.of(context).pop();
+                    },
                   ),
                 ),
               ],

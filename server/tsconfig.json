@@ -9,5 +9,5 @@
     "outDir": "dist",
     "rootDir": "."
   },
-  "include": ["game", "rooms", "schema"]
+  "include": ["game", "rooms", "schema", "index.ts"]
 }

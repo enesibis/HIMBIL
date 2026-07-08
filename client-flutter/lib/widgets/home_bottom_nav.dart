@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../audio/sound_service.dart';
 import '../theme/palette.dart';
 import '../theme/text_styles.dart';
 
@@ -34,25 +35,35 @@ class HomeBottomNav extends StatelessWidget {
 
   Widget _tab({required IconData icon, required String label, required int index}) {
     final active = currentIndex == index;
-    return GestureDetector(
-      onTap: () => onChanged(index),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        padding: const EdgeInsets.symmetric(vertical: 9),
-        decoration: BoxDecoration(
-          gradient: active ? const LinearGradient(colors: [Palette.redLight, Palette.redPressedEnd]) : null,
-          borderRadius: BorderRadius.circular(19),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 16, color: active ? Colors.white : Palette.textPrimary),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: AppText.baloo(size: 13, weight: FontWeight.w700, color: active ? Colors.white : Palette.textPrimary),
+    return Semantics(
+      button: true,
+      selected: active,
+      label: label,
+      child: GestureDetector(
+        onTap: () {
+          SoundService.instance.playSfx(Sfx.buttonTap);
+          onChanged(index);
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          padding: const EdgeInsets.symmetric(vertical: 9),
+          decoration: BoxDecoration(
+            gradient: active ? const LinearGradient(colors: [Palette.redLight, Palette.redPressedEnd]) : null,
+            borderRadius: BorderRadius.circular(19),
+          ),
+          child: ExcludeSemantics(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, size: 16, color: active ? Colors.white : Palette.textPrimary),
+                const SizedBox(width: 6),
+                Text(
+                  label,
+                  style: AppText.baloo(size: 13, weight: FontWeight.w700, color: active ? Colors.white : Palette.textPrimary),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

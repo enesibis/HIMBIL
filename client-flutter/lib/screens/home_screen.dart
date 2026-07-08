@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../audio/sound_service.dart';
 import '../theme/palette.dart';
 import '../theme/text_styles.dart';
 import '../widgets/carnival_background.dart';
@@ -10,6 +11,8 @@ import '../widgets/user_avatar.dart';
 import '../session/player_session.dart';
 import 'join_screen.dart';
 import 'lobby_screen.dart';
+import 'profile_edit_screen.dart';
+import 'settings_screen.dart';
 
 class _ProfileStat {
   final String value;
@@ -33,6 +36,12 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _tabIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    SoundService.instance.playMusic(MusicTrack.menuLoop);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,12 +92,34 @@ class _HomeScreenState extends State<HomeScreen> {
             Text('Hımbıl', style: AppText.baloo(size: 23, weight: FontWeight.w800)),
           ],
         ),
-        UserAvatar(
-          size: 40,
-          imagePath: PlayerSession.instance.avatarCharacter.imagePath,
-          initial: PlayerSession.instance.initial,
-          gradient: PlayerSession.instance.avatarColor.gradient,
-          frame: PlayerSession.instance.avatarFrame,
+        Row(
+          children: [
+            GestureDetector(
+              onTap: () {
+                SoundService.instance.playSfx(Sfx.buttonTap);
+                Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SettingsScreen()));
+              },
+              child: Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: Palette.surface,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [BoxShadow(color: Palette.textPrimary.withValues(alpha: 0.07), blurRadius: 10, offset: const Offset(0, 4))],
+                ),
+                alignment: Alignment.center,
+                child: const Icon(Icons.settings_rounded, size: 19, color: Palette.textSecondary),
+              ),
+            ),
+            const SizedBox(width: 10),
+            UserAvatar(
+              size: 40,
+              imagePath: PlayerSession.instance.avatarCharacter.imagePath,
+              initial: PlayerSession.instance.initial,
+              gradient: PlayerSession.instance.avatarColor.gradient,
+              frame: PlayerSession.instance.avatarFrame,
+            ),
+          ],
         ),
       ],
     );
@@ -189,7 +220,26 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Profilim', style: AppText.baloo(size: 19, weight: FontWeight.w700)),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('Profilim', style: AppText.baloo(size: 19, weight: FontWeight.w700)),
+              GestureDetector(
+                onTap: () async {
+                  SoundService.instance.playSfx(Sfx.buttonTap);
+                  await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ProfileEditScreen()));
+                  if (mounted) setState(() {});
+                },
+                child: Row(
+                  children: [
+                    const Icon(Icons.edit_rounded, size: 15, color: Palette.blue),
+                    const SizedBox(width: 4),
+                    Text('Düzenle', style: AppText.nunito(size: 12, weight: FontWeight.w800, color: Palette.blue)),
+                  ],
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 12),
           GridView.count(
             crossAxisCount: 2,
@@ -269,14 +319,17 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _goToQuickPlay(BuildContext context) {
+    SoundService.instance.playSfx(Sfx.screenTransition);
     Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LobbyScreen.quickPlay()));
   }
 
   void _goToCreateRoom(BuildContext context) {
+    SoundService.instance.playSfx(Sfx.screenTransition);
     Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LobbyScreen()));
   }
 
   void _goToJoin(BuildContext context) {
+    SoundService.instance.playSfx(Sfx.screenTransition);
     Navigator.of(context).push(MaterialPageRoute(builder: (_) => const JoinScreen()));
   }
 

@@ -1,8 +1,9 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 
+import '../audio/sound_service.dart';
 import '../game/bots.dart';
+import '../net/room_code.dart';
 import '../session/player_session.dart';
 import '../theme/palette.dart';
 import '../theme/text_styles.dart';
@@ -45,10 +46,10 @@ class _LobbyScreenState extends State<LobbyScreen> {
   @override
   void initState() {
     super.initState();
-    final rnd = math.Random();
-    _roomCode = widget.joinCode ?? List.generate(5, (_) => rnd.nextInt(10)).join();
+    _roomCode = widget.joinCode ?? generateLocalRoomCode();
     Future.delayed(const Duration(milliseconds: 1500), () {
       if (!mounted) return;
+      SoundService.instance.playSfx(Sfx.lobbyPlayerJoined);
       setState(() => _botsReady = true);
       if (widget.quickPlay) _startGame();
     });
@@ -56,7 +57,20 @@ class _LobbyScreenState extends State<LobbyScreen> {
 
   void _startGame() {
     if (!_botsReady) return;
+    SoundService.instance.playSfx(Sfx.screenTransition);
     Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const GameScreen()));
+  }
+
+  /// Madde #58: "Kodla Katıl" akışının gerçek değeri bu — kodu elle
+  /// okutmak/yazdırmak yerine tek dokunuşla paylaşmak.
+  void _shareInvite() {
+    SoundService.instance.playSfx(Sfx.buttonTap);
+    SharePlus.instance.share(
+      ShareParams(
+        text: 'Hımbıl\'da bana katıl! Oda kodu: $_roomCode\nhimbil://join/$_roomCode',
+        subject: 'Hımbıl oda daveti',
+      ),
+    );
   }
 
   @override
@@ -148,6 +162,24 @@ class _LobbyScreenState extends State<LobbyScreen> {
           Text(
             _roomCode,
             style: AppText.baloo(size: 36, weight: FontWeight.w800, color: Palette.red).copyWith(letterSpacing: 6),
+          ),
+          const SizedBox(height: 8),
+          Semantics(
+            button: true,
+            label: 'Oda kodunu paylaş',
+            child: GestureDetector(
+              onTap: _shareInvite,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.ios_share_rounded, size: 15, color: Palette.blue),
+                  const SizedBox(width: 6),
+                  ExcludeSemantics(
+                    child: Text('Daveti Paylaş', style: AppText.nunito(size: 12, weight: FontWeight.w800, color: Palette.blue)),
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),

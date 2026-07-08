@@ -3,7 +3,12 @@
     "allow": [
       "Bash(gh auth *)",
       "Bash(gh repo *)",
-      "Bash(git --version)"
+      "Bash(git --version)",
+      "Skill(run)",
+      "Skill(run:*)",
+      "Bash(npx vitest *)",
+      "Bash(npm test *)",
+      "Bash(flutter test *)"
     ]
   }
 }

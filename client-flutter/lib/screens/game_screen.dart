@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../audio/sound_service.dart';
 import '../game/bots.dart';
 import '../game/game_controller.dart';
 import '../game/rules.dart';
@@ -45,6 +46,10 @@ class _GameScreenState extends State<GameScreen> {
   ({String winnerId, Map<String, int> scores})? _gameOver;
   int? _tokenReward;
 
+  /// [onCountdownTick] 100ms'de bir tetiklenir; tık sesi bunun yerine
+  /// gösterilen tam saniye değiştiğinde bir kez çalınır.
+  int? _lastCountdownSecond;
+
   /// Yalnız uygulamanın ilk maçında true — kurallar hiç anlatılmadığı için
   /// bu overlay dismiss edilene kadar oyun başlamaz (bkz. #14).
   late bool _showTutorial;
@@ -75,10 +80,12 @@ class _GameScreenState extends State<GameScreen> {
   void initState() {
     super.initState();
     _showTutorial = !PlayerSession.instance.hasSeenTutorial;
+    SoundService.instance.playMusic(MusicTrack.gameLoop);
     _initController();
   }
 
   void _dismissTutorial() {
+    SoundService.instance.playSfx(Sfx.buttonTap);
     PlayerSession.instance.markTutorialSeen();
     setState(() => _showTutorial = false);
     _controller.start();
@@ -88,6 +95,7 @@ class _GameScreenState extends State<GameScreen> {
     _controller = GameController()
       ..onPhaseChanged = (phase) {
         if (!mounted) return;
+        _lastCountdownSecond = null;
         setState(() {
           _phase = phase;
           _selectedIndex = null;
@@ -96,25 +104,35 @@ class _GameScreenState extends State<GameScreen> {
       ..onHandsUpdated = (hands, changedSlot) {
         if (!mounted) return;
         if (changedSlot == -1) {
+          SoundService.instance.playSfx(Sfx.dealCards);
           setState(() => _humanHand = hands[0]);
           return;
         }
+        SoundService.instance.playSfx(Sfx.swapTick);
         _runPassRelay(hands[0], changedSlot);
       }
       ..onCountdownTick = (secondsLeft) {
         if (!mounted || _passSlot != null) return;
         _secondsLeftNotifier.value = secondsLeft;
+        final wholeSecond = secondsLeft.ceil();
+        if (wholeSecond >= 0 && wholeSecond != _lastCountdownSecond) {
+          _lastCountdownSecond = wholeSecond;
+          SoundService.instance.playSfx(Sfx.countdownTick);
+        }
       }
       ..onSlamAttemptRecorded = (playerId) {
         if (playerId == GameController.humanId) {
           _showToast('Sıradasın!');
+          SoundService.instance.playSfx(_humanHasQuartet ? Sfx.slamCorrect : Sfx.slamRankEcho);
         } else {
           _avatarKeys[playerId]?.currentState?.pulse();
+          SoundService.instance.playSfx(Sfx.slamRankEcho);
         }
         _syncScores();
       }
       ..onFalseSlamPenalty = (playerId, newScore) {
         _showToast('Erken bastın! Ceza puanı');
+        SoundService.instance.playSfx(Sfx.falseSlam);
         _syncScores();
       }
       ..onMatchTokensAwarded = (amount) {
@@ -176,15 +194,18 @@ class _GameScreenState extends State<GameScreen> {
     _syncScores();
     final roundRanking = [for (final r in results) RankEntry(_labelFor(r.playerId), r.score)];
 
+    if (roundRanking.isNotEmpty) SoundService.instance.playSfx(Sfx.slamFanfare);
     await Navigator.of(context).push(MaterialPageRoute(builder: (_) => SlamCelebrationScreen(ranking: roundRanking)));
     if (!mounted) return;
 
+    SoundService.instance.playSfx(Sfx.roundDing);
     await Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => RoundResultScreen(roundNumber: roundNumber, ranking: roundRanking, isMatchOver: winnerId != null),
     ));
     if (!mounted) return;
 
     if (winnerId != null) {
+      SoundService.instance.playSfx(winnerId == GameController.humanId ? Sfx.gameWin : Sfx.gameLose);
       setState(() => _gameOver = (winnerId: winnerId, scores: Map<String, int>.from(scores)));
     } else {
       _controller.startNewRound();
@@ -213,6 +234,7 @@ class _GameScreenState extends State<GameScreen> {
   void _onCardTapped(int index) {
     if (_passSlot != null) return;
     if (_phase != GamePhase.swapping && _phase != GamePhase.slamWindow) return;
+    SoundService.instance.playSfx(Sfx.cardSelect);
     setState(() => _selectedIndex = index);
     // submitHumanChoice sadece 'swapping' fazında gönderilir; slamWindow'da
     // seçim yalnız görsel — aksi halde dışarıdan tıklamanın hiçbir şey
@@ -273,14 +295,21 @@ class _GameScreenState extends State<GameScreen> {
         ),
       ),
     );
-    if (confirmed == true && mounted) Navigator.of(context).pop();
+    if (confirmed == true && mounted) {
+      SoundService.instance.playMusic(MusicTrack.menuLoop);
+      Navigator.of(context).pop();
+    }
   }
 
   void _onSlamTap() {
     _slamKey.currentState?.bounce();
+    SoundService.instance.playSfx(Sfx.slamPress);
     final result = _controller.submitHumanSlam();
     if (result == SlamOutcome.already) _showToast('Zaten bastın');
-    if (result == SlamOutcome.falseStartForgiven) _showToast('Henüz dörtlün yok — bu ilk yanlışın bedava!');
+    if (result == SlamOutcome.falseStartForgiven) {
+      _showToast('Henüz dörtlün yok — bu ilk yanlışın bedava!');
+      SoundService.instance.playSfx(Sfx.falseSlam);
+    }
   }
 
   // Slam penceresi elinde 4'lü olmayan bir insana asla görsel olarak
@@ -289,6 +318,7 @@ class _GameScreenState extends State<GameScreen> {
   bool get _humanHasQuartet => Rules.detectQuartet(_humanHand) != null;
 
   void _playAgain() {
+    SoundService.instance.playSfx(Sfx.buttonTap);
     _controller.dispose();
     setState(() {
       _gameOver = null;
@@ -549,7 +579,10 @@ class _GameScreenState extends State<GameScreen> {
       ranking: ranking,
       tokenReward: _tokenReward,
       onPlayAgain: _playAgain,
-      onBackToMenu: () => Navigator.of(context).pop(),
+      onBackToMenu: () {
+        SoundService.instance.playMusic(MusicTrack.menuLoop);
+        Navigator.of(context).pop();
+      },
     );
   }
 }

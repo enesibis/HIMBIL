@@ -1,0 +1,18 @@
+{
+  "@@locale": "tr",
+  "appTitle": "Hımbıl",
+  "@appTitle": {
+    "description": "The application's display name."
+  },
+  "settingsTitle": "Ayarlar",
+  "settingsSfx": "Ses Efektleri",
+  "settingsMusic": "Müzik",
+  "settingsLanguage": "Dil",
+  "settingsLanguageValue": "Türkçe",
+  "settingsLanguageComingSoon": "Diğer diller yakında ekleniyor",
+  "settingsPrivacyPolicy": "Gizlilik Politikası",
+  "profileEditTitle": "Profili Düzenle",
+  "profileEditNameLabel": "İSİM",
+  "profileEditSave": "Kaydet",
+  "profileEditSaving": "Kaydediliyor…"
+}

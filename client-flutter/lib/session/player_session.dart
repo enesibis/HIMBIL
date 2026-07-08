@@ -103,6 +103,26 @@ class PlayerSession {
     await prefs.setStringList(_keyOwnedFrames, ownedFrameIds.toList());
   }
 
+  /// Onboarding sonrası profil düzenleme ekranından çağrılır (madde #54) —
+  /// [completeOnboarding]'in aksine `hasOnboarded`'ı veya çerçeve
+  /// sahipliğini etkilemez, sadece bu dört alanı günceller.
+  Future<void> updateProfile({
+    required String name,
+    required int age,
+    required int avatarCharacterIndex,
+    required int avatarColorIndex,
+  }) async {
+    this.name = name;
+    this.age = age;
+    this.avatarCharacterIndex = avatarCharacterIndex;
+    this.avatarColorIndex = avatarColorIndex;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_keyName, name);
+    await prefs.setInt(_keyAge, age);
+    await prefs.setInt(_keyCharacterIndex, avatarCharacterIndex);
+    await prefs.setInt(_keyColorIndex, avatarColorIndex);
+  }
+
   /// Verilen envantere [id]'yi satın alıp ekler. Yeterli jeton yoksa false
   /// döner; [owns] zaten true ise jeton düşülmeden true döner (zaten
   /// sahip olmak da bir satın alma başarısı sayılır).
