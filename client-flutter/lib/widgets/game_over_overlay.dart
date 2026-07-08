@@ -12,6 +12,7 @@ class GameOverOverlay extends StatefulWidget {
   final String winnerLabel;
   final bool isHumanWinner;
   final List<MapEntry<String, int>> ranking; // etiket -> puan, sıralı
+  final int? tokenReward;
   final VoidCallback onPlayAgain;
   final VoidCallback onBackToMenu;
 
@@ -21,6 +22,7 @@ class GameOverOverlay extends StatefulWidget {
     required this.winnerLabel,
     required this.isHumanWinner,
     required this.ranking,
+    this.tokenReward,
     required this.onPlayAgain,
     required this.onBackToMenu,
   });
@@ -92,6 +94,10 @@ class _GameOverOverlayState extends State<GameOverOverlay> with SingleTickerProv
                           child: _rankRow(i + 1, entry.key, entry.value, _rankColors[i.clamp(0, _rankColors.length - 1)]),
                         );
                       }),
+                      if (widget.tokenReward != null) ...[
+                        const SizedBox(height: 4),
+                        _tokenRewardChip(widget.tokenReward!),
+                      ],
                       const SizedBox(height: 12),
                       GradientCta(
                         title: 'TEKRAR OYNA',
@@ -119,6 +125,25 @@ class _GameOverOverlayState extends State<GameOverOverlay> with SingleTickerProv
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _tokenRewardChip(int amount) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(colors: [Palette.mustardLight, Palette.mustard]),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [BoxShadow(color: Palette.mustard.withValues(alpha: 0.4), blurRadius: 12, offset: const Offset(0, 4))],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.monetization_on_rounded, size: 16, color: Colors.white),
+          const SizedBox(width: 6),
+          Text('+$amount jeton', style: AppText.baloo(size: 13, weight: FontWeight.w800, color: Colors.white)),
+        ],
       ),
     );
   }

@@ -37,31 +37,31 @@
 
 ## 🟠 2. Oyun ve ürün mantığında değiştirilmesi gerekenler
 
-- [ ] **9. Maç sonu jeton ödülü ekle** — [game_controller.dart:184-192](../client-flutter/lib/game/game_controller.dart#L184-L192) + [player_session.dart](../client-flutter/lib/session/player_session.dart)
+- [x] **9. Maç sonu jeton ödülü ekle** — [game_controller.dart:184-192](../client-flutter/lib/game/game_controller.dart#L184-L192) + [player_session.dart](../client-flutter/lib/session/player_session.dart)
   Ekonomi tek yönlü: 500 jetonla başlanıyor, kazanma yolu yok (900'lük "Elmas" asla alınamaz). Maç sonunda sıralamaya göre örn. 100/60/40/20 jeton yaz; `PlayerSession`'a `addTokens(int, String reason)` ekle.
 
-- [ ] **10. Mağazada satın alma onayı iste** — [store_tab.dart:158-166](../client-flutter/lib/widgets/store_tab.dart#L158-L166)
+- [x] **10. Mağazada satın alma onayı iste** — [store_tab.dart:158-166](../client-flutter/lib/widgets/store_tab.dart#L158-L166)
   Fiyat piline tek dokunuş anında satın alıp kuşanıyor; yanlış dokunuş jeton yakar. Araya küçük bir onay diyaloğu koy ("X'i 300 jetona satın al?").
 
-- [ ] **11. Sahte istatistik ve liderliği gerçeğe bağla** — [home_screen.dart:31-43](../client-flutter/lib/screens/home_screen.dart#L31-L43) ve [home_screen.dart:181-185](../client-flutter/lib/screens/home_screen.dart#L181-L185)
+- [x] **11. Sahte istatistik ve liderliği gerçeğe bağla** — [home_screen.dart:31-43](../client-flutter/lib/screens/home_screen.dart#L31-L43) ve [home_screen.dart:181-185](../client-flutter/lib/screens/home_screen.dart#L181-L185)
   "47 oyun / 19 galibiyet" ve "Deniz K. 2450" tamamen hardcoded. Maç sonuçlarını `PlayerSession`'a kaydedip gerçek yerel istatistik göster; liderlik tablosuna sunucu gelene kadar "Yakında" durumu koy.
 
-- [ ] **12. Yaş adımındaki vaadi düzelt** — [age_step.dart:29](../client-flutter/lib/screens/onboarding/age_step.dart#L29)
+- [x] **12. Yaş adımındaki vaadi düzelt** — [age_step.dart:29](../client-flutter/lib/screens/onboarding/age_step.dart#L29)
   "Sana uygun rakiplerle eşleştirmek için kullanırız" yazıyor ama yaş hiçbir yerde kullanılmıyor. Ya metni nötrle ("Profilin için") ya da özelliği gerçekten planla; 13 yaş altı politikasını (KVKK/COPPA) netleştir.
 
-- [ ] **13. Bot kimliklerini tek kaynağa topla** — [lobby_screen.dart:13](../client-flutter/lib/screens/lobby_screen.dart#L13) + [game_screen.dart:22-26](../client-flutter/lib/screens/game_screen.dart#L22-L26)
+- [x] **13. Bot kimliklerini tek kaynağa topla** — [lobby_screen.dart:13](../client-flutter/lib/screens/lobby_screen.dart#L13) + [game_screen.dart:22-26](../client-flutter/lib/screens/game_screen.dart#L22-L26)
   Lobi `['Zeynep','Mehmet','Ayşe']`, oyun ekranı ayrı bir eşleme kullanıyor; sıra ve avatar stili tutmuyor. `lib/game/bots.dart` gibi tek bir tanım (id, isim, masa konumu) yap, iki ekran da oradan okusun.
 
-- [ ] **14. "Nasıl Oynanır" ekle + ilk yanlış basışı affet**
+- [x] **14. "Nasıl Oynanır" ekle + ilk yanlış basışı affet**
   Kurallar hiçbir yerde anlatılmıyor; yeni oyuncu -25 cezayı deneyerek öğreniyor. İlk oyun öncesi 3 kartlık kısa bir anlatım overlay'i + maç başına ilk `false_start`'ı cezasız uyarıya çevir ([game_controller.dart:101-105](../client-flutter/lib/game/game_controller.dart#L101-L105)).
 
-- [ ] **15. Splash'ı dokunuşla geçilebilir yap** — [splash_screen.dart:34-38](../client-flutter/lib/screens/splash_screen.dart#L34-L38)
+- [x] **15. Splash'ı dokunuşla geçilebilir yap** — [splash_screen.dart:34-38](../client-flutter/lib/screens/splash_screen.dart#L34-L38)
   Her açılışta ~2.1 sn zorunlu bekleme var; `GestureDetector` ile tıklamada `_goNext()` çağır.
 
-- [ ] **16. Hedef puanı oyun içinde göster** — [game_screen.dart:447](../client-flutter/lib/screens/game_screen.dart#L447)
+- [x] **16. Hedef puanı oyun içinde göster** — [game_screen.dart:447](../client-flutter/lib/screens/game_screen.dart#L447)
   "300'e ilk ulaşan kazanır" bilgisi hiçbir ekranda yok; orta alandaki etikete veya puan satırına "Puanın: 75 / 300" formatı ekle.
 
-- [ ] **17. Herkes bastıysa slam penceresini erken kapat** — [game_controller.dart:116-121](../client-flutter/lib/game/game_controller.dart#L116-L121)
+- [x] **17. Herkes bastıysa slam penceresini erken kapat** — [game_controller.dart:116-121](../client-flutter/lib/game/game_controller.dart#L116-L121)
   4 kayıt tamamlandıysa 4 saniyenin dolmasını beklemeden `_finishSlamWindow()` çağır — tempo iyileşir.
 
 ---

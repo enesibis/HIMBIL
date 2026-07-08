@@ -2,15 +2,15 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../game/bots.dart';
 import '../session/player_session.dart';
 import '../theme/palette.dart';
 import '../theme/text_styles.dart';
 import '../widgets/carnival_background.dart';
 import '../widgets/gradient_cta.dart';
+import '../widgets/player_avatar.dart';
 import '../widgets/user_avatar.dart';
 import 'game_screen.dart';
-
-const List<String> _botNames = ['Zeynep', 'Mehmet', 'Ayşe'];
 
 /// Lobi — oda dolana kadar bekleme ekranı. Gerçek çok oyunculu henüz
 /// olmadığı için botlar ~1.5 sn sonra kendiliğinden "Hazır" olur.
@@ -91,7 +91,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
                           frame: PlayerSession.avatarFrame,
                         ),
                       ),
-                      for (final name in _botNames) _lobbySlot(name, ready: _botsReady),
+                      for (final bot in Bots.all) _lobbySlot(bot.name, ready: _botsReady),
                     ],
                   ),
                 ),
@@ -205,24 +205,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          avatar ??
-              Container(
-                width: 56,
-                height: 56,
-                padding: const EdgeInsets.all(2),
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(colors: [Palette.mustard, Palette.red]),
-                  shape: BoxShape.circle,
-                ),
-                child: Container(
-                  decoration: const BoxDecoration(color: Palette.surface, shape: BoxShape.circle),
-                  alignment: Alignment.center,
-                  child: Text(
-                    name.substring(0, 1).toUpperCase(),
-                    style: AppText.baloo(size: 19, weight: FontWeight.w800, color: Palette.red),
-                  ),
-                ),
-              ),
+          avatar ?? PlayerAvatar(name: name, size: 56),
           const SizedBox(height: 7),
           Text(name, style: AppText.baloo(size: 14, weight: FontWeight.w700)),
           const SizedBox(height: 2),

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import '../session/player_session.dart';
 import 'bot_ai.dart';
 import 'rules.dart';
 
@@ -14,6 +15,11 @@ class GameController extends ChangeNotifier {
   static const double slamWindowDuration = 4.0;
   static const int targetScore = 300;
   static const String humanId = 'human';
+
+  /// Maç sonu, final sıralamasındaki yerine göre ödenen jeton — 1.'den
+  /// 4.'ye. Ekonominin tek yönlü olmaması (bkz. yapılması-gerekenler #9)
+  /// için eklendi.
+  static const List<int> placementTokenRewards = [100, 60, 40, 20];
 
   final List<String> playerIds = [humanId, 'bot_east', 'bot_north', 'bot_west'];
   List<List<CardModel>> hands = [];
@@ -28,6 +34,7 @@ class GameController extends ChangeNotifier {
   void Function(double secondsLeft)? onCountdownTick;
   void Function(String playerId)? onSlamAttemptRecorded;
   void Function(String playerId, int newScore)? onFalseSlamPenalty;
+  void Function(int amount)? onMatchTokensAwarded;
 
   /// Tur bittiğinde bir kez çağrılır; devam etmek UI'nin sorumluluğunda —
   /// bu sınıf artık kendiliğinden bir sonraki tura ge​çmiyor. `winnerId`
@@ -43,6 +50,7 @@ class GameController extends ChangeNotifier {
   final List<_SlamCandidate> _slamCandidates = [];
   final List<_SlamCandidate> _pileOnCandidates = [];
   bool _firstPressHappened = false;
+  bool _falseStartForgiven = false;
   Timer? _ticker;
 
   static const Duration _tickInterval = Duration(milliseconds: 100);
@@ -90,6 +98,8 @@ class GameController extends ChangeNotifier {
   ///   sadece 4'lü sahibi ya da ondan sonra tepki verenler puan alabilir
   /// "false_start" - 'swapping' fazında, hiçbir yerde 4'lü yokken basıldı;
   ///   cezalandırıldın
+  /// "false_start_forgiven" - aynı durum ama maçtaki ilk yanlış basışın —
+  ///   yeni oyuncular kuralı deneyerek öğrenmesin diye cezasız uyarı
   /// "ignored" - tur zaten bitmiş (puanlama/geçiş anı) — ne ceza ne puan
   String submitHumanSlam() {
     if (phase == 'slamWindow') {
@@ -101,6 +111,10 @@ class GameController extends ChangeNotifier {
     }
 
     if (phase == 'swapping') {
+      if (!_falseStartForgiven) {
+        _falseStartForgiven = true;
+        return 'false_start_forgiven';
+      }
       scores[humanId] = (scores[humanId] ?? 0) + Rules.falseSlamPenalty;
       onFalseSlamPenalty?.call(humanId, scores[humanId]!);
       return 'false_start';
@@ -119,7 +133,8 @@ class GameController extends ChangeNotifier {
       _slamTimer -= dt;
       onCountdownTick?.call(_slamTimer < 0 ? 0 : _slamTimer);
       _processBotSlams(dt);
-      if (_slamTimer <= 0) _finishSlamWindow();
+      // Herkes bastıysa 4 saniyenin dolmasını beklemeye gerek yok.
+      if (_slamTimer <= 0 || _recordedPlayers.length == numPlayers) _finishSlamWindow();
     }
   }
 
@@ -209,7 +224,20 @@ class GameController extends ChangeNotifier {
     }
     _setPhase('scoring');
     roundNumber++;
-    onRoundScored?.call(roundNumber, results, Map<String, int>.from(scores), _findWinner());
+    final winnerId = _findWinner();
+    if (winnerId != null) _awardMatchRewards(winnerId);
+    onRoundScored?.call(roundNumber, results, Map<String, int>.from(scores), winnerId);
+  }
+
+  /// Final sıralamasındaki yerine göre jeton ödülü verir ve yerel istatistikleri
+  /// günceller. Sunucu geldiğinde bu, odanın maç-sonu akışına taşınacak.
+  void _awardMatchRewards(String winnerId) {
+    final ranked = List<String>.from(playerIds)..sort((a, b) => (scores[b] ?? 0).compareTo(scores[a] ?? 0));
+    final humanRank = ranked.indexOf(humanId);
+    final reward = placementTokenRewards[humanRank.clamp(0, placementTokenRewards.length - 1)];
+    PlayerSession.addTokens(reward, 'match_reward');
+    PlayerSession.recordMatchResult(won: winnerId == humanId);
+    onMatchTokensAwarded?.call(reward);
   }
 
   String? _findWinner() {

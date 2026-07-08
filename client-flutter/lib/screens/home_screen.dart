@@ -20,28 +20,6 @@ class _ProfileStat {
   const _ProfileStat({required this.value, required this.label, required this.icon, required this.badgeGradient});
 }
 
-class _LeaderboardRow {
-  final int rank;
-  final String name;
-  final int score;
-
-  const _LeaderboardRow({required this.rank, required this.name, required this.score});
-}
-
-const _profileStats = [
-  _ProfileStat(value: '47', label: 'Oyun', icon: Icons.style_rounded, badgeGradient: [Palette.redLight, Palette.red]),
-  _ProfileStat(value: '19', label: 'Galibiyet', icon: Icons.emoji_events_rounded, badgeGradient: [Color(0xFF5FB98C), Palette.green]),
-  _ProfileStat(value: '%40', label: 'Kazanma Oranı', icon: Icons.bar_chart_rounded, badgeGradient: [Palette.mustardLight, Palette.mustard]),
-  _ProfileStat(value: '5', label: 'En İyi Seri', icon: Icons.local_fire_department_rounded, badgeGradient: [Color(0xFF5B8FC7), Palette.blue]),
-];
-
-const _otherLeaderboardRows = [
-  _LeaderboardRow(rank: 1, name: 'Deniz K.', score: 2450),
-  _LeaderboardRow(rank: 3, name: 'Ayşe Y.', score: 1620),
-  _LeaderboardRow(rank: 4, name: 'Mehmet A.', score: 1400),
-  _LeaderboardRow(rank: 5, name: 'Zeynep T.', score: 1180),
-];
-
 /// Ana Menü — tasarımdaki Home ekranı: sabit header + "Oyna"/"Mağaza"/"Profil"
 /// sekmeleri arasında geçiş yapan alt pill-bar. "Oyna" sekmesinde Hızlı
 /// Oyna / Oda Kur / Kodla Katıl; "Mağaza" sekmesinde kart sırtı ve çerçeve
@@ -178,10 +156,21 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  List<_LeaderboardRow> get _leaderboard => [
-        ..._otherLeaderboardRows.where((r) => r.rank < 2),
-        _LeaderboardRow(rank: 2, name: PlayerSession.name, score: 1875),
-        ..._otherLeaderboardRows.where((r) => r.rank > 2),
+  List<_ProfileStat> get _profileStats => [
+        _ProfileStat(value: '${PlayerSession.gamesPlayed}', label: 'Oyun', icon: Icons.style_rounded, badgeGradient: const [Palette.redLight, Palette.red]),
+        _ProfileStat(value: '${PlayerSession.wins}', label: 'Galibiyet', icon: Icons.emoji_events_rounded, badgeGradient: const [Color(0xFF5FB98C), Palette.green]),
+        _ProfileStat(
+          value: '%${PlayerSession.winRatePercent}',
+          label: 'Kazanma Oranı',
+          icon: Icons.bar_chart_rounded,
+          badgeGradient: const [Palette.mustardLight, Palette.mustard],
+        ),
+        _ProfileStat(
+          value: '${PlayerSession.bestStreak}',
+          label: 'En İyi Seri',
+          icon: Icons.local_fire_department_rounded,
+          badgeGradient: const [Color(0xFF5B8FC7), Palette.blue],
+        ),
       ];
 
   Widget _profileTab() {
@@ -204,19 +193,34 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(height: 18),
           Text('Liderlik Tablosu', style: AppText.baloo(size: 16, weight: FontWeight.w700)),
           const SizedBox(height: 8),
-          Container(
-            decoration: BoxDecoration(
-              color: Palette.surface,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: Palette.textPrimary.withValues(alpha: 0.04), width: 2),
-              boxShadow: [BoxShadow(color: Palette.textPrimary.withValues(alpha: 0.06), blurRadius: 16, offset: const Offset(0, 6))],
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: Column(
-              children: [
-                for (var i = 0; i < _leaderboard.length; i++) _leaderboardRow(_leaderboard[i], isLast: i == _leaderboard.length - 1),
-              ],
-            ),
+          _leaderboardComingSoon(),
+        ],
+      ),
+    );
+  }
+
+  // Çevrimiçi liderlik tablosu sunucu (Aşama 3+) gelmeden gerçek veriyle
+  // doldurulamaz; sahte isim/puan göstermek yerine "Yakında" durumu koyduk.
+  Widget _leaderboardComingSoon() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 16),
+      decoration: BoxDecoration(
+        color: Palette.surface,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: Palette.textPrimary.withValues(alpha: 0.04), width: 2),
+        boxShadow: [BoxShadow(color: Palette.textPrimary.withValues(alpha: 0.06), blurRadius: 16, offset: const Offset(0, 6))],
+      ),
+      child: Column(
+        children: [
+          Icon(Icons.leaderboard_rounded, size: 28, color: Palette.textSecondary.withValues(alpha: 0.5)),
+          const SizedBox(height: 10),
+          Text('Yakında', style: AppText.baloo(size: 15, weight: FontWeight.w700)),
+          const SizedBox(height: 4),
+          Text(
+            'Çevrimiçi liderlik tablosu sunucu bağlantısıyla açılacak',
+            textAlign: TextAlign.center,
+            style: AppText.nunito(size: 12, weight: FontWeight.w700, color: Palette.textSecondary),
           ),
         ],
       ),
@@ -249,23 +253,6 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(height: 6),
           Text(stat.value, style: AppText.baloo(size: 20, weight: FontWeight.w800)),
           Text(stat.label, style: AppText.nunito(size: 11, weight: FontWeight.w700, color: Palette.textSecondary)),
-        ],
-      ),
-    );
-  }
-
-  Widget _leaderboardRow(_LeaderboardRow row, {required bool isLast}) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      decoration: BoxDecoration(
-        border: isLast ? null : Border(bottom: BorderSide(color: Palette.textPrimary.withValues(alpha: 0.06))),
-      ),
-      child: Row(
-        children: [
-          SizedBox(width: 16, child: Text('${row.rank}', style: AppText.baloo(size: 13, weight: FontWeight.w800, color: Palette.textSecondary))),
-          const SizedBox(width: 10),
-          Expanded(child: Text(row.name, style: AppText.nunito(size: 14, weight: FontWeight.w700))),
-          Text('${row.score}', style: AppText.baloo(size: 14, weight: FontWeight.w800, color: Palette.red)),
         ],
       ),
     );

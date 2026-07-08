@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../game/bots.dart';
 import '../game/game_controller.dart';
 import '../game/rules.dart';
 import '../session/player_session.dart';
@@ -16,16 +17,11 @@ import '../widgets/himbil_card.dart';
 import '../widgets/opponent_fan.dart';
 import '../widgets/player_avatar.dart';
 import '../widgets/soft_button.dart';
+import 'how_to_play_overlay.dart';
 import 'round_result_screen.dart';
 import 'slam_celebration_screen.dart';
 
-const Map<String, String> _botLabels = {
-  'bot_north': 'Mehmet',
-  'bot_west': 'Zeynep',
-  'bot_east': 'Ayşe',
-};
-
-String _labelFor(String id) => id == GameController.humanId ? PlayerSession.name : (_botLabels[id] ?? id);
+String _labelFor(String id) => id == GameController.humanId ? PlayerSession.name : Bots.labelFor(id);
 
 class GameScreen extends StatefulWidget {
   const GameScreen({super.key});
@@ -47,6 +43,11 @@ class _GameScreenState extends State<GameScreen> {
   int _humanScore = 0;
   final Map<String, int> _botScores = {'bot_west': 0, 'bot_north': 0, 'bot_east': 0};
   ({String winnerId, Map<String, int> scores})? _gameOver;
+  int? _tokenReward;
+
+  /// Yalnız uygulamanın ilk maçında true — kurallar hiç anlatılmadığı için
+  /// bu overlay dismiss edilene kadar oyun başlamaz (bkz. #14).
+  late bool _showTutorial;
 
   /// Sıralı pas zinciri sürerken dolu olan, uçan kartın orijinal el
   /// slotu — bu süre boyunca yeni seçim ve zamanlayıcı güncellemesi
@@ -67,7 +68,14 @@ class _GameScreenState extends State<GameScreen> {
   @override
   void initState() {
     super.initState();
+    _showTutorial = !PlayerSession.hasSeenTutorial;
     _initController();
+  }
+
+  void _dismissTutorial() {
+    PlayerSession.markTutorialSeen();
+    setState(() => _showTutorial = false);
+    _controller.start();
   }
 
   void _initController() {
@@ -107,8 +115,14 @@ class _GameScreenState extends State<GameScreen> {
         _showToast('Erken bastın! Ceza puanı');
         _syncScores();
       }
+      ..onMatchTokensAwarded = (amount) {
+        if (!mounted) return;
+        setState(() => _tokenReward = amount);
+      }
       ..onRoundScored = _handleRoundScored;
-    _controller.start();
+    // Kurallar ilk kez anlatılıyorsa tur zamanlayıcısı anlatım bitene kadar
+    // başlamamalı — aksi halde ilk oyuncu okurken tur süresini kaybeder.
+    if (!_showTutorial) _controller.start();
   }
 
   /// Sıralı pas zinciri: Güney'in kartı Doğu'ya uçar (Doğu yığını pulse),
@@ -263,6 +277,7 @@ class _GameScreenState extends State<GameScreen> {
     _slamKey.currentState?.bounce();
     final result = _controller.submitHumanSlam();
     if (result == 'already') _showToast('Zaten bastın');
+    if (result == 'false_start_forgiven') _showToast('Henüz dörtlün yok — bu ilk yanlışın bedava!');
   }
 
   // Slam penceresi elinde 4'lü olmayan bir insana asla görsel olarak
@@ -275,6 +290,7 @@ class _GameScreenState extends State<GameScreen> {
     setState(() {
       _gameOver = null;
       _humanScore = 0;
+      _tokenReward = null;
       for (final key in _botScores.keys) {
         _botScores[key] = 0;
       }
@@ -376,7 +392,10 @@ class _GameScreenState extends State<GameScreen> {
                             onTap: _onSlamTap,
                           ),
                           const SizedBox(height: 10),
-                          Text('Puanın: $_humanScore', style: AppText.baloo(size: 15, weight: FontWeight.w700)),
+                          Text(
+                            'Puanın: $_humanScore / ${GameController.targetScore}',
+                            style: AppText.baloo(size: 15, weight: FontWeight.w700),
+                          ),
                         ],
                       ),
                     ),
@@ -384,6 +403,7 @@ class _GameScreenState extends State<GameScreen> {
                 ),
               ),
               if (_gameOver != null) _buildGameOverOverlay(_gameOver!),
+              if (_showTutorial) HowToPlayOverlay(onDismiss: _dismissTutorial),
             ],
           ),
         ),
@@ -399,12 +419,12 @@ class _GameScreenState extends State<GameScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              PlayerAvatar(key: _avatarKeys['bot_north'], name: _botLabels['bot_north']!),
+              PlayerAvatar(key: _avatarKeys['bot_north'], name: Bots.labelFor('bot_north')),
               const SizedBox(width: 6),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(_botLabels['bot_north']!, style: AppText.nunito(size: 12, weight: FontWeight.w700, color: Palette.textSecondary)),
+                  Text(Bots.labelFor('bot_north'), style: AppText.nunito(size: 12, weight: FontWeight.w700, color: Palette.textSecondary)),
                   Text('${_botScores['bot_north']} puan', style: AppText.baloo(size: 10, weight: FontWeight.w700, color: Palette.red)),
                 ],
               ),
@@ -423,10 +443,10 @@ class _GameScreenState extends State<GameScreen> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          PlayerAvatar(key: _avatarKeys[botId], name: _botLabels[botId]!),
+          PlayerAvatar(key: _avatarKeys[botId], name: Bots.labelFor(botId)),
           const SizedBox(height: 4),
           Text(
-            '${_botLabels[botId]} · ${_botScores[botId]}',
+            '${Bots.labelFor(botId)} · ${_botScores[botId]}',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.center,
@@ -494,6 +514,7 @@ class _GameScreenState extends State<GameScreen> {
       winnerLabel: _labelFor(gameOver.winnerId),
       isHumanWinner: gameOver.winnerId == GameController.humanId,
       ranking: ranking,
+      tokenReward: _tokenReward,
       onPlayAgain: _playAgain,
       onBackToMenu: () => Navigator.of(context).pop(),
     );

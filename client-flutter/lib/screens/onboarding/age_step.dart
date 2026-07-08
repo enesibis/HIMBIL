@@ -26,7 +26,7 @@ class AgeStep extends StatelessWidget {
         FadeSlideIn(
           delay: const Duration(milliseconds: 100),
           child: Text(
-            'Sana uygun rakiplerle eşleştirmek için kullanırız',
+            'Profilini kişiselleştirmek için kullanırız',
             textAlign: TextAlign.center,
             style: AppText.nunito(size: 14, weight: FontWeight.w700, color: Palette.textSecondary),
           ),

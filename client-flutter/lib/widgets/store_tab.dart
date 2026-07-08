@@ -6,6 +6,7 @@ import '../theme/avatar_frames.dart';
 import '../theme/card_skins.dart';
 import '../theme/palette.dart';
 import '../theme/text_styles.dart';
+import 'soft_button.dart';
 import 'user_avatar.dart';
 
 /// Ana Menü'nün "Mağaza" sekmesi — kart sırtları (`design_handoff_kart_paketi`)
@@ -156,6 +157,7 @@ class _StoreTabState extends State<StoreTab> {
   }
 
   Future<void> _buyCardSkin(CardSkin skin) async {
+    if (!await _confirmPurchase(skin.name, skin.price)) return;
     final ok = await PlayerSession.purchaseCardSkin(skin.id);
     if (!ok) {
       _showInsufficientFunds();
@@ -171,6 +173,7 @@ class _StoreTabState extends State<StoreTab> {
   }
 
   Future<void> _buyFrame(AvatarFrameSkin frame) async {
+    if (!await _confirmPurchase(frame.name, frame.price)) return;
     final ok = await PlayerSession.purchaseFrame(frame.id);
     if (!ok) {
       _showInsufficientFunds();
@@ -178,6 +181,61 @@ class _StoreTabState extends State<StoreTab> {
     }
     await PlayerSession.selectFrame(frame.id);
     if (mounted) setState(() {});
+  }
+
+  /// Tek dokunuşla anında satın alma jeton yakabiliyordu (bkz.
+  /// yapılması-gerekenler #10) — yanlış dokunuşu geri almak için araya
+  /// küçük bir onay diyaloğu koyduk.
+  Future<bool> _confirmPurchase(String name, int price) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => Dialog(
+        backgroundColor: Palette.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(22, 22, 22, 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                "$name'i $price jetona satın al?",
+                style: AppText.baloo(size: 17, weight: FontWeight.w700),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 18),
+              Row(
+                children: [
+                  Expanded(
+                    child: SoftButton(
+                      label: 'Vazgeç',
+                      width: double.infinity,
+                      height: 46,
+                      borderRadius: 16,
+                      fontSize: 14,
+                      onTap: () => Navigator.of(dialogContext).pop(false),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: SoftButton(
+                      label: 'Satın Al',
+                      width: double.infinity,
+                      height: 46,
+                      borderRadius: 16,
+                      fontSize: 14,
+                      background: Palette.red,
+                      textColor: Colors.white,
+                      onTap: () => Navigator.of(dialogContext).pop(true),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    return confirmed == true;
   }
 
   Future<void> _equipFrame(AvatarFrameSkin frame) async {

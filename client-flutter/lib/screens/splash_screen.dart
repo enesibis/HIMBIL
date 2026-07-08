@@ -25,6 +25,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   static const double _pieceDurationMs = 700;
 
   late final AnimationController _controller;
+  bool _navigated = false;
 
   @override
   void initState() {
@@ -45,7 +46,8 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   }
 
   void _goNext() {
-    if (!mounted) return;
+    if (!mounted || _navigated) return;
+    _navigated = true;
     final next = PlayerSession.hasOnboarded ? const HomeScreen() : const OnboardingScreen();
     Navigator.of(context).pushReplacement(
       PageRouteBuilder(
@@ -67,19 +69,23 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: DecoratedBox(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Color(0xFFFDF8EE), Color(0xFFF6E9CE), Color(0xFFEFD9AE)],
-            stops: [0.0, 0.6, 1.0],
+      body: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: _goNext,
+        child: DecoratedBox(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFFFDF8EE), Color(0xFFF6E9CE), Color(0xFFEFD9AE)],
+              stops: [0.0, 0.6, 1.0],
+            ),
           ),
-        ),
-        child: Center(
-          child: AnimatedBuilder(
-            animation: _controller,
-            builder: (context, _) => _content(),
+          child: Center(
+            child: AnimatedBuilder(
+              animation: _controller,
+              builder: (context, _) => _content(),
+            ),
           ),
         ),
       ),

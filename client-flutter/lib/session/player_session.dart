@@ -21,6 +21,11 @@ class PlayerSession {
   static const _keyOwnedCardSkins = 'owned_card_skins';
   static const _keySelectedCardSkin = 'selected_card_skin';
   static const _keyOwnedFrames = 'owned_avatar_frames';
+  static const _keyGamesPlayed = 'stats_games_played';
+  static const _keyWins = 'stats_wins';
+  static const _keyBestStreak = 'stats_best_streak';
+  static const _keyCurrentStreak = 'stats_current_streak';
+  static const _keyHasSeenTutorial = 'has_seen_tutorial';
 
   static const _startingTokens = 500;
 
@@ -35,6 +40,14 @@ class PlayerSession {
   static Set<String> ownedCardSkinIds = {'klasik', 'karnaval'};
   static String selectedCardSkinId = CardSkins.defaultSkinId;
   static Set<String> ownedFrameIds = {for (final f in AvatarFrameSkins.all) if (f.isFree) f.id};
+
+  static int gamesPlayed = 0;
+  static int wins = 0;
+  static int bestStreak = 0;
+  static int currentStreak = 0;
+  static bool hasSeenTutorial = false;
+
+  static int get winRatePercent => gamesPlayed == 0 ? 0 : ((wins / gamesPlayed) * 100).round();
 
   static String get initial => name.isNotEmpty ? name.substring(0, 1).toUpperCase() : '?';
 
@@ -65,6 +78,12 @@ class PlayerSession {
     ownedFrameIds = savedFrames?.toSet() ?? {for (final f in AvatarFrameSkins.all) if (f.isFree) f.id};
     // Onboarding'de serbestçe seçilmiş olabileceği için mevcut çerçeve her zaman sahiplenilmiş sayılır.
     ownedFrameIds.add(avatarFrame);
+
+    gamesPlayed = prefs.getInt(_keyGamesPlayed) ?? 0;
+    wins = prefs.getInt(_keyWins) ?? 0;
+    bestStreak = prefs.getInt(_keyBestStreak) ?? 0;
+    currentStreak = prefs.getInt(_keyCurrentStreak) ?? 0;
+    hasSeenTutorial = prefs.getBool(_keyHasSeenTutorial) ?? false;
   }
 
   static Future<void> completeOnboarding() async {
@@ -118,5 +137,34 @@ class PlayerSession {
     avatarFrame = id;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_keyFrameId, id);
+  }
+
+  static Future<void> addTokens(int amount, String reason) async {
+    tokens += amount;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_keyTokens, tokens);
+  }
+
+  /// Maç sonunda bir kez çağrılır; oyun/galibiyet sayısını ve serileri günceller.
+  static Future<void> recordMatchResult({required bool won}) async {
+    gamesPlayed++;
+    if (won) {
+      wins++;
+      currentStreak++;
+      if (currentStreak > bestStreak) bestStreak = currentStreak;
+    } else {
+      currentStreak = 0;
+    }
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_keyGamesPlayed, gamesPlayed);
+    await prefs.setInt(_keyWins, wins);
+    await prefs.setInt(_keyBestStreak, bestStreak);
+    await prefs.setInt(_keyCurrentStreak, currentStreak);
+  }
+
+  static Future<void> markTutorialSeen() async {
+    hasSeenTutorial = true;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_keyHasSeenTutorial, true);
   }
 }
