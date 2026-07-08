@@ -1,15 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(mkdir -p \"/c/game/hımbıl/client-godot\" \"/c/game/hımbıl/server/game/__tests__\" \"/c/game/hımbıl/server/rooms\" \"/c/game/hımbıl/server/schema\" \"/c/game/hımbıl/docs\")",
-      "Bash(mv \"/c/game/hımbıl/himbil-proje-kilavuzu.md\" \"/c/game/hımbıl/docs/\")",
-      "Bash(mkdir -p \"/c/game/hımbıl/client-godot/scenes\" \"/c/game/hımbıl/client-godot/scripts\" \"/c/game/hımbıl/client-godot/assets/cards\" \"/c/game/hımbıl/client-godot/assets/ui\" *)",
       "Bash(gh auth *)",
       "Bash(gh repo *)",
       "Bash(git --version)"
-    ],
-    "additionalDirectories": [
-      "C:\\game\\hımbıl\\client-godot"
     ]
   }
 }

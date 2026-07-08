@@ -147,13 +147,14 @@
 
 ## 🧹 6. Repo hijyeni (temizlik / silinecekler)
 
-- [ ] **41. Kök `README.md` yaz** — proje tanıtımı + iki codebase'in kurulum/test komutları.
-- [ ] **42. `CLAUDE.md`'yi commit et** — hâlâ untracked (`??`).
-- [ ] **43. [client-flutter/README.md](../client-flutter/README.md) şablonunu gerçek içerikle değiştir.**
-- [ ] **44. [.gitignore](../.gitignore) başındaki ölü `client-godot` bloğunu sil** (klasör kaldırılmıştı).
-- [ ] **45. [.claude/settings.json](../.claude/settings.json)'daki bayat izinleri temizle** — eski `C:\game\hımbıl` yolu + `client-godot` `additionalDirectories` girdisi.
-- [ ] **46. [pubspec.yaml](../client-flutter/pubspec.yaml) ve [analysis_options.yaml](../client-flutter/analysis_options.yaml) şablon yorumlarını sil** (~60 satır gürültü).
-- [ ] **47. Sürümü dürüstleştir** — `1.0.0+1` → `0.2.0+1` (pre-release olduğu belli olsun).
+- [x] **41. Kök `README.md` yaz** — proje tanıtımı + iki codebase'in kurulum/test komutları.
+- [x] **42. `CLAUDE.md`'yi commit et** — hâlâ untracked (`??`).
+  Zaten `39831cb` (#36-40) öncesindeki bir oturumda commit edilmiş; `git ls-files CLAUDE.md` tracked gösteriyor, ek işlem gerekmedi.
+- [x] **43. [client-flutter/README.md](../client-flutter/README.md) şablonunu gerçek içerikle değiştir.**
+- [x] **44. [.gitignore](../.gitignore) başındaki ölü `client-godot` bloğunu sil** (klasör kaldırılmıştı).
+- [x] **45. [.claude/settings.json](../.claude/settings.json)'daki bayat izinleri temizle** — eski `C:\game\hımbıl` yolu + `client-godot` `additionalDirectories` girdisi.
+- [x] **46. [pubspec.yaml](../client-flutter/pubspec.yaml) ve [analysis_options.yaml](../client-flutter/analysis_options.yaml) şablon yorumlarını sil** (~60 satır gürültü).
+- [x] **47. Sürümü dürüstleştir** — `1.0.0+1` → `0.2.0+1` (pre-release olduğu belli olsun).
 
 ---
 
