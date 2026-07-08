@@ -10,7 +10,7 @@ import 'rules.dart';
 /// client-local çalışıyor (tek kişilik + bot).
 class GameController extends ChangeNotifier {
   static const int numPlayers = 4;
-  static const double swapTickDuration = 5.0;
+  static const double swapTickDuration = 4.0;
   static const double slamWindowDuration = 4.0;
   static const int targetScore = 300;
   static const String humanId = 'human';
@@ -41,6 +41,8 @@ class GameController extends ChangeNotifier {
   final List<String> _slamAttempts = [];
   final Set<int> _recordedPlayers = {};
   final List<_SlamCandidate> _slamCandidates = [];
+  final List<_SlamCandidate> _pileOnCandidates = [];
+  bool _firstPressHappened = false;
   Timer? _ticker;
 
   static const Duration _tickInterval = Duration(milliseconds: 100);
@@ -156,9 +158,14 @@ class GameController extends ChangeNotifier {
     _slamAttempts.clear();
     _recordedPlayers.clear();
     _slamCandidates.clear();
+    _pileOnCandidates.clear();
+    _firstPressHappened = false;
     for (var i = 0; i < numPlayers; i++) {
-      if (i != 0 && Rules.detectQuartet(hands[i]) != null) {
+      if (i == 0) continue;
+      if (Rules.detectQuartet(hands[i]) != null) {
         _slamCandidates.add(_SlamCandidate(index: i, delay: BotAI.decideSlamDelay()));
+      } else if (BotAI.decidesToPileOn()) {
+        _pileOnCandidates.add(_SlamCandidate(index: i, delay: BotAI.decidePileOnDelay()));
       }
     }
   }
@@ -172,10 +179,24 @@ class GameController extends ChangeNotifier {
         _recordSlamAttempt(entry.index);
       }
     }
+    // Pile-on adayları yalnız gerçek bir 4'lü sahibi zaten bastıysa sayaç
+    // işletir — böylece 4'lüsüz bir bot hiçbir zaman pencerenin ilk
+    // basışı olamaz (insan için geçerli olan kural burada da korunur).
+    if (_firstPressHappened) {
+      for (final entry in _pileOnCandidates) {
+        if (entry.done) continue;
+        entry.elapsed += dt;
+        if (entry.elapsed >= entry.delay) {
+          entry.done = true;
+          _recordSlamAttempt(entry.index);
+        }
+      }
+    }
   }
 
   void _recordSlamAttempt(int playerIndex) {
     if (_recordedPlayers.contains(playerIndex)) return;
+    if (_recordedPlayers.isEmpty) _firstPressHappened = true;
     _recordedPlayers.add(playerIndex);
     _slamAttempts.add(playerIds[playerIndex]);
     onSlamAttemptRecorded?.call(playerIds[playerIndex]);

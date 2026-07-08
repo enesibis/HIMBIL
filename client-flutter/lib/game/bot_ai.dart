@@ -21,4 +21,15 @@ class BotAI {
   static double decideSlamDelay() {
     return 0.35 + _random.nextDouble() * (1.3 - 0.35);
   }
+
+  /// 4'lüsü olmayan bir bot, birinin gerçek slam'ını görünce üstüne
+  /// basmayı ("pile-on") deneyip denemeyeceğine karar verir — insan
+  /// oyuncunun yaptığı gibi, o da bedava puan kapma ihtimalini dener.
+  static bool decidesToPileOn() => _random.nextDouble() < 0.6;
+
+  /// Pile-on gecikmesi ilk gerçek basıştan itibaren sayılır (pencere
+  /// açılışından değil) — 4'lüsü olmayan bir bot asla ilk basan olamaz.
+  static double decidePileOnDelay() {
+    return 0.5 + _random.nextDouble() * (1.2 - 0.5);
+  }
 }

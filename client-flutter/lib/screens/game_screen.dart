@@ -76,7 +76,7 @@ class _GameScreenState extends State<GameScreen> {
         if (!mounted) return;
         setState(() {
           _phase = phase;
-          if (phase == 'swapping') _selectedIndex = null;
+          _selectedIndex = null;
         });
       }
       ..onHandsUpdated = (hands, changedSlot) {
@@ -194,9 +194,15 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   void _onCardTapped(int index) {
-    if (_phase != 'swapping' || _passSlot != null) return;
+    if (_passSlot != null) return;
+    if (_phase != 'swapping' && _phase != 'slamWindow') return;
     setState(() => _selectedIndex = index);
-    _controller.submitHumanChoice(_humanHand[index].id);
+    // submitHumanChoice sadece 'swapping' fazında gönderilir; slamWindow'da
+    // seçim yalnız görsel — aksi halde dışarıdan tıklamanın hiçbir şey
+    // yapmadığı görülüp "pencere açık" sinyali olarak okunabilir.
+    if (_phase == 'swapping') {
+      _controller.submitHumanChoice(_humanHand[index].id);
+    }
   }
 
   Future<void> _confirmExitToMenu() async {
@@ -293,86 +299,93 @@ class _GameScreenState extends State<GameScreen> {
     };
     final hintColor = showSlamHint ? Palette.green : Palette.textSecondary;
 
-    return Scaffold(
-      body: CarnivalBackground(
-        child: Stack(
-          children: [
-            SafeArea(
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                    child: Row(
-                      children: [
-                        SoftButton(
-                          label: '< Menü',
-                          width: 96,
-                          height: 40,
-                          borderRadius: 18,
-                          fontSize: 13,
-                          onTap: _confirmExitToMenu,
-                        ),
-                      ],
-                    ),
-                  ),
-                  _buildNorthBlock(),
-                  Expanded(
-                    child: Row(
-                      children: [
-                        _buildSideColumn(botId: 'bot_west', east: false),
-                        Expanded(child: _buildCenterArea()),
-                        _buildSideColumn(botId: 'bot_east', east: true),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
-                    child: Text(hintText, style: AppText.nunito(size: 12, weight: FontWeight.w800, color: hintColor), textAlign: TextAlign.center),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(18, 8, 18, 4),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        for (var i = 0; i < _humanHand.length; i++) ...[
-                          if (i > 0) const SizedBox(width: 9),
-                          FlyingCard(
-                            key: _flyKeys[i],
-                            child: HimbilCard(
-                              objectType: _humanHand[i].objectType,
-                              selected: _selectedIndex == i,
-                              onTap: () => _onCardTapped(i),
-                            ),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        _confirmExitToMenu();
+      },
+      child: Scaffold(
+        body: CarnivalBackground(
+          child: Stack(
+            children: [
+              SafeArea(
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                      child: Row(
+                        children: [
+                          SoftButton(
+                            label: '< Menü',
+                            width: 96,
+                            height: 40,
+                            borderRadius: 18,
+                            fontSize: 13,
+                            onTap: _confirmExitToMenu,
                           ),
                         ],
-                      ],
+                      ),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 14, 20, 20),
-                    child: Column(
-                      children: [
-                        GradientCta(
-                          key: _slamKey,
-                          title: 'HIMBIL!',
-                          width: 116,
-                          height: 116,
-                          color: Palette.redLight,
-                          shadowBarColor: Palette.redShadow,
-                          borderRadius: 58,
-                          titleSize: 17,
-                          onTap: _onSlamTap,
-                        ),
-                        const SizedBox(height: 10),
-                        Text('Puanın: $_humanScore', style: AppText.baloo(size: 15, weight: FontWeight.w700)),
-                      ],
+                    _buildNorthBlock(),
+                    Expanded(
+                      child: Row(
+                        children: [
+                          _buildSideColumn(botId: 'bot_west', east: false),
+                          Expanded(child: _buildCenterArea()),
+                          _buildSideColumn(botId: 'bot_east', east: true),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
+                      child: Text(hintText, style: AppText.nunito(size: 12, weight: FontWeight.w800, color: hintColor), textAlign: TextAlign.center),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(18, 8, 18, 4),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          for (var i = 0; i < _humanHand.length; i++) ...[
+                            if (i > 0) const SizedBox(width: 9),
+                            FlyingCard(
+                              key: _flyKeys[i],
+                              child: HimbilCard(
+                                objectType: _humanHand[i].objectType,
+                                selected: _selectedIndex == i,
+                                onTap: () => _onCardTapped(i),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 14, 20, 20),
+                      child: Column(
+                        children: [
+                          GradientCta(
+                            key: _slamKey,
+                            title: 'HIMBIL!',
+                            width: 116,
+                            height: 116,
+                            color: Palette.redLight,
+                            shadowBarColor: Palette.redShadow,
+                            borderRadius: 58,
+                            titleSize: 17,
+                            onTap: _onSlamTap,
+                          ),
+                          const SizedBox(height: 10),
+                          Text('Puanın: $_humanScore', style: AppText.baloo(size: 15, weight: FontWeight.w700)),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            if (_gameOver != null) _buildGameOverOverlay(_gameOver!),
-          ],
+              if (_gameOver != null) _buildGameOverOverlay(_gameOver!),
+            ],
+          ),
         ),
       ),
     );

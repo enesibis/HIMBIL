@@ -1,0 +1,16 @@
+## Copy this file to `key.properties` (same folder) and fill in real values.
+## `key.properties` is gitignored — never commit it or the .jks/.keystore file.
+##
+## Generate the keystore first (run this yourself so the passwords never end up
+## in shell history shared with anyone else, e.g. this doesn't run inside an
+## AI assistant's terminal):
+##
+##   keytool -genkey -v -keystore himbil-release.jks -keyalg RSA -keysize 2048 -validity 10000 -alias himbil
+##
+## Then move himbil-release.jks into android/ (or point storeFile at wherever
+## you keep it) and fill in the same passwords/alias below.
+
+storePassword=REPLACE_ME
+keyPassword=REPLACE_ME
+keyAlias=himbil
+storeFile=himbil-release.jks
