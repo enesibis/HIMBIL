@@ -27,7 +27,7 @@ void _setPhoneSize(WidgetTester tester) {
 void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
-    PlayerSession.hasOnboarded = true;
+    PlayerSession.instance = PlayerSession()..hasOnboarded = true;
   });
 
   testWidgets('Ana menü açılır ve HIZLI OYNA butonu görünür', (WidgetTester tester) async {

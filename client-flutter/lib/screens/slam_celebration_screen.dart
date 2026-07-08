@@ -2,20 +2,19 @@ import 'package:flutter/material.dart';
 
 import '../theme/palette.dart';
 import '../theme/text_styles.dart';
+import '../widgets/rank_row.dart';
 
 /// HIMBIL anı — slam'a basıldıktan hemen sonraki tam ekran kutlama +
 /// sıralama reveal'i. ~1.9 saniye sonra kendiliğinden kapanır (pop).
 class SlamCelebrationScreen extends StatefulWidget {
-  /// (etiket, bu turda kazanılan puan) — zaten geliş sırasına göre sıralı.
-  final List<MapEntry<String, int>> ranking;
+  /// Bu turda kazanılan puan — zaten geliş sırasına göre sıralı.
+  final List<RankEntry> ranking;
 
   const SlamCelebrationScreen({super.key, required this.ranking});
 
   @override
   State<SlamCelebrationScreen> createState() => _SlamCelebrationScreenState();
 }
-
-const List<Color> _rankBadgeColors = [Palette.rankGold, Palette.rankSilver, Palette.rankBronze, Palette.rankNeutral];
 
 class _SlamCelebrationScreenState extends State<SlamCelebrationScreen> with TickerProviderStateMixin {
   AnimationController? _rayController;
@@ -95,9 +94,8 @@ class _SlamCelebrationScreenState extends State<SlamCelebrationScreen> with Tick
                               child: _RankCard(
                                 delayMs: i * 200,
                                 rank: i + 1,
-                                name: widget.ranking[i].key,
-                                points: widget.ranking[i].value,
-                                badgeColor: _rankBadgeColors[i.clamp(0, _rankBadgeColors.length - 1)],
+                                entry: widget.ranking[i],
+                                badgeColor: Palette.rankColors[i.clamp(0, Palette.rankColors.length - 1)],
                               ),
                             ),
                         ],
@@ -156,11 +154,10 @@ class _SlamCelebrationScreenState extends State<SlamCelebrationScreen> with Tick
 class _RankCard extends StatefulWidget {
   final int delayMs;
   final int rank;
-  final String name;
-  final int points;
+  final RankEntry entry;
   final Color badgeColor;
 
-  const _RankCard({required this.delayMs, required this.rank, required this.name, required this.points, required this.badgeColor});
+  const _RankCard({required this.delayMs, required this.rank, required this.entry, required this.badgeColor});
 
   @override
   State<_RankCard> createState() => _RankCardState();
@@ -190,26 +187,21 @@ class _RankCardState extends State<_RankCard> with SingleTickerProviderStateMixi
       opacity: _controller,
       child: SlideTransition(
         position: Tween(begin: const Offset(0, 0.25), end: Offset.zero).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut)),
-        child: Container(
+        child: RankRow(
+          rank: widget.rank,
+          entry: widget.entry,
+          badgeColor: widget.badgeColor,
+          badgeSize: 26,
+          badgeTextSize: 12,
+          gap: 10,
+          pointsPrefix: '+',
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          nameStyle: AppText.nunito(size: 14, weight: FontWeight.w800),
+          pointsStyle: AppText.baloo(size: 14, weight: FontWeight.w800, color: Palette.green),
           decoration: BoxDecoration(
             color: Colors.white.withValues(alpha: 0.95),
             borderRadius: BorderRadius.circular(14),
             boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.12), blurRadius: 14, offset: const Offset(0, 6))],
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 26,
-                height: 26,
-                decoration: BoxDecoration(color: widget.badgeColor, shape: BoxShape.circle),
-                alignment: Alignment.center,
-                child: Text('${widget.rank}', style: AppText.nunito(size: 12, weight: FontWeight.w800, color: Colors.white)),
-              ),
-              const SizedBox(width: 10),
-              Expanded(child: Text(widget.name, style: AppText.nunito(size: 14, weight: FontWeight.w800))),
-              Text('+${widget.points}', style: AppText.baloo(size: 14, weight: FontWeight.w800, color: Palette.green)),
-            ],
           ),
         ),
       ),

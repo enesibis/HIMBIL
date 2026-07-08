@@ -68,37 +68,38 @@
 
 ## 🟡 3. Kod kalitesinde değiştirilmesi gerekenler
 
-- [ ] **18. String fazları enum'a çevir** — [game_controller.dart:21](../client-flutter/lib/game/game_controller.dart#L21)
+- [x] **18. String fazları enum'a çevir** — [game_controller.dart:21](../client-flutter/lib/game/game_controller.dart#L21)
   `enum GamePhase { waiting, swapping, slamWindow, scoring }` ve `submitHumanSlam` dönüşü için `enum SlamOutcome { recorded, already, tooEarly, falseStart, ignored }`. TS tarafında karşılığı zaten var ([types.ts:20-25](../server/game/types.ts#L20-L25)).
 
-- [ ] **19. Üç kopya geri butonunu ortak widget'a çıkar** — [join_screen.dart:116](../client-flutter/lib/screens/join_screen.dart#L116), [lobby_screen.dart:129](../client-flutter/lib/screens/lobby_screen.dart#L129), [onboarding_screen.dart:190](../client-flutter/lib/screens/onboarding/onboarding_screen.dart#L190) → `widgets/circle_back_button.dart`.
+- [x] **19. Üç kopya geri butonunu ortak widget'a çıkar** — [join_screen.dart:116](../client-flutter/lib/screens/join_screen.dart#L116), [lobby_screen.dart:129](../client-flutter/lib/screens/lobby_screen.dart#L129), [onboarding_screen.dart:190](../client-flutter/lib/screens/onboarding/onboarding_screen.dart#L190) → `widgets/circle_back_button.dart`.
 
-- [ ] **20. Rank rozet renklerini tek yerde tanımla** — [round_result_screen.dart:23](../client-flutter/lib/screens/round_result_screen.dart#L23), [slam_celebration_screen.dart:18](../client-flutter/lib/screens/slam_celebration_screen.dart#L18), [game_over_overlay.dart:35](../client-flutter/lib/widgets/game_over_overlay.dart#L35) → `Palette.rankColors` listesi.
+- [x] **20. Rank rozet renklerini tek yerde tanımla** — [round_result_screen.dart:23](../client-flutter/lib/screens/round_result_screen.dart#L23), [slam_celebration_screen.dart:18](../client-flutter/lib/screens/slam_celebration_screen.dart#L18), [game_over_overlay.dart:35](../client-flutter/lib/widgets/game_over_overlay.dart#L35) → `Palette.rankColors` listesi.
 
-- [ ] **21. Üç benzer sıralama satırını tek `RankRow` widget'ında birleştir** — aynı üç dosyadaki `_row` / `_RankCard` / `_rankRow`.
+- [x] **21. Üç benzer sıralama satırını tek `RankRow` widget'ında birleştir** — aynı üç dosyadaki `_row` / `_RankCard` / `_rankRow`.
 
-- [ ] **22. `MapEntry<String,int>` yerine `RankEntry(label, points)` sınıfı kullan** — üç ekran arasında dolaşan anlamsız tip okunabilirliği düşürüyor.
+- [x] **22. `MapEntry<String,int>` yerine `RankEntry(label, points)` sınıfı kullan** — üç ekran arasında dolaşan anlamsız tip okunabilirliği düşürüyor.
 
-- [ ] **23. İkiz satın alma fonksiyonlarını birleştir + yorumları düzelt** — [player_session.dart:84-114](../client-flutter/lib/session/player_session.dart#L84-L114)
+- [x] **23. İkiz satın alma fonksiyonlarını birleştir + yorumları düzelt** — [player_session.dart:84-114](../client-flutter/lib/session/player_session.dart#L84-L114)
   `purchaseCardSkin`/`purchaseFrame` neredeyse aynı; tek `_purchase` yardımcı fonksiyonuna indir. Ayrıca doc yorumu "zaten sahipse **false** döner" diyor, kod **true** dönüyor (satır 83 ve 103) — yorumu koda uydur.
 
-- [ ] **24. GameController'da tek bildirim mekanizması seç** — [game_controller.dart:26-36](../client-flutter/lib/game/game_controller.dart#L26-L36)
+- [x] **24. GameController'da tek bildirim mekanizması seç** — [game_controller.dart:26-36](../client-flutter/lib/game/game_controller.dart#L26-L36)
   Hem 6 callback alanı hem `notifyListeners()` var; ikisinden birini bırak (callback'ler fiilen kullanılan — `ChangeNotifier`'ı kaldırmak en az işlik).
 
-- [ ] **25. `PlayerSession`'ı static global'den injectable instance'a çevir** — test edilebilirlik için (widget testinde `PlayerSession.hasOnboarded = true` elle set ediliyor, bunun belirtisi).
+- [x] **25. `PlayerSession`'ı static global'den injectable instance'a çevir** — test edilebilirlik için (widget testinde `PlayerSession.hasOnboarded = true` elle set ediliyor, bunun belirtisi).
+  Not: Tam constructor-DI (her widget'a parametre olarak geçirme) 10 dosya/53 kullanım yeri boyunca aşırı invaziv olurdu; bunun yerine `PlayerSession.instance` swappable singleton deseni uygulandı — testler kendi `PlayerSession()` instance'ını oluşturup atayabiliyor, paylaşılan static alanları elle mutasyona uğratmıyor.
 
-- [ ] **26. Görünmez karakteri temizle** — [game_controller.dart:34](../client-flutter/lib/game/game_controller.dart#L34) yorumundaki `geçmiyor` kelimesinde zero-width space var; dosya içi aramayı bozar.
+- [x] **26. Görünmez karakteri temizle** — [game_controller.dart:34](../client-flutter/lib/game/game_controller.dart#L34) yorumundaki `geçmiyor` kelimesinde zero-width space var; dosya içi aramayı bozar.
 
-- [ ] **27. Geri sayım rebuild'ini izole et** — [game_screen.dart:90-97](../client-flutter/lib/screens/game_screen.dart#L90-L97)
+- [x] **27. Geri sayım rebuild'ini izole et** — [game_screen.dart:90-97](../client-flutter/lib/screens/game_screen.dart#L90-L97)
   Her 100 ms `setState` tüm oyun ekranını (kartlar, yelpazeler, avatarlar) yeniden çiziyor. `ValueNotifier<double>` + yalnız `CountdownRing` ve süre etiketini saran `ValueListenableBuilder` kullan.
 
-- [ ] **28. Boş fazlarda ticker'ı durdur** — [game_controller.dart:52](../client-flutter/lib/game/game_controller.dart#L52)
+- [x] **28. Boş fazlarda ticker'ı durdur** — [game_controller.dart:52](../client-flutter/lib/game/game_controller.dart#L52)
   `Timer.periodic`, `waiting/scoring` fazlarında boşa çalışıyor; faza göre başlat/durdur (küçük kazanç, düşük öncelik).
 
-- [ ] **29. Pass-relay zincirine iptal mekanizması ekle** — [game_screen.dart:120-156](../client-flutter/lib/screens/game_screen.dart#L120-L156)
+- [x] **29. Pass-relay zincirine iptal mekanizması ekle** — [game_screen.dart:120-156](../client-flutter/lib/screens/game_screen.dart#L120-L156)
   `Future.delayed` zinciri iptal edilemiyor; tick süresi kısalırsa animasyonlar üst üste biner. Bir `_relayGeneration` sayacı tut, her `await` sonrası eşleşmiyorsa çık.
 
-- [ ] **30. Küçük ekranlar için el dizilimini ölçekle** — [game_screen.dart:337-349](../client-flutter/lib/screens/game_screen.dart#L337-L349)
+- [x] **30. Küçük ekranlar için el dizilimini ölçekle** — [game_screen.dart:337-349](../client-flutter/lib/screens/game_screen.dart#L337-L349)
   4×70px kart + boşluklar ≈ 343px; 320-360dp cihazlarda taşar. `LayoutBuilder` ile kart genişliğini orana bağla.
 
 ---

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../theme/palette.dart';
 import '../theme/text_styles.dart';
 import '../widgets/carnival_background.dart';
+import '../widgets/circle_back_button.dart';
 import 'lobby_screen.dart';
 
 /// "Kod ile Katıl" ekranı — arkadaşının oda koduyla mevcut bir odaya
@@ -77,7 +78,7 @@ class _JoinScreenState extends State<JoinScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 8),
-                _backButton(context),
+                CircleBackButton(onTap: () => Navigator.of(context).pop()),
                 const SizedBox(height: 14),
                 Text('Kod ile Katıl', style: AppText.baloo(size: 21, weight: FontWeight.w700)),
                 const SizedBox(height: 2),
@@ -109,23 +110,6 @@ class _JoinScreenState extends State<JoinScreen> {
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _backButton(BuildContext context) {
-    return GestureDetector(
-      onTap: () => Navigator.of(context).pop(),
-      child: Container(
-        width: 36,
-        height: 36,
-        decoration: BoxDecoration(
-          color: Palette.surface,
-          shape: BoxShape.circle,
-          boxShadow: [BoxShadow(color: Palette.textPrimary.withValues(alpha: 0.08), blurRadius: 10, offset: const Offset(0, 4))],
-        ),
-        alignment: Alignment.center,
-        child: const Icon(Icons.arrow_back, size: 18, color: Palette.textPrimary),
       ),
     );
   }

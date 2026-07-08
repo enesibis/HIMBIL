@@ -7,6 +7,7 @@ import '../session/player_session.dart';
 import '../theme/palette.dart';
 import '../theme/text_styles.dart';
 import '../widgets/carnival_background.dart';
+import '../widgets/circle_back_button.dart';
 import '../widgets/gradient_cta.dart';
 import '../widgets/player_avatar.dart';
 import '../widgets/user_avatar.dart';
@@ -69,7 +70,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 8),
-                _backButton(context),
+                CircleBackButton(onTap: () => Navigator.of(context).pop()),
                 const SizedBox(height: 8),
                 widget.quickPlay ? _quickPlayCard() : _roomCodeCard(),
                 const SizedBox(height: 20),
@@ -81,14 +82,14 @@ class _LobbyScreenState extends State<LobbyScreen> {
                     childAspectRatio: 1.05,
                     children: [
                       _lobbySlot(
-                        PlayerSession.name,
+                        PlayerSession.instance.name,
                         ready: true,
                         avatar: UserAvatar(
                           size: 56,
-                          imagePath: PlayerSession.avatarCharacter.imagePath,
-                          initial: PlayerSession.initial,
-                          gradient: PlayerSession.avatarColor.gradient,
-                          frame: PlayerSession.avatarFrame,
+                          imagePath: PlayerSession.instance.avatarCharacter.imagePath,
+                          initial: PlayerSession.instance.initial,
+                          gradient: PlayerSession.instance.avatarColor.gradient,
+                          frame: PlayerSession.instance.avatarFrame,
                         ),
                       ),
                       for (final bot in Bots.all) _lobbySlot(bot.name, ready: _botsReady),
@@ -122,23 +123,6 @@ class _LobbyScreenState extends State<LobbyScreen> {
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _backButton(BuildContext context) {
-    return GestureDetector(
-      onTap: () => Navigator.of(context).pop(),
-      child: Container(
-        width: 36,
-        height: 36,
-        decoration: BoxDecoration(
-          color: Palette.surface,
-          shape: BoxShape.circle,
-          boxShadow: [BoxShadow(color: Palette.textPrimary.withValues(alpha: 0.08), blurRadius: 10, offset: const Offset(0, 4))],
-        ),
-        alignment: Alignment.center,
-        child: const Icon(Icons.arrow_back, size: 18, color: Palette.textPrimary),
       ),
     );
   }

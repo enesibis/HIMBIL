@@ -4,13 +4,14 @@ import '../theme/palette.dart';
 import '../theme/text_styles.dart';
 import '../widgets/carnival_background.dart';
 import '../widgets/gradient_cta.dart';
+import '../widgets/rank_row.dart';
 
 /// Tur Sonucu — Slam ekranındaki sıralama kartlarının sade/statik hâli
 /// + "Sonraki Tur →" (ya da maç bittiyse "Final Sonuçlar →") CTA'sı.
 /// CTA'ya basılınca `true` (maç bitti) / `false` (devam) ile pop olur.
 class RoundResultScreen extends StatelessWidget {
   final int roundNumber;
-  final List<MapEntry<String, int>> ranking; // (etiket, bu turun puanı), sıralı
+  final List<RankEntry> ranking; // bu turun puanı, sıralı
   final bool isMatchOver;
 
   const RoundResultScreen({
@@ -19,8 +20,6 @@ class RoundResultScreen extends StatelessWidget {
     required this.ranking,
     required this.isMatchOver,
   });
-
-  static const List<Color> _rankBadgeColors = [Palette.rankGold, Palette.rankSilver, Palette.rankBronze, Palette.rankNeutral];
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +39,19 @@ class RoundResultScreen extends StatelessWidget {
                       for (var i = 0; i < ranking.length; i++)
                         Padding(
                           padding: const EdgeInsets.only(bottom: 10),
-                          child: _row(i + 1, ranking[i].key, ranking[i].value, _rankBadgeColors[i.clamp(0, _rankBadgeColors.length - 1)]),
+                          child: RankRow(
+                            rank: i + 1,
+                            entry: ranking[i],
+                            badgeColor: Palette.rankColors[i.clamp(0, Palette.rankColors.length - 1)],
+                            nameStyle: AppText.baloo(size: 15, weight: FontWeight.w700),
+                            pointsStyle: AppText.baloo(size: 16, weight: FontWeight.w800, color: Palette.red),
+                            pointsPrefix: '+',
+                            decoration: BoxDecoration(
+                              color: Palette.surface,
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [BoxShadow(color: Palette.textPrimary.withValues(alpha: 0.06), blurRadius: 16, offset: const Offset(0, 6))],
+                            ),
+                          ),
                         ),
                     ],
                   ),
@@ -62,31 +73,6 @@ class RoundResultScreen extends StatelessWidget {
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _row(int rank, String name, int points, Color badgeColor) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: Palette.surface,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Palette.textPrimary.withValues(alpha: 0.06), blurRadius: 16, offset: const Offset(0, 6))],
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 28,
-            height: 28,
-            decoration: BoxDecoration(color: badgeColor, shape: BoxShape.circle),
-            alignment: Alignment.center,
-            child: Text('$rank', style: AppText.nunito(size: 13, weight: FontWeight.w800, color: Colors.white)),
-          ),
-          const SizedBox(width: 12),
-          Expanded(child: Text(name, style: AppText.baloo(size: 15, weight: FontWeight.w700))),
-          Text('+$points', style: AppText.baloo(size: 16, weight: FontWeight.w800, color: Palette.red)),
-        ],
       ),
     );
   }

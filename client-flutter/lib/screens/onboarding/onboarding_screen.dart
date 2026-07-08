@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../session/player_session.dart';
 import '../../theme/palette.dart';
 import '../../widgets/carnival_background.dart';
+import '../../widgets/circle_back_button.dart';
 import '../../widgets/gradient_cta.dart';
 import '../home_screen.dart';
 import 'age_step.dart';
@@ -34,7 +35,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: PlayerSession.name == 'Sen' ? '' : PlayerSession.name)
+    _nameController = TextEditingController(text: PlayerSession.instance.name == 'Sen' ? '' : PlayerSession.instance.name)
       ..addListener(() => setState(() {}));
   }
 
@@ -54,7 +55,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   void _next() {
     if (!_canContinue) return;
-    if (_step == 1) PlayerSession.name = _nameController.text.trim();
+    if (_step == 1) PlayerSession.instance.name = _nameController.text.trim();
     if (_step == _totalSteps - 1) {
       _finish();
       return;
@@ -68,7 +69,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Future<void> _finish() async {
-    await PlayerSession.completeOnboarding();
+    await PlayerSession.instance.completeOnboarding();
     if (!mounted) return;
     Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const HomeScreen()));
   }
@@ -85,7 +86,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
                   children: [
-                    _step == 0 ? const SizedBox(width: 36) : _backButton(),
+                    _step == 0 ? const SizedBox(width: 36) : CircleBackButton(onTap: _back),
                     Expanded(child: _progressDots()),
                     const SizedBox(width: 36),
                   ],
@@ -108,7 +109,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       2,
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 28),
-                        child: AgeStep(age: PlayerSession.age, onChanged: (v) => setState(() => PlayerSession.age = v)),
+                        child: AgeStep(age: PlayerSession.instance.age, onChanged: (v) => setState(() => PlayerSession.instance.age = v)),
                       ),
                     ),
                     _parallaxPage(
@@ -116,13 +117,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 28),
                         child: AvatarStep(
-                          initial: PlayerSession.initial,
-                          characterIndex: PlayerSession.avatarCharacterIndex,
-                          colorIndex: PlayerSession.avatarColorIndex,
-                          frame: PlayerSession.avatarFrame,
-                          onCharacterSelected: (i) => setState(() => PlayerSession.avatarCharacterIndex = i),
-                          onColorSelected: (i) => setState(() => PlayerSession.avatarColorIndex = i),
-                          onFrameSelected: (f) => setState(() => PlayerSession.avatarFrame = f),
+                          initial: PlayerSession.instance.initial,
+                          characterIndex: PlayerSession.instance.avatarCharacterIndex,
+                          colorIndex: PlayerSession.instance.avatarColorIndex,
+                          frame: PlayerSession.instance.avatarFrame,
+                          onCharacterSelected: (i) => setState(() => PlayerSession.instance.avatarCharacterIndex = i),
+                          onColorSelected: (i) => setState(() => PlayerSession.instance.avatarColorIndex = i),
+                          onFrameSelected: (f) => setState(() => PlayerSession.instance.avatarFrame = f),
                         ),
                       ),
                     ),
@@ -131,11 +132,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 28),
                         child: CompleteStep(
-                          name: _nameController.text.trim().isEmpty ? PlayerSession.name : _nameController.text.trim(),
-                          initial: PlayerSession.initial,
-                          characterIndex: PlayerSession.avatarCharacterIndex,
-                          colorIndex: PlayerSession.avatarColorIndex,
-                          frame: PlayerSession.avatarFrame,
+                          name: _nameController.text.trim().isEmpty ? PlayerSession.instance.name : _nameController.text.trim(),
+                          initial: PlayerSession.instance.initial,
+                          characterIndex: PlayerSession.instance.avatarCharacterIndex,
+                          colorIndex: PlayerSession.instance.avatarColorIndex,
+                          frame: PlayerSession.instance.avatarFrame,
                         ),
                       ),
                     ),
@@ -184,23 +185,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         );
       },
       child: Center(child: child),
-    );
-  }
-
-  Widget _backButton() {
-    return GestureDetector(
-      onTap: _back,
-      child: Container(
-        width: 36,
-        height: 36,
-        decoration: BoxDecoration(
-          color: Palette.surface,
-          shape: BoxShape.circle,
-          boxShadow: [BoxShadow(color: Palette.textPrimary.withValues(alpha: 0.08), blurRadius: 10, offset: const Offset(0, 4))],
-        ),
-        alignment: Alignment.center,
-        child: const Icon(Icons.arrow_back, size: 18, color: Palette.textPrimary),
-      ),
     );
   }
 

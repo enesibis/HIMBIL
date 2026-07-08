@@ -34,6 +34,10 @@ class Palette {
   static const Color rankBronze = Color(0xFFB87333);
   static const Color rankNeutral = Color(0xFFAFA593);
 
+  /// Sıralama rozetleri için 1.'den son sıraya kadar renk sırası —
+  /// round_result/slam_celebration/game_over ekranları arasında ortak.
+  static const List<Color> rankColors = [rankGold, rankSilver, rankBronze, rankNeutral];
+
   /// Kart üzerindeki nesne türleri için ikon renkleri —
   /// design_handoff_kart_paketi/kart-sanati.js FRUIT_COLOR ile birebir.
   static const Map<String, Color> fruitColors = {

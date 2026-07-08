@@ -48,7 +48,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   void _goNext() {
     if (!mounted || _navigated) return;
     _navigated = true;
-    final next = PlayerSession.hasOnboarded ? const HomeScreen() : const OnboardingScreen();
+    final next = PlayerSession.instance.hasOnboarded ? const HomeScreen() : const OnboardingScreen();
     Navigator.of(context).pushReplacement(
       PageRouteBuilder(
         transitionDuration: const Duration(milliseconds: 420),

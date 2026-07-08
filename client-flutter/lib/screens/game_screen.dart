@@ -16,12 +16,13 @@ import '../widgets/gradient_cta.dart';
 import '../widgets/himbil_card.dart';
 import '../widgets/opponent_fan.dart';
 import '../widgets/player_avatar.dart';
+import '../widgets/rank_row.dart';
 import '../widgets/soft_button.dart';
 import 'how_to_play_overlay.dart';
 import 'round_result_screen.dart';
 import 'slam_celebration_screen.dart';
 
-String _labelFor(String id) => id == GameController.humanId ? PlayerSession.name : Bots.labelFor(id);
+String _labelFor(String id) => id == GameController.humanId ? PlayerSession.instance.name : Bots.labelFor(id);
 
 class GameScreen extends StatefulWidget {
   const GameScreen({super.key});
@@ -35,9 +36,8 @@ class _GameScreenState extends State<GameScreen> {
 
   List<CardModel> _humanHand = [];
   int? _selectedIndex;
-  String _phase = 'swapping';
-  double _countdownProgress = 1.0;
-  double _secondsLeft = 0;
+  GamePhase _phase = GamePhase.swapping;
+  final ValueNotifier<double> _secondsLeftNotifier = ValueNotifier(0);
   String? _toastText;
   Timer? _toastTimer;
   int _humanScore = 0;
@@ -54,6 +54,12 @@ class _GameScreenState extends State<GameScreen> {
   /// engellenir (design_handoff: "zincir sürerken geri sayım duraklatılır").
   int? _passSlot;
 
+  /// Her `_runPassRelay` çağrısında artar; bir önceki zincirin bekleyen
+  /// `await`'leri kendi nesli güncel olmadığını görüp sessizce çıkar —
+  /// tick süresi kısalıp yeni bir relay başladığında eski animasyonların
+  /// üst üste binmesini önler.
+  int _relayGeneration = 0;
+
   final GlobalKey<GradientCtaState> _slamKey = GlobalKey<GradientCtaState>();
   final Map<String, GlobalKey<PlayerAvatarState>> _avatarKeys = {
     'bot_west': GlobalKey<PlayerAvatarState>(),
@@ -68,12 +74,12 @@ class _GameScreenState extends State<GameScreen> {
   @override
   void initState() {
     super.initState();
-    _showTutorial = !PlayerSession.hasSeenTutorial;
+    _showTutorial = !PlayerSession.instance.hasSeenTutorial;
     _initController();
   }
 
   void _dismissTutorial() {
-    PlayerSession.markTutorialSeen();
+    PlayerSession.instance.markTutorialSeen();
     setState(() => _showTutorial = false);
     _controller.start();
   }
@@ -97,11 +103,7 @@ class _GameScreenState extends State<GameScreen> {
       }
       ..onCountdownTick = (secondsLeft) {
         if (!mounted || _passSlot != null) return;
-        final maxDuration = _controller.phase == 'slamWindow' ? GameController.slamWindowDuration : GameController.swapTickDuration;
-        setState(() {
-          _countdownProgress = secondsLeft / maxDuration;
-          _secondsLeft = secondsLeft;
-        });
+        _secondsLeftNotifier.value = secondsLeft;
       }
       ..onSlamAttemptRecorded = (playerId) {
         if (playerId == GameController.humanId) {
@@ -132,6 +134,7 @@ class _GameScreenState extends State<GameScreen> {
   /// design_handoff_kart_tasarimlari_ve_animasyonlar/README.md'deki
   /// keyframe'lerle birebir eşleşir.
   Future<void> _runPassRelay(List<CardModel> newHand, int slot) async {
+    final generation = ++_relayGeneration;
     final flyKey = _flyKeys[slot];
     setState(() => _passSlot = slot);
 
@@ -145,16 +148,16 @@ class _GameScreenState extends State<GameScreen> {
       duration: const Duration(milliseconds: 420),
       curve: Curves.ease,
     );
-    if (!mounted) return;
+    if (!mounted || generation != _relayGeneration) return;
 
     setState(() => _humanHand = newHand);
     _northFanKey.currentState?.pulse(duration: const Duration(milliseconds: 340));
     await Future.delayed(const Duration(milliseconds: 340));
-    if (!mounted) return;
+    if (!mounted || generation != _relayGeneration) return;
 
     _westFanKey.currentState?.pulse(duration: const Duration(milliseconds: 340));
     await Future.delayed(const Duration(milliseconds: 340));
-    if (!mounted) return;
+    if (!mounted || generation != _relayGeneration) return;
 
     flyKey.currentState?.jumpTo(offset: const Offset(-130, -50), scale: 0.45, rotationDeg: -18, opacity: 0);
     await flyKey.currentState?.animateTo(
@@ -165,13 +168,13 @@ class _GameScreenState extends State<GameScreen> {
       duration: const Duration(milliseconds: 380),
       curve: const Cubic(0.2, 0.8, 0.3, 1.0),
     );
-    if (!mounted) return;
+    if (!mounted || generation != _relayGeneration) return;
     setState(() => _passSlot = null);
   }
 
   Future<void> _handleRoundScored(int roundNumber, List<SlamResult> results, Map<String, int> scores, String? winnerId) async {
     _syncScores();
-    final roundRanking = [for (final r in results) MapEntry(_labelFor(r.playerId), r.score)];
+    final roundRanking = [for (final r in results) RankEntry(_labelFor(r.playerId), r.score)];
 
     await Navigator.of(context).push(MaterialPageRoute(builder: (_) => SlamCelebrationScreen(ranking: roundRanking)));
     if (!mounted) return;
@@ -209,12 +212,12 @@ class _GameScreenState extends State<GameScreen> {
 
   void _onCardTapped(int index) {
     if (_passSlot != null) return;
-    if (_phase != 'swapping' && _phase != 'slamWindow') return;
+    if (_phase != GamePhase.swapping && _phase != GamePhase.slamWindow) return;
     setState(() => _selectedIndex = index);
     // submitHumanChoice sadece 'swapping' fazında gönderilir; slamWindow'da
     // seçim yalnız görsel — aksi halde dışarıdan tıklamanın hiçbir şey
     // yapmadığı görülüp "pencere açık" sinyali olarak okunabilir.
-    if (_phase == 'swapping') {
+    if (_phase == GamePhase.swapping) {
       _controller.submitHumanChoice(_humanHand[index].id);
     }
   }
@@ -276,8 +279,8 @@ class _GameScreenState extends State<GameScreen> {
   void _onSlamTap() {
     _slamKey.currentState?.bounce();
     final result = _controller.submitHumanSlam();
-    if (result == 'already') _showToast('Zaten bastın');
-    if (result == 'false_start_forgiven') _showToast('Henüz dörtlün yok — bu ilk yanlışın bedava!');
+    if (result == SlamOutcome.already) _showToast('Zaten bastın');
+    if (result == SlamOutcome.falseStartForgiven) _showToast('Henüz dörtlün yok — bu ilk yanlışın bedava!');
   }
 
   // Slam penceresi elinde 4'lü olmayan bir insana asla görsel olarak
@@ -302,15 +305,16 @@ class _GameScreenState extends State<GameScreen> {
   void dispose() {
     _controller.dispose();
     _toastTimer?.cancel();
+    _secondsLeftNotifier.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final showSlamHint = _phase == 'slamWindow' && _humanHasQuartet;
+    final showSlamHint = _phase == GamePhase.slamWindow && _humanHasQuartet;
     final hintText = switch (_phase) {
-      'swapping' => 'İşine yaramayan kartı seç, komşuna ver',
-      'slamWindow' => showSlamHint ? "4'lün tamam — HIMBIL'e bas!" : 'İşine yaramayan kartı seç, komşuna ver',
+      GamePhase.swapping => 'İşine yaramayan kartı seç, komşuna ver',
+      GamePhase.slamWindow => showSlamHint ? "4'lün tamam — HIMBIL'e bas!" : 'İşine yaramayan kartı seç, komşuna ver',
       _ => 'Puanlar hesaplanıyor...',
     };
     final hintColor = showSlamHint ? Palette.green : Palette.textSecondary;
@@ -359,22 +363,7 @@ class _GameScreenState extends State<GameScreen> {
                     ),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(18, 8, 18, 4),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          for (var i = 0; i < _humanHand.length; i++) ...[
-                            if (i > 0) const SizedBox(width: 9),
-                            FlyingCard(
-                              key: _flyKeys[i],
-                              child: HimbilCard(
-                                objectType: _humanHand[i].objectType,
-                                selected: _selectedIndex == i,
-                                onTap: () => _onCardTapped(i),
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
+                      child: _buildHumanHandRow(),
                     ),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(20, 14, 20, 20),
@@ -408,6 +397,44 @@ class _GameScreenState extends State<GameScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  /// 4 kart + aralar doğal genişlikte (4×70 + 3×9 ≈ 307px) 320-360dp gibi
+  /// dar ekranlarda Padding'in bıraktığı alana sığmayıp taşabiliyordu.
+  /// LayoutBuilder ile mevcut genişliği ölçüp, gerektiğinde FittedBox'la
+  /// oranı koruyarak küçültüyoruz; geniş ekranlarda (scaleDown) hiçbir
+  /// şey değişmez.
+  Widget _buildHumanHandRow() {
+    const cardGap = 9.0;
+    final cardCount = _humanHand.length;
+    final naturalWidth = cardCount == 0 ? 0.0 : cardCount * HimbilCard.width + (cardCount - 1) * cardGap;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return FittedBox(
+          fit: BoxFit.scaleDown,
+          child: SizedBox(
+            width: naturalWidth,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                for (var i = 0; i < cardCount; i++) ...[
+                  if (i > 0) const SizedBox(width: cardGap),
+                  FlyingCard(
+                    key: _flyKeys[i],
+                    child: HimbilCard(
+                      objectType: _humanHand[i].objectType,
+                      selected: _selectedIndex == i,
+                      onTap: () => _onCardTapped(i),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -471,16 +498,22 @@ class _GameScreenState extends State<GameScreen> {
             gradient: RadialGradient(colors: [Palette.red.withValues(alpha: 0.1), Palette.red.withValues(alpha: 0)]),
           ),
         ),
-        Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CountdownRing(progress: _countdownProgress, size: 60),
-            const SizedBox(height: 12),
-            Text(
-              'Tur ${_controller.roundNumber + 1} · ${_secondsLeft.toStringAsFixed(1)}s',
-              style: AppText.baloo(size: 13, weight: FontWeight.w700, color: Palette.textPrimary),
-            ),
-          ],
+        ValueListenableBuilder<double>(
+          valueListenable: _secondsLeftNotifier,
+          builder: (context, secondsLeft, _) {
+            final maxDuration = _controller.phase == GamePhase.slamWindow ? GameController.slamWindowDuration : GameController.swapTickDuration;
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CountdownRing(progress: secondsLeft / maxDuration, size: 60),
+                const SizedBox(height: 12),
+                Text(
+                  'Tur ${_controller.roundNumber + 1} · ${secondsLeft.toStringAsFixed(1)}s',
+                  style: AppText.baloo(size: 13, weight: FontWeight.w700, color: Palette.textPrimary),
+                ),
+              ],
+            );
+          },
         ),
         if (_toastText != null)
           Positioned(
@@ -506,7 +539,7 @@ class _GameScreenState extends State<GameScreen> {
   Widget _buildGameOverOverlay(({String winnerId, Map<String, int> scores}) gameOver) {
     final sortedIds = gameOver.scores.keys.toList()..sort((a, b) => gameOver.scores[b]!.compareTo(gameOver.scores[a]!));
     final ranking = [
-      for (final id in sortedIds) MapEntry(_labelFor(id), gameOver.scores[id] ?? 0),
+      for (final id in sortedIds) RankEntry(_labelFor(id), gameOver.scores[id] ?? 0),
     ];
 
     return GameOverOverlay(

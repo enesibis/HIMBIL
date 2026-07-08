@@ -8,8 +8,12 @@ import '../theme/card_skins.dart';
 /// Gerçek hesap sistemi (Aşama 7) gelene kadar sadece cihaz-yerel bir
 /// profil (isim, yaş, avatar seçimleri, mağaza envanteri) tutulur;
 /// sunucuya senkronize edilmez.
+///
+/// [instance] uygulama boyunca paylaşılan varsayılan oturumdur; testler
+/// paylaşılan durumu elle sıfırlamak yerine kendi [PlayerSession]'ını
+/// oluşturup buraya atayabilir.
 class PlayerSession {
-  PlayerSession._();
+  static PlayerSession instance = PlayerSession();
 
   static const _keyOnboarded = 'has_onboarded';
   static const _keyName = 'player_name';
@@ -29,38 +33,38 @@ class PlayerSession {
 
   static const _startingTokens = 500;
 
-  static bool hasOnboarded = false;
-  static String name = 'Sen';
-  static int age = 18;
-  static int avatarCharacterIndex = 0;
-  static int avatarColorIndex = 0;
-  static String avatarFrame = AvatarFrameSkins.defaultFrameId;
+  bool hasOnboarded = false;
+  String name = 'Sen';
+  int age = 18;
+  int avatarCharacterIndex = 0;
+  int avatarColorIndex = 0;
+  String avatarFrame = AvatarFrameSkins.defaultFrameId;
 
-  static int tokens = _startingTokens;
-  static Set<String> ownedCardSkinIds = {'klasik', 'karnaval'};
-  static String selectedCardSkinId = CardSkins.defaultSkinId;
-  static Set<String> ownedFrameIds = {for (final f in AvatarFrameSkins.all) if (f.isFree) f.id};
+  int tokens = _startingTokens;
+  Set<String> ownedCardSkinIds = {'klasik', 'karnaval'};
+  String selectedCardSkinId = CardSkins.defaultSkinId;
+  Set<String> ownedFrameIds = {for (final f in AvatarFrameSkins.all) if (f.isFree) f.id};
 
-  static int gamesPlayed = 0;
-  static int wins = 0;
-  static int bestStreak = 0;
-  static int currentStreak = 0;
-  static bool hasSeenTutorial = false;
+  int gamesPlayed = 0;
+  int wins = 0;
+  int bestStreak = 0;
+  int currentStreak = 0;
+  bool hasSeenTutorial = false;
 
-  static int get winRatePercent => gamesPlayed == 0 ? 0 : ((wins / gamesPlayed) * 100).round();
+  int get winRatePercent => gamesPlayed == 0 ? 0 : ((wins / gamesPlayed) * 100).round();
 
-  static String get initial => name.isNotEmpty ? name.substring(0, 1).toUpperCase() : '?';
+  String get initial => name.isNotEmpty ? name.substring(0, 1).toUpperCase() : '?';
 
-  static AvatarCharacterOption get avatarCharacter =>
+  AvatarCharacterOption get avatarCharacter =>
       AvatarOptions.characters[avatarCharacterIndex.clamp(0, AvatarOptions.characters.length - 1)];
 
-  static AvatarColorOption get avatarColor => AvatarOptions.colors[avatarColorIndex.clamp(0, AvatarOptions.colors.length - 1)];
+  AvatarColorOption get avatarColor => AvatarOptions.colors[avatarColorIndex.clamp(0, AvatarOptions.colors.length - 1)];
 
-  static bool ownsCardSkin(String id) => ownedCardSkinIds.contains(id);
+  bool ownsCardSkin(String id) => ownedCardSkinIds.contains(id);
 
-  static bool ownsFrame(String id) => ownedFrameIds.contains(id);
+  bool ownsFrame(String id) => ownedFrameIds.contains(id);
 
-  static Future<void> load() async {
+  Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
     hasOnboarded = prefs.getBool(_keyOnboarded) ?? false;
     name = prefs.getString(_keyName) ?? 'Sen';
@@ -86,7 +90,7 @@ class PlayerSession {
     hasSeenTutorial = prefs.getBool(_keyHasSeenTutorial) ?? false;
   }
 
-  static Future<void> completeOnboarding() async {
+  Future<void> completeOnboarding() async {
     hasOnboarded = true;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_keyOnboarded, true);
@@ -99,54 +103,64 @@ class PlayerSession {
     await prefs.setStringList(_keyOwnedFrames, ownedFrameIds.toList());
   }
 
-  /// Kartı satın alır; yeterli jeton yoksa veya zaten sahipse false döner.
-  static Future<bool> purchaseCardSkin(String id) async {
-    if (ownsCardSkin(id)) return true;
-    final skin = CardSkins.byId(id);
-    if (tokens < skin.price) return false;
-    tokens -= skin.price;
-    ownedCardSkinIds.add(id);
+  /// Verilen envantere [id]'yi satın alıp ekler. Yeterli jeton yoksa false
+  /// döner; [owns] zaten true ise jeton düşülmeden true döner (zaten
+  /// sahip olmak da bir satın alma başarısı sayılır).
+  Future<bool> _purchase({
+    required String id,
+    required bool owns,
+    required int price,
+    required Set<String> inventory,
+    required String prefsKey,
+  }) async {
+    if (owns) return true;
+    if (tokens < price) return false;
+    tokens -= price;
+    inventory.add(id);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_keyTokens, tokens);
-    await prefs.setStringList(_keyOwnedCardSkins, ownedCardSkinIds.toList());
+    await prefs.setStringList(prefsKey, inventory.toList());
     return true;
   }
 
-  static Future<void> selectCardSkin(String id) async {
+  Future<bool> purchaseCardSkin(String id) => _purchase(
+        id: id,
+        owns: ownsCardSkin(id),
+        price: CardSkins.byId(id).price,
+        inventory: ownedCardSkinIds,
+        prefsKey: _keyOwnedCardSkins,
+      );
+
+  Future<void> selectCardSkin(String id) async {
     if (!ownsCardSkin(id)) return;
     selectedCardSkinId = id;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_keySelectedCardSkin, id);
   }
 
-  /// Çerçeveyi satın alır; yeterli jeton yoksa veya zaten sahipse false döner.
-  static Future<bool> purchaseFrame(String id) async {
-    if (ownsFrame(id)) return true;
-    final price = AvatarFrameSkins.byId(id).price;
-    if (tokens < price) return false;
-    tokens -= price;
-    ownedFrameIds.add(id);
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt(_keyTokens, tokens);
-    await prefs.setStringList(_keyOwnedFrames, ownedFrameIds.toList());
-    return true;
-  }
+  Future<bool> purchaseFrame(String id) => _purchase(
+        id: id,
+        owns: ownsFrame(id),
+        price: AvatarFrameSkins.byId(id).price,
+        inventory: ownedFrameIds,
+        prefsKey: _keyOwnedFrames,
+      );
 
-  static Future<void> selectFrame(String id) async {
+  Future<void> selectFrame(String id) async {
     if (!ownsFrame(id)) return;
     avatarFrame = id;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_keyFrameId, id);
   }
 
-  static Future<void> addTokens(int amount, String reason) async {
+  Future<void> addTokens(int amount, String reason) async {
     tokens += amount;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_keyTokens, tokens);
   }
 
   /// Maç sonunda bir kez çağrılır; oyun/galibiyet sayısını ve serileri günceller.
-  static Future<void> recordMatchResult({required bool won}) async {
+  Future<void> recordMatchResult({required bool won}) async {
     gamesPlayed++;
     if (won) {
       wins++;
@@ -162,7 +176,7 @@ class PlayerSession {
     await prefs.setInt(_keyCurrentStreak, currentStreak);
   }
 
-  static Future<void> markTutorialSeen() async {
+  Future<void> markTutorialSeen() async {
     hasSeenTutorial = true;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_keyHasSeenTutorial, true);

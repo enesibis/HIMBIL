@@ -8,7 +8,7 @@ import 'theme/palette.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-  await PlayerSession.load();
+  await PlayerSession.instance.load();
   runApp(const HimbilApp());
 }
 

@@ -21,7 +21,7 @@ class ClosedCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final skin = CardSkins.byId(skinId ?? PlayerSession.selectedCardSkinId);
+    final skin = CardSkins.byId(skinId ?? PlayerSession.instance.selectedCardSkinId);
     return Transform.rotate(
       angle: rotationDeg * math.pi / 180,
       child: Container(

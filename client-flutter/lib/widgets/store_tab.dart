@@ -58,7 +58,7 @@ class _StoreTabState extends State<StoreTab> {
         children: [
           const Icon(Icons.monetization_on_rounded, size: 16, color: Colors.white),
           const SizedBox(width: 5),
-          Text('${PlayerSession.tokens}', style: AppText.baloo(size: 14, weight: FontWeight.w800, color: Colors.white)),
+          Text('${PlayerSession.instance.tokens}', style: AppText.baloo(size: 14, weight: FontWeight.w800, color: Colors.white)),
         ],
       ),
     );
@@ -111,8 +111,8 @@ class _StoreTabState extends State<StoreTab> {
   }
 
   Widget _cardSkinItem(CardSkin skin) {
-    final owned = PlayerSession.ownsCardSkin(skin.id);
-    final equipped = PlayerSession.selectedCardSkinId == skin.id;
+    final owned = PlayerSession.instance.ownsCardSkin(skin.id);
+    final equipped = PlayerSession.instance.selectedCardSkinId == skin.id;
     return _StoreItem(
       equipped: equipped,
       preview: SvgPicture.asset(skin.assetPath, width: 58, height: 81),
@@ -137,15 +137,15 @@ class _StoreTabState extends State<StoreTab> {
   }
 
   Widget _frameItem(AvatarFrameSkin frame) {
-    final owned = PlayerSession.ownsFrame(frame.id);
-    final equipped = PlayerSession.avatarFrame == frame.id;
+    final owned = PlayerSession.instance.ownsFrame(frame.id);
+    final equipped = PlayerSession.instance.avatarFrame == frame.id;
     return _StoreItem(
       equipped: equipped,
       preview: UserAvatar(
         size: 64,
-        imagePath: PlayerSession.avatarCharacter.imagePath,
-        initial: PlayerSession.initial,
-        gradient: PlayerSession.avatarColor.gradient,
+        imagePath: PlayerSession.instance.avatarCharacter.imagePath,
+        initial: PlayerSession.instance.initial,
+        gradient: PlayerSession.instance.avatarColor.gradient,
         frame: frame.id,
       ),
       name: frame.name,
@@ -158,28 +158,28 @@ class _StoreTabState extends State<StoreTab> {
 
   Future<void> _buyCardSkin(CardSkin skin) async {
     if (!await _confirmPurchase(skin.name, skin.price)) return;
-    final ok = await PlayerSession.purchaseCardSkin(skin.id);
+    final ok = await PlayerSession.instance.purchaseCardSkin(skin.id);
     if (!ok) {
       _showInsufficientFunds();
       return;
     }
-    await PlayerSession.selectCardSkin(skin.id);
+    await PlayerSession.instance.selectCardSkin(skin.id);
     if (mounted) setState(() {});
   }
 
   Future<void> _equipCardSkin(CardSkin skin) async {
-    await PlayerSession.selectCardSkin(skin.id);
+    await PlayerSession.instance.selectCardSkin(skin.id);
     if (mounted) setState(() {});
   }
 
   Future<void> _buyFrame(AvatarFrameSkin frame) async {
     if (!await _confirmPurchase(frame.name, frame.price)) return;
-    final ok = await PlayerSession.purchaseFrame(frame.id);
+    final ok = await PlayerSession.instance.purchaseFrame(frame.id);
     if (!ok) {
       _showInsufficientFunds();
       return;
     }
-    await PlayerSession.selectFrame(frame.id);
+    await PlayerSession.instance.selectFrame(frame.id);
     if (mounted) setState(() {});
   }
 
@@ -239,7 +239,7 @@ class _StoreTabState extends State<StoreTab> {
   }
 
   Future<void> _equipFrame(AvatarFrameSkin frame) async {
-    await PlayerSession.selectFrame(frame.id);
+    await PlayerSession.instance.selectFrame(frame.id);
     if (mounted) setState(() {});
   }
 

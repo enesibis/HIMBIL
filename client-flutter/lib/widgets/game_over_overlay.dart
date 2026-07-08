@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../theme/palette.dart';
 import '../theme/text_styles.dart';
 import 'gradient_cta.dart';
+import 'rank_row.dart';
 import 'soft_button.dart';
 
 /// Maç sonu ekranı: parlayan kupa rozeti, konfeti noktaları, altın/gümüş/
@@ -11,7 +12,7 @@ class GameOverOverlay extends StatefulWidget {
   final String winnerId;
   final String winnerLabel;
   final bool isHumanWinner;
-  final List<MapEntry<String, int>> ranking; // etiket -> puan, sıralı
+  final List<RankEntry> ranking; // sıralı, final puan
   final int? tokenReward;
   final VoidCallback onPlayAgain;
   final VoidCallback onBackToMenu;
@@ -33,8 +34,6 @@ class GameOverOverlay extends StatefulWidget {
 
 class _GameOverOverlayState extends State<GameOverOverlay> with SingleTickerProviderStateMixin {
   late final AnimationController _glow;
-
-  static const _rankColors = [Palette.rankGold, Palette.rankSilver, Palette.rankBronze, Palette.rankNeutral];
 
   @override
   void initState() {
@@ -88,10 +87,21 @@ class _GameOverOverlayState extends State<GameOverOverlay> with SingleTickerProv
                       ),
                       const SizedBox(height: 20),
                       ...List.generate(widget.ranking.length, (i) {
-                        final entry = widget.ranking[i];
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 10),
-                          child: _rankRow(i + 1, entry.key, entry.value, _rankColors[i.clamp(0, _rankColors.length - 1)]),
+                          child: RankRow(
+                            rank: i + 1,
+                            entry: widget.ranking[i],
+                            badgeColor: Palette.rankColors[i.clamp(0, Palette.rankColors.length - 1)],
+                            width: 280,
+                            nameStyle: AppText.baloo(size: 15, weight: FontWeight.w700),
+                            pointsStyle: AppText.baloo(size: 16, weight: FontWeight.w800, color: Palette.green),
+                            decoration: BoxDecoration(
+                              color: Palette.surface,
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [BoxShadow(color: Palette.textPrimary.withValues(alpha: 0.08), blurRadius: 10, offset: const Offset(0, 4))],
+                            ),
+                          ),
                         );
                       }),
                       if (widget.tokenReward != null) ...[
@@ -143,32 +153,6 @@ class _GameOverOverlayState extends State<GameOverOverlay> with SingleTickerProv
           const Icon(Icons.monetization_on_rounded, size: 16, color: Colors.white),
           const SizedBox(width: 6),
           Text('+$amount jeton', style: AppText.baloo(size: 13, weight: FontWeight.w800, color: Colors.white)),
-        ],
-      ),
-    );
-  }
-
-  Widget _rankRow(int rank, String name, int score, Color badgeColor) {
-    return Container(
-      width: 280,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: Palette.surface,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Palette.textPrimary.withValues(alpha: 0.08), blurRadius: 10, offset: const Offset(0, 4))],
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 28,
-            height: 28,
-            decoration: BoxDecoration(color: badgeColor, shape: BoxShape.circle),
-            alignment: Alignment.center,
-            child: Text('$rank', style: AppText.nunito(size: 13, weight: FontWeight.w800, color: Colors.white)),
-          ),
-          const SizedBox(width: 12),
-          Expanded(child: Text(name, style: AppText.baloo(size: 15, weight: FontWeight.w700))),
-          Text('$score', style: AppText.baloo(size: 16, weight: FontWeight.w800, color: Palette.green)),
         ],
       ),
     );

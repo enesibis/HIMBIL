@@ -1,15 +1,27 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
-
 import '../session/player_session.dart';
 import 'bot_ai.dart';
 import 'rules.dart';
 
+enum GamePhase { waiting, swapping, slamWindow, scoring }
+
+/// [GameController.submitHumanSlam] dönüş değeri:
+/// [recorded] - bu pencerenin geliş-sırası puanlamasına dahil edildi
+/// [already] - bu pencerede zaten basmıştın
+/// [tooEarly] - pencere açık ama elinde 4'lü yok ve henüz kimse basmadı;
+///   sadece 4'lü sahibi ya da ondan sonra tepki verenler puan alabilir
+/// [falseStart] - 'swapping' fazında, hiçbir yerde 4'lü yokken basıldı;
+///   cezalandırıldın
+/// [falseStartForgiven] - aynı durum ama maçtaki ilk yanlış basışın —
+///   yeni oyuncular kuralı deneyerek öğrenmesin diye cezasız uyarı
+/// [ignored] - tur zaten bitmiş (puanlama/geçiş anı) — ne ceza ne puan
+enum SlamOutcome { recorded, already, tooEarly, falseStart, falseStartForgiven, ignored }
+
 /// Ağsız oyun döngüsü: deste, takas tick'i, slam penceresi, puanlama.
 /// İleride bu sınıfın state'i Colyseus odasına taşınacak; şu an tamamen
 /// client-local çalışıyor (tek kişilik + bot).
-class GameController extends ChangeNotifier {
+class GameController {
   static const int numPlayers = 4;
   static const double swapTickDuration = 4.0;
   static const double slamWindowDuration = 4.0;
@@ -24,12 +36,12 @@ class GameController extends ChangeNotifier {
   final List<String> playerIds = [humanId, 'bot_east', 'bot_north', 'bot_west'];
   List<List<CardModel>> hands = [];
   Map<String, int> scores = {};
-  String phase = 'waiting';
+  GamePhase phase = GamePhase.waiting;
   final int direction = 1;
 
   int roundNumber = 0;
 
-  void Function(String phase)? onPhaseChanged;
+  void Function(GamePhase phase)? onPhaseChanged;
   void Function(List<List<CardModel>> hands, int changedSlot)? onHandsUpdated;
   void Function(double secondsLeft)? onCountdownTick;
   void Function(String playerId)? onSlamAttemptRecorded;
@@ -37,7 +49,7 @@ class GameController extends ChangeNotifier {
   void Function(int amount)? onMatchTokensAwarded;
 
   /// Tur bittiğinde bir kez çağrılır; devam etmek UI'nin sorumluluğunda —
-  /// bu sınıf artık kendiliğinden bir sonraki tura ge​çmiyor. `winnerId`
+  /// bu sınıf artık kendiliğinden bir sonraki tura geçmiyor. `winnerId`
   /// null değilse maç bitmiştir, UI Maç Sonu'na geçmeli; null ise UI
   /// "Sonraki Tur" onayından sonra [startNewRound] çağırmalı.
   void Function(int roundNumber, List<SlamResult> results, Map<String, int> scores, String? winnerId)? onRoundScored;
@@ -59,7 +71,6 @@ class GameController extends ChangeNotifier {
     for (final pid in playerIds) {
       scores[pid] = 0;
     }
-    _ticker = Timer.periodic(_tickInterval, _onTick);
   }
 
   /// Callback'ler (onHandsUpdated vb.) bağlandıktan SONRA çağrılmalı —
@@ -68,10 +79,8 @@ class GameController extends ChangeNotifier {
     startNewRound();
   }
 
-  @override
   void dispose() {
     _ticker?.cancel();
-    super.dispose();
   }
 
   void startNewRound() {
@@ -87,49 +96,40 @@ class GameController extends ChangeNotifier {
   }
 
   void submitHumanChoice(int cardId) {
-    if (phase != 'swapping') return;
+    if (phase != GamePhase.swapping) return;
     _pendingChoice[0] = cardId;
   }
 
-  /// HIMBIL butonu her zaman basılabilir. Dönen değer:
-  /// "recorded" - bu pencerenin geliş-sırası puanlamasına dahil edildi
-  /// "already" - bu pencerede zaten basmıştın
-  /// "too_early" - pencere açık ama elinde 4'lü yok ve henüz kimse basmadı;
-  ///   sadece 4'lü sahibi ya da ondan sonra tepki verenler puan alabilir
-  /// "false_start" - 'swapping' fazında, hiçbir yerde 4'lü yokken basıldı;
-  ///   cezalandırıldın
-  /// "false_start_forgiven" - aynı durum ama maçtaki ilk yanlış basışın —
-  ///   yeni oyuncular kuralı deneyerek öğrenmesin diye cezasız uyarı
-  /// "ignored" - tur zaten bitmiş (puanlama/geçiş anı) — ne ceza ne puan
-  String submitHumanSlam() {
-    if (phase == 'slamWindow') {
-      if (_recordedPlayers.contains(0)) return 'already';
+  /// HIMBIL butonu her zaman basılabilir.
+  SlamOutcome submitHumanSlam() {
+    if (phase == GamePhase.slamWindow) {
+      if (_recordedPlayers.contains(0)) return SlamOutcome.already;
       final humanHasQuartet = Rules.detectQuartet(hands[0]) != null;
-      if (!humanHasQuartet && _recordedPlayers.isEmpty) return 'too_early';
+      if (!humanHasQuartet && _recordedPlayers.isEmpty) return SlamOutcome.tooEarly;
       _recordSlamAttempt(0);
-      return 'recorded';
+      return SlamOutcome.recorded;
     }
 
-    if (phase == 'swapping') {
+    if (phase == GamePhase.swapping) {
       if (!_falseStartForgiven) {
         _falseStartForgiven = true;
-        return 'false_start_forgiven';
+        return SlamOutcome.falseStartForgiven;
       }
       scores[humanId] = (scores[humanId] ?? 0) + Rules.falseSlamPenalty;
       onFalseSlamPenalty?.call(humanId, scores[humanId]!);
-      return 'false_start';
+      return SlamOutcome.falseStart;
     }
 
-    return 'ignored';
+    return SlamOutcome.ignored;
   }
 
   void _onTick(Timer timer) {
     final dt = _tickInterval.inMilliseconds / 1000.0;
-    if (phase == 'swapping') {
+    if (phase == GamePhase.swapping) {
       _swapTimer -= dt;
       onCountdownTick?.call(_swapTimer < 0 ? 0 : _swapTimer);
       if (_swapTimer <= 0) _resolveSwap();
-    } else if (phase == 'slamWindow') {
+    } else if (phase == GamePhase.slamWindow) {
       _slamTimer -= dt;
       onCountdownTick?.call(_slamTimer < 0 ? 0 : _slamTimer);
       _processBotSlams(dt);
@@ -163,12 +163,12 @@ class GameController extends ChangeNotifier {
       _openSlamWindow();
     } else {
       _swapTimer = swapTickDuration;
-      _setPhase('swapping');
+      _setPhase(GamePhase.swapping);
     }
   }
 
   void _openSlamWindow() {
-    _setPhase('slamWindow');
+    _setPhase(GamePhase.slamWindow);
     _slamTimer = slamWindowDuration;
     _slamAttempts.clear();
     _recordedPlayers.clear();
@@ -222,7 +222,7 @@ class GameController extends ChangeNotifier {
     for (final r in results) {
       scores[r.playerId] = (scores[r.playerId] ?? 0) + r.score;
     }
-    _setPhase('scoring');
+    _setPhase(GamePhase.scoring);
     roundNumber++;
     final winnerId = _findWinner();
     if (winnerId != null) _awardMatchRewards(winnerId);
@@ -235,8 +235,8 @@ class GameController extends ChangeNotifier {
     final ranked = List<String>.from(playerIds)..sort((a, b) => (scores[b] ?? 0).compareTo(scores[a] ?? 0));
     final humanRank = ranked.indexOf(humanId);
     final reward = placementTokenRewards[humanRank.clamp(0, placementTokenRewards.length - 1)];
-    PlayerSession.addTokens(reward, 'match_reward');
-    PlayerSession.recordMatchResult(won: winnerId == humanId);
+    PlayerSession.instance.addTokens(reward, 'match_reward');
+    PlayerSession.instance.recordMatchResult(won: winnerId == humanId);
     onMatchTokensAwarded?.call(reward);
   }
 
@@ -247,10 +247,23 @@ class GameController extends ChangeNotifier {
     return null;
   }
 
-  void _setPhase(String newPhase) {
+  void _setPhase(GamePhase newPhase) {
     phase = newPhase;
+    _syncTicker();
     onPhaseChanged?.call(newPhase);
-    notifyListeners();
+  }
+
+  /// Tur bekleme/puanlama fazlarında (waiting/scoring) tick'lenecek hiçbir
+  /// şey yok; ticker'ı yalnız takas ve slam penceresi sırasında çalıştırıp
+  /// boşa CPU harcamasını önler.
+  void _syncTicker() {
+    final needsTicker = phase == GamePhase.swapping || phase == GamePhase.slamWindow;
+    if (needsTicker) {
+      _ticker ??= Timer.periodic(_tickInterval, _onTick);
+    } else {
+      _ticker?.cancel();
+      _ticker = null;
+    }
   }
 }
 

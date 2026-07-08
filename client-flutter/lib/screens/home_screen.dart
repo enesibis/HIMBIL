@@ -85,10 +85,10 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         UserAvatar(
           size: 40,
-          imagePath: PlayerSession.avatarCharacter.imagePath,
-          initial: PlayerSession.initial,
-          gradient: PlayerSession.avatarColor.gradient,
-          frame: PlayerSession.avatarFrame,
+          imagePath: PlayerSession.instance.avatarCharacter.imagePath,
+          initial: PlayerSession.instance.initial,
+          gradient: PlayerSession.instance.avatarColor.gradient,
+          frame: PlayerSession.instance.avatarFrame,
         ),
       ],
     );
@@ -157,16 +157,26 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   List<_ProfileStat> get _profileStats => [
-        _ProfileStat(value: '${PlayerSession.gamesPlayed}', label: 'Oyun', icon: Icons.style_rounded, badgeGradient: const [Palette.redLight, Palette.red]),
-        _ProfileStat(value: '${PlayerSession.wins}', label: 'Galibiyet', icon: Icons.emoji_events_rounded, badgeGradient: const [Color(0xFF5FB98C), Palette.green]),
         _ProfileStat(
-          value: '%${PlayerSession.winRatePercent}',
+          value: '${PlayerSession.instance.gamesPlayed}',
+          label: 'Oyun',
+          icon: Icons.style_rounded,
+          badgeGradient: const [Palette.redLight, Palette.red],
+        ),
+        _ProfileStat(
+          value: '${PlayerSession.instance.wins}',
+          label: 'Galibiyet',
+          icon: Icons.emoji_events_rounded,
+          badgeGradient: const [Color(0xFF5FB98C), Palette.green],
+        ),
+        _ProfileStat(
+          value: '%${PlayerSession.instance.winRatePercent}',
           label: 'Kazanma Oranı',
           icon: Icons.bar_chart_rounded,
           badgeGradient: const [Palette.mustardLight, Palette.mustard],
         ),
         _ProfileStat(
-          value: '${PlayerSession.bestStreak}',
+          value: '${PlayerSession.instance.bestStreak}',
           label: 'En İyi Seri',
           icon: Icons.local_fire_department_rounded,
           badgeGradient: const [Color(0xFF5B8FC7), Palette.blue],
