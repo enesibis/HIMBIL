@@ -73,7 +73,7 @@ Fiziksel oyundaki "herkes aynı anda sürekli kart fırlatıyor" hali netcode'a 
 - Tick çözülünce **herkes aynı anda** komşusuna verir, diğer komşudan alır → yine 4 kart.
 - **Tick ilerlemesi:** ya herkes kartını kilitleyince, ya da timeout'ta (örn. 3 sn) seçmeyenler için sunucu rastgele atar. Bu, oyunu akışta tutar ve "hızlı karar verme" gerilimini yaratır.
 - **Avantaj:** "Hımbıl'dan önce kart vermek zorundasın" kuralı bu modelde **otomatik** sağlanır — takas zaten bir kart vermeyi içeriyor. (İlk-oyuncu istisnası fiziksel oyun artığı, dijitalde gerek yok.)
-- **Geçersiz intent sözleşmesi (Aşama 3 için):** `resolveSwapTick` ([server/game/swap.ts](../server/game/swap.ts)) elde olmayan bir `cardId` gelirse `throw` eder — saf kural fonksiyonu için bu doğru davranış, motoru değiştirmeye gerek yok. Room katmanı bunu **yakalamalı** ve o oyuncuyu timeout'ta seçmeyen oyuncuyla aynı şekilde ele almalı (rastgele kart ata) + olayı loglamalı. Yani geçersiz intent, tick'i çökertmek yerine sessizce timeout'a düşer. Bu sözleşim henüz kodlanmadı çünkü `server/rooms/` boş (bkz. §7 Aşama 3); Room yazılırken burası referans alınmalı.
+- **Geçersiz intent sözleşmesi (Aşama 3 için):** `resolveSwapTick` ([server/game/swap.ts](../server/game/swap.ts)) elde olmayan bir `cardId` gelirse `throw` eder — saf kural fonksiyonu için bu doğru davranış, motoru değiştirmeye gerek yok. Room katmanı bunu **yakalamalı** ve o oyuncuyu timeout'ta seçmeyen oyuncuyla aynı şekilde ele almalı (rastgele kart ata) + olayı loglamalı. Yani geçersiz intent, tick'i çökertmek yerine sessizce timeout'a düşer. Bu sözleşme `server/rooms/HimbilRoom.ts`'te bu şekilde kodlandı: geçersiz `cardId` try/catch ile yakalanıp timeout kuralına (rastgele kart) düşürülür ve loglanır.
 
 ### Model B — Serbest Akış (async)
 Herkes istediği an kart fırlatır. Kaosa daha sadık ama akış kontrolü (kuyruk birikmesi, el boyutu dalgalanması) ciddi karmaşıklık ekler. **Önerilmiyor.**
@@ -119,11 +119,11 @@ Sunucuda tutulacak temel yapılar:
 2. ✅ **Tek kişilik + bot.** Kural motorunu basit AI'la sarıp tüm UI/UX'i buna karşı kur. Netcode yok, oynanabilir oyun hızlıca elde edilir. *(`client-flutter/lib/game/` — kendi rule engine + bot AI portu; UI Sıcak Karnaval tasarım referansına göre kuruldu: ana menü (Oyna/Profil sekmeleri, liderlik tablosu), oda kur/kodla katıl, lobi, oyun ekranı, slam kutlaması, tur sonucu, maç sonu.)*
    - *İlk açılış onboarding'i eklendi (tasarım referansında yoktu, sonradan tasarlandı):* `client-flutter/lib/screens/onboarding/` — Hoş Geldin → İsim → Yaş → Avatar Oluştur (`design/avatars/`'daki 15 karakter illüstrasyonundan biri + renk + çerçeve stili seçimi) → Tamamlandı, parallax geçiş + staggered animasyonlarla. Profil `client-flutter/lib/session/player_session.dart` üzerinden `shared_preferences` ile cihazda kalıcı tutuluyor (`hasOnboarded` bayrağı sayesinde sadece ilk açılışta gösteriliyor); gerçek hesap sistemi hâlâ Aşama 7'de.
    - *Uygulama markalaması:* `design/logo-export/` altındaki resmî logo hem Android/iOS launcher icon'u (`flutter_launcher_icons` ile üretildi) hem uygulama içi logo rozetleri (Ana Menü başlığı, onboarding Hoş Geldin ekranı) olarak entegre edildi.
-3. ⏳ **Otoriter sunucu + 1 gerçek client.** Kural motorunu sunucuya taşı; client intent yollar, sunucu state push eder. İki instance lokal test. *(Henüz başlamadı — `server/rooms/` ve `server/schema/` boş, Colyseus henüz bağımlılık olarak eklenmedi. Client şu an tamamen yerel/sahte state ile çalışıyor.)*
-4. ⏳ **Odalar + matchmaking (oda kodu).** Çok oyuncu, kodla katılma. *(Client'ta UI akışı var — Lobi/Kod ile Katıl ekranları — ama gerçek ağ bağlantısı yok, botlarla simüle ediliyor.)*
-5. ⏳ **Gerçek zamanlı takas loop'u + slam yarışı.** Tick, eşzamanlı takas, slam çözümü, yanlış-slam cezası. Tick zamanlamasını/hissini ayarla. *(Client-lokal olarak çalışıyor; sunucu otoritesi eklenince bu mantık `server/game/`'e taşınacak.)*
-6. ⏳ **Dayanıklılık.** Yeniden bağlanma, kopma yönetimi (bot devralma ya da grace timer), gecikme toleransı.
-7. ⏳ **Kalıcılık & meta.** Hesap, istatistik, leaderboard, kozmetikler. *(Profil sekmesindeki istatistik/liderlik tablosu şimdilik sahte veri.)*
+3. 🔶 **Otoriter sunucu + 1 gerçek client.** Kural motorunu sunucuya taşı; client intent yollar, sunucu state push eder. İki instance lokal test. *(Sunucu yarısı tamamlandı: Colyseus bağımlılık olarak eklendi; `server/rooms/HimbilRoom.ts` + `gameSession.ts` otoriter döngüyü çalıştırıyor, `server/schema/messages.ts` mesajları tanımlıyor, `npm run dev` ile lokal ayağa kalkıyor. Client yarısı kısmen: `lib/net/` WebSocket katmanı (Colyseus wire-protokol alt kümesi) yazıldı ve test edildi ama ekranlar hâlâ yerel `GameController` ile oynatıyor — kalan iş ekran bağlama, bkz. §10.)*
+4. 🔶 **Odalar + matchmaking (oda kodu).** Çok oyuncu, kodla katılma. *(Sunucu tarafı hazır: 6 haneli, karışabilir karakter içermeyen oda kodları + katılım rate limit'i (`server/rooms/roomCode.ts`), `filterBy(["roomCode"])` ile kodla eşleşme. Client'ta UI akışı var — Lobi/Kod ile Katıl ekranları — ama hâlâ botlarla simüle ediliyor.)*
+5. 🔶 **Gerçek zamanlı takas loop'u + slam yarışı.** Tick, eşzamanlı takas, slam çözümü, yanlış-slam cezası. Tick zamanlamasını/hissini ayarla. *(Sunucu tarafında `server/rooms/gameSession.ts` içinde mevcut: 4 sn takas tick'i, 4 sn slam penceresi, yanlış-slam cezası. Client hâlâ kendi yerel kopyasını oynatıyor; his/zamanlama ayarı gerçek uçtan uca bağlantıdan sonra yapılacak.)*
+6. 🔶 **Dayanıklılık.** Yeniden bağlanma, kopma yönetimi (bot devralma ya da grace timer), gecikme toleransı. *(Altyapı iki tarafta da hazır: sunucuda 30 sn reconnect grace penceresi, client'ta reconnection token + otomatik yeniden bağlanma (`lib/net/himbil_net_client.dart`) ve hazır bekleyen `ConnectionStatusBanner` widget'ı; ekran entegrasyonuyla devreye girecek.)*
+7. 🔶 **Kalıcılık & meta.** Hesap, istatistik, leaderboard, kozmetikler. *(Kısmen: profil istatistikleri artık gerçek ve cihaz-yerel (`PlayerSession`), sunucuda SQLite misafir-hesap + jeton defteri (`server/persistence/`) hazır. Liderlik tablosu hâlâ placeholder; gerçek hesap bağlama ve envanterin sunucuya taşınması bekliyor.)*
 8. ⏳ **Ölçekleme.** Redis pub/sub, çok-node, yük testi.
 
 ---
@@ -144,30 +144,33 @@ Sunucuda tutulacak temel yapılar:
 
 ```
 himbil/
-├── client-flutter/        # Flutter projesi (UI, animasyon; WebSocket bağlantısı henüz yok)
+├── client-flutter/        # Flutter projesi (UI, animasyon; WebSocket katmanı hazır, ekranlara bağlı değil)
 │   ├── assets/
 │   │   ├── icon/          # Launcher icon kaynağı (flutter_launcher_icons)
 │   │   └── images/        # Uygulama içi logo vb. görseller
 │   └── lib/
 │       ├── game/          # Rule engine + bot AI'ın client-tarafı portu (Aşama 2)
+│       ├── net/           # Colyseus istemci katmanı: wire protokol, reconnect, deep link (ekranlara henüz bağlı değil)
 │       ├── screens/       # Ana Menü, Kod ile Katıl, Lobi, Oyun, Slam, Tur Sonucu
 │       │   └── onboarding/  # İlk açılış: Hoş Geldin, İsim, Yaş, Avatar Oluştur, Tamamlandı
 │       ├── session/       # PlayerSession — isim/yaş/avatar, shared_preferences ile kalıcı
 │       ├── widgets/       # Paylaşılan bileşenler (kart, buton, alt nav, UserAvatar, vb.)
 │       └── theme/         # Sıcak Karnaval tasarım token'ları (palet, tipografi, avatar seçenekleri)
-├── server/                # Colyseus sunucusu (TypeScript)
-│   ├── rooms/             # Oyun odası mantığı (Aşama 3 — henüz boş)
+├── server/                # Colyseus sunucusu (TypeScript) — index.ts ile çalışır (npm run dev)
+│   ├── rooms/             # Oyun odası + otoriter oturum döngüsü + oda kodu/rate limit (Aşama 3 — tamamlandı)
 │   ├── game/              # Ağdan bağımsız kural motoru (Aşama 1 — tamamlandı)
 │   │   └── __tests__/     # Kural motoru birim testleri
-│   └── schema/            # Senkronize state şemaları (Aşama 3 — henüz boş)
+│   ├── schema/            # İstemci-sunucu mesaj tanımları (Aşama 3 — tamamlandı)
+│   ├── persistence/       # SQLite misafir hesap + jeton defteri (Aşama 7 öncüsü)
+│   └── routes/            # Misafir hesap + (token korumalı) monitor HTTP uçları
 ├── design/                # Tasarım handoff paketi (Sıcak Karnaval referansı) + logo-export/ (resmî logo kaynakları)
 └── docs/                  # Bu kılavuz ve tasarım notları
 ```
 
-**Not:** Kural motoru sunucuda (`server/game/`) ağdan tamamen bağımsız yazıldı ve test edildi (Aşama 1 tamam). Client tarafında da (`client-flutter/lib/game/`) aynı mantığın bağımsız bir portu var — bu, Aşama 2'nin (tek kişilik + bot) sunucu olmadan oynanabilir olmasını sağladı. Aşama 3'e geçildiğinde client'taki bu yerel mantık kaldırılıp sunucudan gelen state'e bağlanmalı; iki kopyanın kalıcı olarak birbirinden ayrı yaşaması hedeflenmiyor.
+**Not:** Kural motoru sunucuda (`server/game/`) ağdan tamamen bağımsız yazıldı ve test edildi (Aşama 1 tamam). Client tarafında da (`client-flutter/lib/game/`) aynı mantığın bağımsız bir portu var — bu, Aşama 2'nin (tek kişilik + bot) sunucu olmadan oynanabilir olmasını sağladı; iki kopya `client-flutter/test/rules_test.dart` parity testleriyle senkron tutuluyor. Ekranlar sunucudan gelen state'e bağlandığında (Aşama 3'ün kalan yarısı) client'taki yerel mantık varsayılan olmaktan çıkıp offline/bot moduna daralmalı; iki kopyanın kalıcı olarak eşit statüde yaşaması hedeflenmiyor.
 
 ---
 
 ## 10. Sıradaki Somut Adım
 
-Aşama 1 ve 2 tamamlandı: kural motoru sunucuda test edilmiş durumda, client'ta da tek-kişilik + bot ile oynanabilir bir prototip var (Sıcak Karnaval tasarımına göre kurulu UI dahil, artık ilk-açılış onboarding'i ve resmî uygulama logosu da entegre). Bunlar client-lokal UX/marka cilası — Aşama 3'ü bloklamıyor. **Sıradaki adım Aşama 3: otoriter sunucu + 1 gerçek client.** `server/`'a Colyseus'u bağımlılık olarak ekle, `server/game/`'deki kural motorunu bir Colyseus `Room`'a sar (`server/rooms/`), `server/schema/`'da senkronize state şemasını tanımla; sonra `client-flutter` tarafında bir WebSocket katmanı ekleyip `game_controller.dart`'ın yerel/sahte state üretimini sunucudan gelen state'i dinlemekle değiştir.
+Aşama 1 ve 2 tamamlandı; Aşama 3'ün sunucu yarısı da bitti: Colyseus bağımlılık olarak eklendi, kural motoru `server/rooms/HimbilRoom.ts` + `gameSession.ts` ile odaya sarıldı, mesajlar `server/schema/messages.ts`'te tanımlı ve sunucu `npm run dev` ile lokal çalışıyor. Client tarafında WebSocket katmanı (`client-flutter/lib/net/`) yazılıp birim testleriyle doğrulandı ama henüz hiçbir ekran onu kullanmıyor. **Sıradaki somut adım: ekran bağlama.** Lobi/Kod ile Katıl ekranlarını gerçek matchmaking'e bağla (`HimbilNetClient.quickPlay` / `joinByCode` / `createRoom`), `GameScreen`'i `game_controller.dart`'ın yerel state üretimi yerine `HimbilNetClient.stateUpdates`'i dinler hale getir (yerel mod offline/bot modu olarak kalsın), `ConnectionStatusBanner`'ı oyun ekranına yerleştir ve iki client instance'ı + lokal sunucuyla uçtan uca test et.

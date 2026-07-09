@@ -6,10 +6,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Hımbıl is a real-time multiplayer mobile card game (Turkish traditional game, aka "Bom"). Full technical roadmap, architecture rationale, and stage-by-stage progress live in `docs/himbil-proje-kilavuzu.md` (Turkish) — read it before making architectural decisions; it's the source of truth for *why*, this file is the source of truth for *how to work in the repo*.
 
-The repo is a monorepo with two independent codebases that don't talk to each other yet:
+The repo is a monorepo with two independent codebases that don't talk to each other *at runtime* yet:
 
-- `server/` — Node/TypeScript, will become the authoritative Colyseus game server (Stage 3+, not started: `server/rooms/` and `server/schema/` are empty).
-- `client-flutter/` — the Flutter mobile client (Stage 1-2, in progress). Currently fully self-contained: it runs the game rules locally against bot opponents, with no networking.
+- `server/` — Node/TypeScript authoritative Colyseus game server. The Stage 3 server side is implemented and runnable (`npm run dev`, port 2567): `server/rooms/HimbilRoom.ts` (Colyseus room, `filterBy(["roomCode"])` matchmaking) wraps the authoritative loop in `server/rooms/gameSession.ts`; `server/schema/messages.ts` defines the wire messages; `server/persistence/` holds the SQLite guest-account/token store; `server/routes/` has guest + (token-gated) monitor endpoints.
+- `client-flutter/` — the Flutter mobile client (Stage 1-2 complete). The game screens still run fully self-contained: local rules against bot opponents. A tested networking layer exists in `lib/net/` (hand-rolled subset of the Colyseus wire protocol + msgpack, reconnect-token support, deep links) but **no screen consumes it yet** — wiring the UI to server state is the remaining half of Stage 3.
 
 ## Commands
 
@@ -20,6 +20,8 @@ npm run test:watch
 npx vitest run server/game/__tests__/swap.test.ts   # single file
 npx vitest run -t "test name substring"             # single test by name
 npm run build     # tsc
+npm run dev       # run the Colyseus server locally (tsx watch, ws://localhost:2567)
+npm run lint      # eslint
 ```
 
 ### Client (`client-flutter/`)
@@ -35,12 +37,12 @@ Widget tests must set a realistic portrait phone surface size before pumping any
 ## Architecture
 
 ### The rule engine is ported twice, independently
-The core game logic (deck/deal/swap/quartet-detection/scoring) exists in **two parallel implementations** with no shared code: `server/game/*.ts` (network-independent, unit-tested, meant to eventually run inside a Colyseus room) and `client-flutter/lib/game/{rules,game_controller,bot_ai}.dart` (a from-scratch Dart port used to drive the current bot-only client). They must be reasoned about independently — a rule change on one side does not propagate to the other. When Stage 3 (Colyseus integration) lands, the client's local copy is meant to be deleted and replaced with real server state, not kept in permanent parallel.
+The core game logic (deck/deal/swap/quartet-detection/scoring) exists in **two parallel implementations** with no shared code: `server/game/*.ts` (network-independent, unit-tested, now also wrapped by the Colyseus room via `server/rooms/gameSession.ts`) and `client-flutter/lib/game/{rules,game_controller,bot_ai}.dart` (a from-scratch Dart port used to drive the current bot-only client). They must be reasoned about independently — a rule change on one side does not propagate to the other, but `client-flutter/test/rules_test.dart` mirrors the server's rule-engine test suite as parity tests, so a divergence should fail there first. Once the screens are wired to server state (the remaining half of Stage 3), the client's local copy is meant to shrink to an offline/bot mode, not kept in permanent parallel as the default.
 
 Known divergence between the two ports: the server's object pool (`server/game/deck.ts`) supports up to 12 object types for variable player counts; the Dart port (`Rules.objectPool` in `rules.dart`) hardcodes the 4 needed for `GameController.numPlayers = 4` (the only player count the client currently supports).
 
-### Server-authoritative design (target, not yet wired up)
-The intended end-state architecture (see kılavuz §3) is strict server authority: clients send intent only, never compute results, and never see other players' hands. The *current* client violates this by necessity — it has no server to defer to, so `GameController` (Dart) computes everything locally, including bot decisions (`bot_ai.dart`). Don't take the current client's local computation as the target architecture; it's a stand-in for Stage 2.
+### Server-authoritative design (server side built, client not yet wired)
+The intended end-state architecture (see kılavuz §3) is strict server authority: clients send intent only, never compute results, and never see other players' hands. The server side of this now exists (`server/rooms/gameSession.ts` runs the authoritative loop; `HimbilRoom` pushes each player a filtered view), and `lib/net/himbil_net_client.dart` can talk to it — but the *screens* still run on `GameController` (Dart), which computes everything locally including bot decisions (`bot_ai.dart`). Don't take the client's local computation as the target architecture; it's the Stage 2 stand-in that becomes the offline/bot mode once screens consume `HimbilNetClient.stateUpdates`.
 
 ### Card pass model: synchronized swap tick
 The game uses "Model A" from the kılavuz: hand size is always fixed at 4, and every player's chosen (or timed-out/random) card is exchanged **simultaneously** on a fixed-cadence tick (`GameController.swapTickDuration`, `server/game/swap.ts`'s `resolveSwapTick`), not on-demand per player action. This is deliberate — it's what makes "you must pass before you can slam" hold without special-casing it, and it's why the client's pass-relay flight animation (`FlyingCard`/`CardFanPulse` in `game_screen.dart`) is a *presentation-only* sequential animation layered on top of a data update that actually happens all at once; it does not change tick timing.

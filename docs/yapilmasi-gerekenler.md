@@ -156,6 +156,11 @@
 - [x] **46. [pubspec.yaml](../client-flutter/pubspec.yaml) ve [analysis_options.yaml](../client-flutter/analysis_options.yaml) şablon yorumlarını sil** (~60 satır gürültü).
 - [x] **47. Sürümü dürüstleştir** — `1.0.0+1` → `0.2.0+1` (pre-release olduğu belli olsun).
 
+- [x] **62. Dokümanları Aşama 3 sonrası gerçekliğe güncelle** *(8 Temmuz kontrolünde eklendi, aynı gün yapıldı)* — üç dosya kodun gerisinde kalmıştı:
+  - [CLAUDE.md](../CLAUDE.md) satır 11: "Stage 3+, not started: `server/rooms/` and `server/schema/` are empty" diyor — artık `HimbilRoom.ts`, `gameSession.ts`, `schema/messages.ts`, `index.ts` ve `persistence/` dolu. "Rule engine iki kez port edildi / client kopyası silinecek" bölümü de ağ katmanı (`lib/net/`) eklendiği için gözden geçirilmeli.
+  - [README.md](../README.md): "`server/rooms/` ve `server/schema/` henüz boş (Aşama 3 başlamadı)" ifadesi güncellenmeli.
+  - [docs/himbil-proje-kilavuzu.md](himbil-proje-kilavuzu.md) §7: 3. aşama "Henüz başlamadı — Colyseus henüz bağımlılık olarak eklenmedi" diyor; Colyseus artık dependency ve oda/oturum/reconnect/misafir-hesap katmanları mevcut. Aşama 3-4-6-7 durum işaretleri (⏳/✅) fiilî ilerlemeye göre düzeltilmeli, §10 "sıradaki adım" bölümü yenilenmeli.
+
 ---
 
 ## 🚀 7. Eklenmesi gerekenler (altyapı ve ürün — öncelik sırasıyla)

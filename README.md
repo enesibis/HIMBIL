@@ -2,10 +2,10 @@
 
 Hımbıl ("Bom" olarak da bilinir), gerçek zamanlı çok oyunculu bir mobil kart oyunu. Proje şu an iki bağımsız codebase içeren bir monorepo:
 
-- **`client-flutter/`** — Flutter mobil istemci. Şu an tamamen kendi başına çalışıyor: oyun kurallarını yerelde çalıştırıp bot rakiplere karşı oynatıyor, ağ bağlantısı yok.
-- **`server/`** — Node/TypeScript ile yazılan, ileride yetkili Colyseus oyun sunucusu olacak katman. Kural motoru (`server/game/`) test edilmiş durumda; `server/rooms/` ve `server/schema/` henüz boş (Aşama 3 başlamadı).
+- **`client-flutter/`** — Flutter mobil istemci. Oyun ekranları şu an yerel kural motoruyla bot rakiplere karşı çalışıyor (tam offline oynanabilir). Sunucuya bağlanacak ağ katmanı (`lib/net/` — Colyseus wire protokolü, reconnect, deep link) yazıldı ve test edildi, ancak ekranlara henüz bağlanmadı.
+- **`server/`** — Node/TypeScript yetkili Colyseus oyun sunucusu. Kural motoru (`server/game/`), oyun odası (`server/rooms/HimbilRoom.ts` + `gameSession.ts`), mesaj şeması (`server/schema/`), misafir hesap/jeton deposu (`server/persistence/`, SQLite) ve çalıştırılabilir giriş noktası (`index.ts`) hazır; `npm run dev` ile ayağa kalkar (varsayılan `ws://localhost:2567`).
 
-İki codebase şu an birbiriyle konuşmuyor; oyun kuralları her iki tarafta da ayrı ayrı (Dart ve TypeScript) implemente edilmiş durumda.
+İki codebase çalışma zamanında henüz birbiriyle konuşmuyor (ekran–sunucu bağlama işi Aşama 3'ün kalan yarısı); oyun kuralları her iki tarafta da ayrı ayrı (Dart ve TypeScript) implemente edilmiş durumda ve `client-flutter/test/rules_test.dart` parity testleriyle senkron tutuluyor.
 
 Mimari kararların gerekçesi ve aşama aşama yol haritası için bkz. [docs/himbil-proje-kilavuzu.md](docs/himbil-proje-kilavuzu.md) (Türkçe, kapsamlı). Yapılacaklar listesi için bkz. [docs/yapilmasi-gerekenler.md](docs/yapilmasi-gerekenler.md).
 
@@ -23,6 +23,8 @@ npm run test:watch
 npm run lint       # eslint
 npm run format     # prettier
 npm run build      # tsc
+npm run dev        # sunucuyu lokal çalıştır (tsx watch, ws://localhost:2567)
+npm start          # derlenmiş sunucuyu çalıştır (önce npm run build)
 ```
 
 Tek bir test dosyası veya isme göre test çalıştırmak için:
@@ -52,8 +54,8 @@ Release imzası için `client-flutter/android/key.properties.example` şablonuna
 ## Repo yapısı
 
 ```
-client-flutter/   Flutter mobil istemci (Aşama 1-2, sürüyor)
-server/           Node/TypeScript oyun sunucusu (Aşama 3+, kural motoru hazır)
+client-flutter/   Flutter mobil istemci (Aşama 1-2 tamam; ağ katmanı hazır, ekran bağlama bekliyor)
+server/           Node/TypeScript Colyseus sunucusu (Aşama 3 sunucu tarafı hazır)
 design/           Hifi HTML/JS tasarım referansları (design/design_handoff_*)
 docs/             Proje kılavuzu ve yapılacaklar listesi
 ```
