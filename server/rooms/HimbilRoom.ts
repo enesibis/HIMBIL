@@ -1,7 +1,8 @@
 import { Room, type Client } from "colyseus";
 import type { Delayed } from "@colyseus/timer";
 
-import { HimbilGameSession, SWAP_TICK_MS, SLAM_WINDOW_MS } from "./gameSession.js";
+import { HimbilGameSession, SWAP_TICK_MS, SLAM_WINDOW_MS, SCORING_PAUSE_MS } from "./gameSession.js";
+import type { RoundScoredMessage } from "../schema/messages.js";
 import { generateRoomCode, JoinRateLimiter } from "./roomCode.js";
 
 const RECONNECT_GRACE_SECONDS = 30;
@@ -67,7 +68,7 @@ export class HimbilRoom extends Room {
     this.session.addPlayer(client.sessionId, name);
 
     if (this.session.readyToStart()) {
-      this.session.start();
+      this.session.start(Date.now());
       this.scheduleNextSwapTick();
     }
 
@@ -116,11 +117,23 @@ export class HimbilRoom extends Room {
   }
 
   private finishSlamWindowAndContinue() {
-    this.session.finishSlamWindow();
+    const results = this.session.finishSlamWindow();
+    const roundScored: RoundScoredMessage = {
+      roundNumber: this.session.currentRoundNumber,
+      results,
+      totals: this.session.scoresSnapshot(),
+      winnerId: this.session.matchWinnerId,
+    };
+    this.broadcast("roundScored", roundScored);
     this.broadcastState();
 
-    if (this.session.currentPhase === "swapping") {
-      this.scheduleNextSwapTick();
+    if (this.session.currentPhase === "scoring") {
+      // Scoring pause: let clients play the slam celebration, then deal.
+      this.pendingTimer = this.clock.setTimeout(() => {
+        this.session.startNextRound(Date.now());
+        this.broadcastState();
+        this.scheduleNextSwapTick();
+      }, SCORING_PAUSE_MS);
     }
     // phase === "finished": nothing more to schedule; room auto-disposes
     // once clients leave (Room's default autoDispose behavior).

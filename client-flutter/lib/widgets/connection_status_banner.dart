@@ -6,10 +6,10 @@ import '../theme/text_styles.dart';
 
 /// "Bağlantı koptu" göstergesi (madde #59) — [HimbilNetClient.connectionState]'i
 /// dinleyip yeniden bağlanma denemesi sürerken ekranın üstünde küçük bir şerit
-/// gösterir; `connected` durumunda hiçbir şey render etmez. Not yet wired
-/// into a screen — `GameController`'ın yerel/bot-driven varsayılan modu
-/// [HimbilNetClient] kullanmıyor (bkz. `himbil_net_client.dart`'ın doc
-/// yorumu); bu widget, o entegrasyon yapıldığında kullanılacak hazır parça.
+/// gösterir; `connected` durumunda hiçbir şey render etmez. Oyun ekranı,
+/// online sürücüyle oynarken bunu `GameDriver.connectionStateStream`
+/// üzerinden gösterir; yerel/bot modunda stream null olduğu için hiç
+/// render edilmez.
 class ConnectionStatusBanner extends StatelessWidget {
   final Stream<NetConnectionState> connectionState;
 

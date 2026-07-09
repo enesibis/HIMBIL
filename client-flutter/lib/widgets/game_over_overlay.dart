@@ -14,7 +14,10 @@ class GameOverOverlay extends StatefulWidget {
   final bool isHumanWinner;
   final List<RankEntry> ranking; // sıralı, final puan
   final int? tokenReward;
-  final VoidCallback onPlayAgain;
+
+  /// null ise "TEKRAR OYNA" gizlenir — online maçlarda oda maç sonunda
+  /// dağıldığı için aynı odada tekrar oynamak mümkün değil.
+  final VoidCallback? onPlayAgain;
   final VoidCallback onBackToMenu;
 
   const GameOverOverlay({
@@ -24,7 +27,7 @@ class GameOverOverlay extends StatefulWidget {
     required this.isHumanWinner,
     required this.ranking,
     this.tokenReward,
-    required this.onPlayAgain,
+    this.onPlayAgain,
     required this.onBackToMenu,
   });
 
@@ -109,17 +112,19 @@ class _GameOverOverlayState extends State<GameOverOverlay> with SingleTickerProv
                         _tokenRewardChip(widget.tokenReward!),
                       ],
                       const SizedBox(height: 12),
-                      GradientCta(
-                        title: 'TEKRAR OYNA',
-                        width: 260,
-                        height: 62,
-                        color: Palette.redLight,
-                        shadowBarColor: Palette.redShadow,
-                        borderRadius: 22,
-                        titleSize: 16,
-                        onTap: widget.onPlayAgain,
-                      ),
-                      const SizedBox(height: 18),
+                      if (widget.onPlayAgain != null) ...[
+                        GradientCta(
+                          title: 'TEKRAR OYNA',
+                          width: 260,
+                          height: 62,
+                          color: Palette.redLight,
+                          shadowBarColor: Palette.redShadow,
+                          borderRadius: 22,
+                          titleSize: 16,
+                          onTap: widget.onPlayAgain!,
+                        ),
+                        const SizedBox(height: 18),
+                      ],
                       SoftButton(
                         label: 'Ana Menü',
                         width: 260,

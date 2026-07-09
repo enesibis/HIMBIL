@@ -3,13 +3,22 @@ import { dealHands } from "../game/deal.js";
 import { resolveSwapTick, type SwapChoice } from "../game/swap.js";
 import { detectQuartet } from "../game/quartet.js";
 import { scoreSlamOrder, submitSlamPress, type SlamPressOutcome } from "../game/scoring.js";
-import type { Direction, GamePhase, Hand } from "../game/types.js";
+import type { Direction, GamePhase, Hand, SlamResult } from "../game/types.js";
 import type { PlayerView, RoomStateView } from "../schema/messages.js";
 
 export const NUM_PLAYERS = 4;
 export const TARGET_SCORE = 300;
 export const SWAP_TICK_MS = 4000;
 export const SLAM_WINDOW_MS = 4000;
+/**
+ * Pause between a slam window closing and the next round's first swap tick.
+ * Gives every client time to play the ~1.9s slam celebration before new
+ * cards start moving — without it the next round's tick would eat into the
+ * celebration and players would lose choice time (the client-local mode
+ * instead waits for an explicit "Sonraki Tur" tap, which a shared room
+ * can't do: one absent player would stall the other three forever).
+ */
+export const SCORING_PAUSE_MS = 4000;
 
 interface PlayerSlot {
   id: string;
@@ -37,8 +46,10 @@ export class HimbilGameSession {
   private direction: Direction = 1;
   private phase: GamePhase = "waiting";
   private tickNumber = 0;
+  private roundNumber = 0;
   private slamOrder: string[] = [];
   private slamWindowDeadline: number | null = null;
+  private swapTickDeadline: number | null = null;
   private winnerId: string | null = null;
 
   constructor(roomCode: string, rng: () => number = Math.random) {
@@ -78,9 +89,10 @@ export class HimbilGameSession {
   }
 
   /** Deals a fresh deck to all seated players and opens the first swap tick. */
-  start(): void {
+  start(now: number = Date.now()): void {
     this.dealNewRound();
     this.phase = "swapping";
+    this.swapTickDeadline = now + SWAP_TICK_MS;
   }
 
   private dealNewRound(): void {
@@ -127,6 +139,8 @@ export class HimbilGameSession {
 
     if (this.hands.some((hand) => detectQuartet(hand) !== null)) {
       this.openSlamWindow(now);
+    } else {
+      this.swapTickDeadline = now + SWAP_TICK_MS;
     }
   }
 
@@ -134,6 +148,7 @@ export class HimbilGameSession {
     this.phase = "slamWindow";
     this.slamOrder = [];
     this.slamWindowDeadline = now + SLAM_WINDOW_MS;
+    this.swapTickDeadline = null;
   }
 
   pressSlam(playerId: string, now: number): SlamPressOutcome {
@@ -163,25 +178,53 @@ export class HimbilGameSession {
     );
   }
 
-  /** Scores the window's presses, then either ends the match or deals the next round. */
-  finishSlamWindow(): void {
-    if (this.phase !== "slamWindow") return;
+  /**
+   * Scores the window's presses in arrival order and returns them. Ends the
+   * match (phase "finished") if someone reached the target score; otherwise
+   * enters a "scoring" pause — the room is expected to call
+   * [startNextRound] after SCORING_PAUSE_MS so clients can play the slam
+   * celebration before new cards start moving.
+   */
+  finishSlamWindow(): SlamResult[] {
+    if (this.phase !== "slamWindow") return [];
 
-    for (const { playerId, score } of scoreSlamOrder(this.slamOrder)) {
+    const results = scoreSlamOrder(this.slamOrder);
+    for (const { playerId, score } of results) {
       this.addScore(playerId, score);
     }
     this.slamOrder = [];
     this.slamWindowDeadline = null;
+    this.roundNumber++;
 
     const leader = this.players.reduce((a, b) => (b.score > a.score ? b : a));
     if (leader.score >= TARGET_SCORE) {
       this.winnerId = leader.id;
       this.phase = "finished";
-      return;
+    } else {
+      this.phase = "scoring";
     }
+    return results;
+  }
 
+  /** Deals the next round after the scoring pause. No-op outside "scoring". */
+  startNextRound(now: number = Date.now()): void {
+    if (this.phase !== "scoring") return;
     this.dealNewRound();
     this.phase = "swapping";
+    this.swapTickDeadline = now + SWAP_TICK_MS;
+  }
+
+  /** Every player's running total — feeds the `roundScored` broadcast. */
+  scoresSnapshot(): { playerId: string; score: number }[] {
+    return this.players.map((p) => ({ playerId: p.id, score: p.score }));
+  }
+
+  get currentRoundNumber(): number {
+    return this.roundNumber;
+  }
+
+  get matchWinnerId(): string | null {
+    return this.winnerId;
   }
 
   private addScore(playerId: string, delta: number): void {
@@ -210,11 +253,13 @@ export class HimbilGameSession {
       roomCode: this.roomCode,
       phase: this.phase,
       tickNumber: this.tickNumber,
+      roundNumber: this.roundNumber,
       direction: this.direction,
       players,
       you: { id: forPlayerId, hand: this.handOf(forPlayerId) ?? [] },
       slamOrder: this.slamOrder,
       slamWindowDeadline: this.slamWindowDeadline,
+      swapTickDeadline: this.swapTickDeadline,
       targetScore: TARGET_SCORE,
       winnerId: this.winnerId,
     };

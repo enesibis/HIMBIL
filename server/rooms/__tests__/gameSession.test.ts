@@ -188,18 +188,36 @@ describe("HimbilGameSession slam presses", () => {
     expect(session.isSlamWindowDue(3_000 + 4_000)).toBe(true);
   });
 
-  it("scores presses in arrival order and deals a new round when nobody has won yet", () => {
+  it("scores presses in arrival order, pauses in scoring, then deals the next round", () => {
     const session = sessionWithQuartetOnP0();
     session.pressSlam("p0", 3_100);
     session.pressSlam("p1", 3_150);
-    session.finishSlamWindow();
+    const results = session.finishSlamWindow();
 
-    const view = session.view("p0");
+    // The press order is returned (it powers the roundScored broadcast —
+    // the room state clears slamOrder at this point).
+    expect(results).toEqual([
+      { playerId: "p0", score: 100 },
+      { playerId: "p1", score: 75 },
+    ]);
+
+    let view = session.view("p0");
     expect(view.players.find((p) => p.id === "p0")?.score).toBe(100);
     expect(view.players.find((p) => p.id === "p1")?.score).toBe(75);
+    expect(view.phase).toBe("scoring");
+    expect(view.roundNumber).toBe(1);
+    expect(view.winnerId).toBeNull();
+
+    // choices are ignored during the scoring pause
+    session.chooseCard("p0", 0);
+    session.resolveTick(7_500);
+    expect(session.view("p0").phase).toBe("scoring");
+
+    session.startNextRound(8_000);
+    view = session.view("p0");
     expect(view.phase).toBe("swapping");
     expect(view.you.hand).toHaveLength(4);
-    expect(view.winnerId).toBeNull();
+    expect(view.swapTickDeadline).toBe(8_000 + 4_000);
   });
 
   it("ends the match once a player reaches the target score", () => {
@@ -207,6 +225,7 @@ describe("HimbilGameSession slam presses", () => {
     // p0 wins 3 consecutive quartet races outright (100 + 100 + 100 = 300)
     session.pressSlam("p0", 3_100);
     session.finishSlamWindow();
+    session.startNextRound(3_500);
     expect(session.currentPhase).toBe("swapping");
 
     // Re-run the same 3-tick relay so p0 holds the quartet again.
@@ -228,6 +247,7 @@ describe("HimbilGameSession slam presses", () => {
     expect(session.currentPhase).toBe("slamWindow");
     session.pressSlam("p0", 6_100);
     session.finishSlamWindow();
+    session.startNextRound(6_500);
     expect(session.view("p0").players.find((p) => p.id === "p0")?.score).toBe(200);
 
     session.chooseCard("p0", 0);

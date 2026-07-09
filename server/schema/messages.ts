@@ -35,6 +35,8 @@ export interface RoomStateView {
   roomCode: string;
   phase: GamePhase;
   tickNumber: number;
+  /** completed rounds so far; the round being played is roundNumber + 1 */
+  roundNumber: number;
   direction: Direction;
   players: PlayerView[];
   you: YouView;
@@ -48,6 +50,8 @@ export interface RoomStateView {
    * receives or re-renders the message.
    */
   slamWindowDeadline: number | null;
+  /** same deadline semantics as [slamWindowDeadline], for the swap tick */
+  swapTickDeadline: number | null;
   targetScore: number;
   winnerId: string | null;
 }
@@ -58,6 +62,22 @@ export type ClientToServerMessage =
 
 export interface SlamPressResultMessage {
   outcome: "recorded" | "already" | "tooEarly" | "falseStart" | "ignored";
+}
+
+/**
+ * Broadcast once when a slam window closes, before the scoring pause. The
+ * press order is cleared from the room state at that moment, so this message
+ * is the only place a client can read the finished round's ranking from —
+ * it drives the slam-celebration screen.
+ */
+export interface RoundScoredMessage {
+  /** 1-based number of the round that just ended */
+  roundNumber: number;
+  /** press order with awarded points (100/75/50/25...), best first */
+  results: { playerId: string; score: number }[];
+  /** every player's total score after this round */
+  totals: { playerId: string; score: number }[];
+  winnerId: string | null;
 }
 
 export interface ErrorMessage {

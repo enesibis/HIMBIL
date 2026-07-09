@@ -3,13 +3,14 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../audio/sound_service.dart';
-import '../game/bots.dart';
 import '../game/game_controller.dart';
+import '../game/game_driver.dart';
 import '../game/rules.dart';
 import '../session/player_session.dart';
 import '../theme/palette.dart';
 import '../theme/text_styles.dart';
 import '../widgets/carnival_background.dart';
+import '../widgets/connection_status_banner.dart';
 import '../widgets/countdown_ring.dart';
 import '../widgets/flying_card.dart';
 import '../widgets/game_over_overlay.dart';
@@ -23,35 +24,43 @@ import 'how_to_play_overlay.dart';
 import 'round_result_screen.dart';
 import 'slam_celebration_screen.dart';
 
-String _labelFor(String id) => id == GameController.humanId ? PlayerSession.instance.name : Bots.labelFor(id);
-
+/// Oyun masası. Oyun durumunu bir [GameDriver] üzerinden tüketir:
+/// varsayılan (factory verilmezse) tam offline bot modu ([LocalGameDriver]);
+/// lobi, online maçlarda sunucuya bağlı bir `ServerGameDriver` fabrikası
+/// geçirir. Ekran iki modda da aynı callback'leri dinler — hangi modda
+/// olduğunu yalnız akış farklarında (tur ilerletme, Tekrar Oyna, bağlantı
+/// şeridi) sorar.
 class GameScreen extends StatefulWidget {
-  const GameScreen({super.key});
+  final GameDriver Function()? driverFactory;
+
+  const GameScreen({super.key, this.driverFactory});
 
   @override
   State<GameScreen> createState() => _GameScreenState();
 }
 
 class _GameScreenState extends State<GameScreen> {
-  late GameController _controller;
+  late GameDriver _driver;
 
   List<CardModel> _humanHand = [];
   int? _selectedIndex;
   GamePhase _phase = GamePhase.swapping;
   final ValueNotifier<double> _secondsLeftNotifier = ValueNotifier(0);
+  double _maxSeconds = GameController.swapTickDuration;
   String? _toastText;
   Timer? _toastTimer;
   int _humanScore = 0;
-  final Map<String, int> _botScores = {'bot_west': 0, 'bot_north': 0, 'bot_east': 0};
-  ({String winnerId, Map<String, int> scores})? _gameOver;
+  final Map<Seat, int> _opponentScores = {Seat.west: 0, Seat.north: 0, Seat.east: 0};
+  ({Seat winnerSeat, List<RankEntry> ranking})? _gameOver;
   int? _tokenReward;
 
-  /// [onCountdownTick] 100ms'de bir tetiklenir; tık sesi bunun yerine
-  /// gösterilen tam saniye değiştiğinde bir kez çalınır.
+  /// [GameDriver.onCountdownTick] 100ms'de bir tetiklenir; tık sesi bunun
+  /// yerine gösterilen tam saniye değiştiğinde bir kez çalınır.
   int? _lastCountdownSecond;
 
-  /// Yalnız uygulamanın ilk maçında true — kurallar hiç anlatılmadığı için
-  /// bu overlay dismiss edilene kadar oyun başlamaz (bkz. #14).
+  /// Yalnız uygulamanın ilk offline maçında true — kurallar hiç anlatılmadığı
+  /// için bu overlay dismiss edilene kadar oyun başlamaz (bkz. #14). Online
+  /// maçta gösterilmez: sunucu turu bekletmez, oyuncu okurken süre kaybeder.
   late bool _showTutorial;
 
   /// Sıralı pas zinciri sürerken dolu olan, uçan kartın orijinal el
@@ -66,10 +75,10 @@ class _GameScreenState extends State<GameScreen> {
   int _relayGeneration = 0;
 
   final GlobalKey<GradientCtaState> _slamKey = GlobalKey<GradientCtaState>();
-  final Map<String, GlobalKey<PlayerAvatarState>> _avatarKeys = {
-    'bot_west': GlobalKey<PlayerAvatarState>(),
-    'bot_north': GlobalKey<PlayerAvatarState>(),
-    'bot_east': GlobalKey<PlayerAvatarState>(),
+  final Map<Seat, GlobalKey<PlayerAvatarState>> _avatarKeys = {
+    Seat.west: GlobalKey<PlayerAvatarState>(),
+    Seat.north: GlobalKey<PlayerAvatarState>(),
+    Seat.east: GlobalKey<PlayerAvatarState>(),
   };
   final GlobalKey<CardFanPulseState> _northFanKey = GlobalKey<CardFanPulseState>();
   final GlobalKey<CardFanPulseState> _westFanKey = GlobalKey<CardFanPulseState>();
@@ -79,20 +88,21 @@ class _GameScreenState extends State<GameScreen> {
   @override
   void initState() {
     super.initState();
-    _showTutorial = !PlayerSession.instance.hasSeenTutorial;
     SoundService.instance.playMusic(MusicTrack.gameLoop);
-    _initController();
+    _initDriver();
   }
 
   void _dismissTutorial() {
     SoundService.instance.playSfx(Sfx.buttonTap);
     PlayerSession.instance.markTutorialSeen();
     setState(() => _showTutorial = false);
-    _controller.start();
+    _driver.start();
   }
 
-  void _initController() {
-    _controller = GameController()
+  void _initDriver() {
+    _driver = widget.driverFactory?.call() ?? LocalGameDriver();
+    _showTutorial = !PlayerSession.instance.hasSeenTutorial && !_driver.isOnline;
+    _driver
       ..onPhaseChanged = (phase) {
         if (!mounted) return;
         _lastCountdownSecond = null;
@@ -101,48 +111,63 @@ class _GameScreenState extends State<GameScreen> {
           _selectedIndex = null;
         });
       }
-      ..onHandsUpdated = (hands, changedSlot) {
+      ..onHandUpdated = (hand, changedSlot) {
         if (!mounted) return;
         if (changedSlot == -1) {
           SoundService.instance.playSfx(Sfx.dealCards);
-          setState(() => _humanHand = hands[0]);
+          setState(() => _humanHand = hand);
           return;
         }
         SoundService.instance.playSfx(Sfx.swapTick);
-        _runPassRelay(hands[0], changedSlot);
+        _runPassRelay(hand, changedSlot);
       }
-      ..onCountdownTick = (secondsLeft) {
+      ..onCountdownTick = (secondsLeft, maxSeconds) {
         if (!mounted || _passSlot != null) return;
+        _maxSeconds = maxSeconds;
         _secondsLeftNotifier.value = secondsLeft;
         final wholeSecond = secondsLeft.ceil();
-        if (wholeSecond >= 0 && wholeSecond != _lastCountdownSecond) {
+        if (secondsLeft > 0 && wholeSecond != _lastCountdownSecond) {
           _lastCountdownSecond = wholeSecond;
           SoundService.instance.playSfx(Sfx.countdownTick);
         }
       }
-      ..onSlamAttemptRecorded = (playerId) {
-        if (playerId == GameController.humanId) {
+      ..onSlamAttemptRecorded = (seat) {
+        if (seat == Seat.human) {
           _showToast('Sıradasın!');
           SoundService.instance.playSfx(_humanHasQuartet ? Sfx.slamCorrect : Sfx.slamRankEcho);
         } else {
-          _avatarKeys[playerId]?.currentState?.pulse();
+          _avatarKeys[seat]?.currentState?.pulse();
           SoundService.instance.playSfx(Sfx.slamRankEcho);
         }
         _syncScores();
       }
-      ..onFalseSlamPenalty = (playerId, newScore) {
-        _showToast('Erken bastın! Ceza puanı');
-        SoundService.instance.playSfx(Sfx.falseSlam);
-        _syncScores();
+      ..onSlamOutcome = (outcome) {
+        switch (outcome) {
+          case SlamOutcome.already:
+            _showToast('Zaten bastın');
+          case SlamOutcome.falseStartForgiven:
+            _showToast('Henüz dörtlün yok — bu ilk yanlışın bedava!');
+            SoundService.instance.playSfx(Sfx.falseSlam);
+          case SlamOutcome.falseStart:
+            _showToast('Erken bastın! Ceza puanı');
+            SoundService.instance.playSfx(Sfx.falseSlam);
+          case SlamOutcome.recorded || SlamOutcome.tooEarly || SlamOutcome.ignored:
+            break; // recorded sesi onSlamAttemptRecorded'da; tooEarly bilinçli sessiz
+        }
       }
+      ..onScoresChanged = _syncScores
       ..onMatchTokensAwarded = (amount) {
         if (!mounted) return;
         setState(() => _tokenReward = amount);
       }
+      ..onError = (message) {
+        if (!mounted) return;
+        _showToast(message);
+      }
       ..onRoundScored = _handleRoundScored;
     // Kurallar ilk kez anlatılıyorsa tur zamanlayıcısı anlatım bitene kadar
     // başlamamalı — aksi halde ilk oyuncu okurken tur süresini kaybeder.
-    if (!_showTutorial) _controller.start();
+    if (!_showTutorial) _driver.start();
   }
 
   /// Sıralı pas zinciri: Güney'in kartı Doğu'ya uçar (Doğu yığını pulse),
@@ -190,34 +215,48 @@ class _GameScreenState extends State<GameScreen> {
     setState(() => _passSlot = null);
   }
 
-  Future<void> _handleRoundScored(int roundNumber, List<SlamResult> results, Map<String, int> scores, String? winnerId) async {
+  Future<void> _handleRoundScored(int roundNumber, List<RoundRankEntry> results, Seat? winnerSeat) async {
     _syncScores();
-    final roundRanking = [for (final r in results) RankEntry(_labelFor(r.playerId), r.score)];
+    final roundRanking = [for (final r in results) RankEntry(r.label, r.points)];
 
     if (roundRanking.isNotEmpty) SoundService.instance.playSfx(Sfx.slamFanfare);
     await Navigator.of(context).push(MaterialPageRoute(builder: (_) => SlamCelebrationScreen(ranking: roundRanking)));
     if (!mounted) return;
 
+    if (_driver.autoAdvancesRounds) {
+      // Online: sunucu scoring molasından sonra yeni turu kendisi dağıtır;
+      // ayrı bir Tur Sonucu ekranı gösterip oyuncuyu bekletmeyiz (kutlama
+      // ekranı sıralamayı zaten gösterdi). Maç bittiyse overlay'e geç.
+      if (winnerSeat != null) _showGameOver(winnerSeat);
+      return;
+    }
+
     SoundService.instance.playSfx(Sfx.roundDing);
     await Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => RoundResultScreen(roundNumber: roundNumber, ranking: roundRanking, isMatchOver: winnerId != null),
+      builder: (_) => RoundResultScreen(roundNumber: roundNumber, ranking: roundRanking, isMatchOver: winnerSeat != null),
     ));
     if (!mounted) return;
 
-    if (winnerId != null) {
-      SoundService.instance.playSfx(winnerId == GameController.humanId ? Sfx.gameWin : Sfx.gameLose);
-      setState(() => _gameOver = (winnerId: winnerId, scores: Map<String, int>.from(scores)));
+    if (winnerSeat != null) {
+      _showGameOver(winnerSeat);
     } else {
-      _controller.startNewRound();
+      _driver.requestNextRound();
     }
+  }
+
+  void _showGameOver(Seat winnerSeat) {
+    SoundService.instance.playSfx(winnerSeat == Seat.human ? Sfx.gameWin : Sfx.gameLose);
+    final seats = List<Seat>.from(Seat.values)..sort((a, b) => _driver.scoreOf(b).compareTo(_driver.scoreOf(a)));
+    final ranking = [for (final seat in seats) RankEntry(_driver.labelFor(seat), _driver.scoreOf(seat))];
+    setState(() => _gameOver = (winnerSeat: winnerSeat, ranking: ranking));
   }
 
   void _syncScores() {
     if (!mounted) return;
     setState(() {
-      _humanScore = _controller.scores[GameController.humanId] ?? 0;
-      for (final key in _botScores.keys) {
-        _botScores[key] = _controller.scores[key] ?? 0;
+      _humanScore = _driver.scoreOf(Seat.human);
+      for (final seat in _opponentScores.keys) {
+        _opponentScores[seat] = _driver.scoreOf(seat);
       }
     });
   }
@@ -236,11 +275,11 @@ class _GameScreenState extends State<GameScreen> {
     if (_phase != GamePhase.swapping && _phase != GamePhase.slamWindow) return;
     SoundService.instance.playSfx(Sfx.cardSelect);
     setState(() => _selectedIndex = index);
-    // submitHumanChoice sadece 'swapping' fazında gönderilir; slamWindow'da
+    // chooseCard sadece 'swapping' fazında gönderilir; slamWindow'da
     // seçim yalnız görsel — aksi halde dışarıdan tıklamanın hiçbir şey
     // yapmadığı görülüp "pencere açık" sinyali olarak okunabilir.
     if (_phase == GamePhase.swapping) {
-      _controller.submitHumanChoice(_humanHand[index].id);
+      _driver.chooseCard(_humanHand[index].id);
     }
   }
 
@@ -258,7 +297,9 @@ class _GameScreenState extends State<GameScreen> {
               Text('Turdan çıkılsın mı?', style: AppText.baloo(size: 18, weight: FontWeight.w700), textAlign: TextAlign.center),
               const SizedBox(height: 8),
               Text(
-                'Menüye dönersen bu tur ve puanların kaybolur.',
+                _driver.isOnline
+                    ? 'Menüye dönersen maçtan ayrılırsın; diğer oyuncular devam eder.'
+                    : 'Menüye dönersen bu tur ve puanların kaybolur.',
                 style: AppText.nunito(size: 13, weight: FontWeight.w700, color: Palette.textSecondary),
                 textAlign: TextAlign.center,
               ),
@@ -296,6 +337,8 @@ class _GameScreenState extends State<GameScreen> {
       ),
     );
     if (confirmed == true && mounted) {
+      await _driver.leave();
+      if (!mounted) return;
       SoundService.instance.playMusic(MusicTrack.menuLoop);
       Navigator.of(context).pop();
     }
@@ -304,12 +347,7 @@ class _GameScreenState extends State<GameScreen> {
   void _onSlamTap() {
     _slamKey.currentState?.bounce();
     SoundService.instance.playSfx(Sfx.slamPress);
-    final result = _controller.submitHumanSlam();
-    if (result == SlamOutcome.already) _showToast('Zaten bastın');
-    if (result == SlamOutcome.falseStartForgiven) {
-      _showToast('Henüz dörtlün yok — bu ilk yanlışın bedava!');
-      SoundService.instance.playSfx(Sfx.falseSlam);
-    }
+    _driver.pressSlam();
   }
 
   // Slam penceresi elinde 4'lü olmayan bir insana asla görsel olarak
@@ -319,21 +357,21 @@ class _GameScreenState extends State<GameScreen> {
 
   void _playAgain() {
     SoundService.instance.playSfx(Sfx.buttonTap);
-    _controller.dispose();
+    _driver.dispose();
     setState(() {
       _gameOver = null;
       _humanScore = 0;
       _tokenReward = null;
-      for (final key in _botScores.keys) {
-        _botScores[key] = 0;
+      for (final seat in _opponentScores.keys) {
+        _opponentScores[seat] = 0;
       }
     });
-    _initController();
+    _initDriver();
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _driver.dispose();
     _toastTimer?.cancel();
     _secondsLeftNotifier.dispose();
     super.dispose();
@@ -348,6 +386,7 @@ class _GameScreenState extends State<GameScreen> {
       _ => 'Puanlar hesaplanıyor...',
     };
     final hintColor = showSlamHint ? Palette.green : Palette.textSecondary;
+    final connectionStream = _driver.connectionStateStream;
 
     return PopScope(
       canPop: false,
@@ -362,6 +401,7 @@ class _GameScreenState extends State<GameScreen> {
               SafeArea(
                 child: Column(
                   children: [
+                    if (connectionStream != null) ConnectionStatusBanner(connectionState: connectionStream),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                       child: Row(
@@ -381,9 +421,9 @@ class _GameScreenState extends State<GameScreen> {
                     Expanded(
                       child: Row(
                         children: [
-                          _buildSideColumn(botId: 'bot_west', east: false),
+                          _buildSideColumn(seat: Seat.west),
                           Expanded(child: _buildCenterArea()),
-                          _buildSideColumn(botId: 'bot_east', east: true),
+                          _buildSideColumn(seat: Seat.east),
                         ],
                       ),
                     ),
@@ -412,7 +452,7 @@ class _GameScreenState extends State<GameScreen> {
                           ),
                           const SizedBox(height: 10),
                           Text(
-                            'Puanın: $_humanScore / ${GameController.targetScore}',
+                            'Puanın: $_humanScore / ${_driver.targetScore}',
                             style: AppText.baloo(size: 15, weight: FontWeight.w700),
                           ),
                         ],
@@ -469,6 +509,7 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   Widget _buildNorthBlock() {
+    final label = _driver.labelFor(Seat.north);
     return Padding(
       padding: const EdgeInsets.fromLTRB(14, 4, 14, 0),
       child: Column(
@@ -476,13 +517,13 @@ class _GameScreenState extends State<GameScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              PlayerAvatar(key: _avatarKeys['bot_north'], name: Bots.labelFor('bot_north')),
+              PlayerAvatar(key: _avatarKeys[Seat.north], name: label),
               const SizedBox(width: 6),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(Bots.labelFor('bot_north'), style: AppText.nunito(size: 12, weight: FontWeight.w700, color: Palette.textSecondary)),
-                  Text('${_botScores['bot_north']} puan', style: AppText.baloo(size: 10, weight: FontWeight.w700, color: Palette.red)),
+                  Text(label, style: AppText.nunito(size: 12, weight: FontWeight.w700, color: Palette.textSecondary)),
+                  Text('${_opponentScores[Seat.north]} puan', style: AppText.baloo(size: 10, weight: FontWeight.w700, color: Palette.red)),
                 ],
               ),
             ],
@@ -494,16 +535,18 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
-  Widget _buildSideColumn({required String botId, required bool east}) {
+  Widget _buildSideColumn({required Seat seat}) {
+    final east = seat == Seat.east;
+    final label = _driver.labelFor(seat);
     return SizedBox(
       width: 74,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          PlayerAvatar(key: _avatarKeys[botId], name: Bots.labelFor(botId)),
+          PlayerAvatar(key: _avatarKeys[seat], name: label),
           const SizedBox(height: 4),
           Text(
-            '${Bots.labelFor(botId)} · ${_botScores[botId]}',
+            '$label · ${_opponentScores[seat]}',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.center,
@@ -531,14 +574,13 @@ class _GameScreenState extends State<GameScreen> {
         ValueListenableBuilder<double>(
           valueListenable: _secondsLeftNotifier,
           builder: (context, secondsLeft, _) {
-            final maxDuration = _controller.phase == GamePhase.slamWindow ? GameController.slamWindowDuration : GameController.swapTickDuration;
             return Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                CountdownRing(progress: secondsLeft / maxDuration, size: 60),
+                CountdownRing(progress: _maxSeconds <= 0 ? 0 : secondsLeft / _maxSeconds, size: 60),
                 const SizedBox(height: 12),
                 Text(
-                  'Tur ${_controller.roundNumber + 1} · ${secondsLeft.toStringAsFixed(1)}s',
+                  'Tur ${_driver.roundNumber + 1} · ${secondsLeft.toStringAsFixed(1)}s',
                   style: AppText.baloo(size: 13, weight: FontWeight.w700, color: Palette.textPrimary),
                 ),
               ],
@@ -566,19 +608,15 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
-  Widget _buildGameOverOverlay(({String winnerId, Map<String, int> scores}) gameOver) {
-    final sortedIds = gameOver.scores.keys.toList()..sort((a, b) => gameOver.scores[b]!.compareTo(gameOver.scores[a]!));
-    final ranking = [
-      for (final id in sortedIds) RankEntry(_labelFor(id), gameOver.scores[id] ?? 0),
-    ];
-
+  Widget _buildGameOverOverlay(({Seat winnerSeat, List<RankEntry> ranking}) gameOver) {
+    final winnerLabel = _driver.labelFor(gameOver.winnerSeat);
     return GameOverOverlay(
-      winnerId: gameOver.winnerId,
-      winnerLabel: _labelFor(gameOver.winnerId),
-      isHumanWinner: gameOver.winnerId == GameController.humanId,
-      ranking: ranking,
+      winnerId: winnerLabel,
+      winnerLabel: winnerLabel,
+      isHumanWinner: gameOver.winnerSeat == Seat.human,
+      ranking: gameOver.ranking,
       tokenReward: _tokenReward,
-      onPlayAgain: _playAgain,
+      onPlayAgain: _driver.supportsPlayAgain ? _playAgain : null,
       onBackToMenu: () {
         SoundService.instance.playMusic(MusicTrack.menuLoop);
         Navigator.of(context).pop();

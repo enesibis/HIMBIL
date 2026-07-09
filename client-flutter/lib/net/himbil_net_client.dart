@@ -52,12 +52,18 @@ class HimbilNetClient {
 
   final _stateController = StreamController<Map<String, Object?>>.broadcast();
   final _slamResultController = StreamController<Map<String, Object?>>.broadcast();
+  final _roundScoredController = StreamController<Map<String, Object?>>.broadcast();
   final _errorController = StreamController<String>.broadcast();
   final _connectionController = StreamController<NetConnectionState>.broadcast();
 
   /// Filtered `RoomStateView` payloads (see server/schema/messages.ts), decoded from msgpack maps.
   Stream<Map<String, Object?>> get stateUpdates => _stateController.stream;
   Stream<Map<String, Object?>> get slamResults => _slamResultController.stream;
+
+  /// `RoundScoredMessage` payloads — the only place the finished round's
+  /// press ranking is available (room state clears `slamOrder` when the
+  /// window closes); drives the slam-celebration screen.
+  Stream<Map<String, Object?>> get roundScoredEvents => _roundScoredController.stream;
   Stream<String> get errors => _errorController.stream;
   Stream<NetConnectionState> get connectionState => _connectionController.stream;
 
@@ -170,6 +176,8 @@ class HimbilNetClient {
           _stateController.add(payload.cast<String, Object?>());
         } else if (frame.type == 'slamPressResult' && payload is Map) {
           _slamResultController.add(payload.cast<String, Object?>());
+        } else if (frame.type == 'roundScored' && payload is Map) {
+          _roundScoredController.add(payload.cast<String, Object?>());
         }
 
       case ErrorFrame():
@@ -235,7 +243,11 @@ class HimbilNetClient {
     await _channel?.sink.close(4000);
     _channel = null;
     _joined = false;
-    _connectionController.add(NetConnectionState.disconnected);
+    // dispose() bu metodu beklemeden controller'ları kapatır; kapanmış bir
+    // stream'e add() StreamError fırlatır (lobi fallback yolunda gerçek senaryo).
+    if (!_connectionController.isClosed) {
+      _connectionController.add(NetConnectionState.disconnected);
+    }
   }
 
   /// Closes the socket without the consented close code, so the server
@@ -253,6 +265,7 @@ class HimbilNetClient {
     unawaited(disconnect());
     _stateController.close();
     _slamResultController.close();
+    _roundScoredController.close();
     _errorController.close();
     _connectionController.close();
   }
