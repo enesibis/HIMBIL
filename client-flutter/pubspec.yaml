@@ -16,7 +16,7 @@ dependencies:
   audioplayers: ^6.1.0
   web_socket_channel: ^3.0.3
   http: ^1.6.0
-  sentry_flutter: ^8.14.2
+  sentry_flutter: ^9.24.0
   flutter_localizations:
     sdk: flutter
   intl: ^0.20.2
