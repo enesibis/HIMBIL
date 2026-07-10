@@ -70,15 +70,21 @@ class HimbilNetClient {
   String? get roomId => _roomId;
   bool get isJoined => _joined;
 
-  Future<void> createRoom({String? name}) => _matchmake('create', {'name': ?name});
+  // guestId/guestToken: odaya doğrulanmış misafir-hesap bağı kurar — maç
+  // sonu ödülleri sunucu defterine yazılır (bkz. HimbilRoom.linkGuestAccount).
+  // Verilmezse (ya da doğrulanamazsa) maç aynen oynanır, yalnız defter
+  // kaydı atlanır.
+  Future<void> createRoom({String? name, String? guestId, String? guestToken}) =>
+      _matchmake('create', {'name': ?name, 'guestId': ?guestId, 'guestToken': ?guestToken});
 
-  Future<void> quickPlay({String? name}) => _matchmake('joinOrCreate', {'name': ?name});
+  Future<void> quickPlay({String? name, String? guestId, String? guestToken}) =>
+      _matchmake('joinOrCreate', {'name': ?name, 'guestId': ?guestId, 'guestToken': ?guestToken});
 
   /// Joins a specific room by its human-readable code. Fails (rather than
   /// silently starting a new room) if no room with that code is open — see
   /// `HimbilRoom`'s `.filterBy(["roomCode"])` registration.
-  Future<void> joinByCode(String roomCode, {String? name}) =>
-      _matchmake('join', {'roomCode': roomCode, 'name': ?name});
+  Future<void> joinByCode(String roomCode, {String? name, String? guestId, String? guestToken}) =>
+      _matchmake('join', {'roomCode': roomCode, 'name': ?name, 'guestId': ?guestId, 'guestToken': ?guestToken});
 
   Future<void> _matchmake(String method, Map<String, Object?> options) async {
     _consentedDisconnect = false;

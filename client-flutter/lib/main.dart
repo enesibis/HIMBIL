@@ -10,6 +10,7 @@ import 'l10n/app_localizations.dart';
 import 'net/deep_link_service.dart';
 import 'screens/lobby_screen.dart';
 import 'screens/splash_screen.dart';
+import 'session/guest_account_service.dart';
 import 'session/player_session.dart';
 import 'theme/palette.dart';
 
@@ -41,6 +42,7 @@ Future<void> _runApp() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   await PlayerSession.instance.load();
+  await GuestAccountService.instance.load();
   await SoundService.instance.init();
   await AnalyticsService.instance.recordAppOpen();
   runApp(const HimbilApp());

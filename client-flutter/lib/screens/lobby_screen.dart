@@ -9,6 +9,7 @@ import '../game/server_game_driver.dart';
 import '../l10n/l10n.dart';
 import '../net/himbil_net_client.dart';
 import '../net/room_code.dart';
+import '../session/guest_account_service.dart';
 import '../session/player_session.dart';
 import '../theme/palette.dart';
 import '../theme/text_styles.dart';
@@ -92,12 +93,18 @@ class _LobbyScreenState extends State<LobbyScreen> {
 
     try {
       final name = PlayerSession.instance.name;
+      // Sunucuya zaten bağlanmak üzereyiz — misafir hesabı yoksa şimdi aç
+      // ki maç sonu ödülleri sunucu defterine yazılabilsin (madde #60).
+      // Başarısızlık akışı durdurmaz; kimliksiz katılım da geçerli.
+      await GuestAccountService.instance.ensureRegistered();
+      final guestId = GuestAccountService.instance.guestId;
+      final guestToken = GuestAccountService.instance.guestToken;
       if (widget.quickPlay) {
-        await client.quickPlay(name: name);
+        await client.quickPlay(name: name, guestId: guestId, guestToken: guestToken);
       } else if (widget.joinCode != null) {
-        await client.joinByCode(widget.joinCode!, name: name);
+        await client.joinByCode(widget.joinCode!, name: name, guestId: guestId, guestToken: guestToken);
       } else {
-        await client.createRoom(name: name);
+        await client.createRoom(name: name, guestId: guestId, guestToken: guestToken);
       }
       if (!mounted) return;
       setState(() => _mode = _LobbyMode.online);

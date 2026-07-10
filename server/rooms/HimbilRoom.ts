@@ -1,8 +1,9 @@
 import { Room, type Client } from "colyseus";
 import type { Delayed } from "@colyseus/timer";
 
-import { HimbilGameSession, SWAP_TICK_MS, SLAM_WINDOW_MS, SCORING_PAUSE_MS } from "./gameSession.js";
+import { HimbilGameSession, SWAP_TICK_MS, SLAM_WINDOW_MS, SCORING_PAUSE_MS, placementRewards } from "./gameSession.js";
 import type { RoundScoredMessage } from "../schema/messages.js";
+import type { GuestAccountStore } from "../persistence/guestAccountStore.js";
 import { generateRoomCode, JoinRateLimiter } from "./roomCode.js";
 
 const RECONNECT_GRACE_SECONDS = 30;
@@ -18,6 +19,20 @@ const joinLimiter = new JoinRateLimiter({ maxAttempts: 20, windowMs: 60_000 });
 
 interface JoinOptions {
   name?: string;
+  /**
+   * Optional guest-account link (madde #60 devamı): a client that has
+   * registered via POST /guest/register can attach its credentials so
+   * match-end rewards land in its server-side token ledger. Verified
+   * against the store on join — an unverifiable claim is silently ignored
+   * (the match still plays; only the ledger write is skipped).
+   */
+  guestId?: string;
+  guestToken?: string;
+}
+
+interface RoomCreateOptions {
+  /** Injected by index.ts via gameServer.define(..., { guestStore }). */
+  guestStore?: GuestAccountStore;
 }
 
 /**
@@ -31,8 +46,12 @@ export class HimbilRoom extends Room {
 
   private session!: HimbilGameSession;
   private pendingTimer?: Delayed;
+  private guestStore?: GuestAccountStore;
+  /** sessionId → verified guestId; only these players get ledger rewards. */
+  private readonly guestIds = new Map<string, string>();
 
-  onCreate() {
+  onCreate(options: RoomCreateOptions = {}) {
+    this.guestStore = options.guestStore;
     const roomCode = generateRoomCode();
     this.roomId = roomCode;
     this.metadata = { roomCode };
@@ -66,6 +85,7 @@ export class HimbilRoom extends Room {
   onJoin(client: Client, options: JoinOptions) {
     const name = (options?.name ?? "Oyuncu").slice(0, 24);
     this.session.addPlayer(client.sessionId, name);
+    this.linkGuestAccount(client.sessionId, options);
 
     if (this.session.readyToStart()) {
       this.session.start(Date.now());
@@ -127,6 +147,8 @@ export class HimbilRoom extends Room {
     this.broadcast("roundScored", roundScored);
     this.broadcastState();
 
+    if (roundScored.winnerId !== null) this.awardOnlineMatchRewards(roundScored.totals);
+
     if (this.session.currentPhase === "scoring") {
       // Scoring pause: let clients play the slam celebration, then deal.
       this.pendingTimer = this.clock.setTimeout(() => {
@@ -142,6 +164,32 @@ export class HimbilRoom extends Room {
   private broadcastState() {
     for (const client of this.clients) {
       client.send("state", this.session.view(client.sessionId));
+    }
+  }
+
+  private linkGuestAccount(sessionId: string, options: JoinOptions) {
+    const { guestId, guestToken } = options ?? {};
+    if (this.guestStore === undefined || typeof guestId !== "string" || typeof guestToken !== "string") return;
+    if (!this.guestStore.verify(guestId, guestToken)) return;
+    this.guestIds.set(sessionId, guestId);
+  }
+
+  /**
+   * Writes match-end placement rewards into the server-side token ledger
+   * for every player who joined with a verified guest account (madde #60
+   * devamı). Transitional note: the client still credits the same reward
+   * to its device-local balance for the in-game economy UX — this ledger
+   * copy (reason-tagged per room) is the authoritative record that the
+   * full PlayerSession→server migration will reconcile against, and it's
+   * the audit trail that makes locally-edited balances detectable.
+   */
+  private awardOnlineMatchRewards(totals: { playerId: string; score: number }[]) {
+    const store = this.guestStore;
+    if (store === undefined) return;
+    for (const [playerId, reward] of placementRewards(totals)) {
+      const guestId = this.guestIds.get(playerId);
+      if (guestId === undefined) continue;
+      store.awardTokens(guestId, reward, `match_reward:online:${this.session.roomCode}`);
     }
   }
 }

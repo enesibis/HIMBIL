@@ -27,7 +27,9 @@ const gameServer = new Server({
 // matchMaker.join("himbil", { roomCode }) only matches a room whose metadata
 // has that exact roomCode (set in HimbilRoom.onCreate), instead of any open
 // "himbil" room. See docs/yapilmasi-gerekenler.md item #50.
-gameServer.define("himbil", HimbilRoom).filterBy(["roomCode"]);
+// `guestStore` is injected as a default room-creation option so match-end
+// rewards can be written into the guest token ledger (HimbilRoom.onCreate).
+gameServer.define("himbil", HimbilRoom, { guestStore: guestAccountStore }).filterBy(["roomCode"]);
 
 gameServer.listen(port);
 

@@ -20,6 +20,24 @@ export const SLAM_WINDOW_MS = 4000;
  */
 export const SCORING_PAUSE_MS = 4000;
 
+/**
+ * Match-end token rewards by final placement (1st..4th) — mirrors the
+ * client's `GameController.placementTokenRewards`. Applied to the guest
+ * ledger by the room for players who joined with a verified guest account.
+ */
+export const PLACEMENT_TOKEN_REWARDS = [100, 60, 40, 20];
+
+/**
+ * Final standings → per-player token reward. Ties keep seat order (stable
+ * sort), matching the client's local reward logic.
+ */
+export function placementRewards(totals: { playerId: string; score: number }[]): Map<string, number> {
+  const ranked = [...totals].sort((a, b) => b.score - a.score);
+  return new Map(
+    ranked.map((p, i) => [p.playerId, PLACEMENT_TOKEN_REWARDS[Math.min(i, PLACEMENT_TOKEN_REWARDS.length - 1)]])
+  );
+}
+
 interface PlayerSlot {
   id: string;
   name: string;

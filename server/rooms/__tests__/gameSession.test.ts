@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { HimbilGameSession, TARGET_SCORE } from "../gameSession.js";
+import { HimbilGameSession, TARGET_SCORE, PLACEMENT_TOKEN_REWARDS, placementRewards } from "../gameSession.js";
 
 /**
  * Identity-shuffle rng: Fisher-Yates picks `j = floor(rng() * (i + 1))`, and
@@ -272,5 +272,31 @@ describe("HimbilGameSession slam presses", () => {
     expect(view.players.find((p) => p.id === "p0")?.score).toBe(TARGET_SCORE);
     expect(view.phase).toBe("finished");
     expect(view.winnerId).toBe("p0");
+  });
+});
+
+describe("placementRewards", () => {
+  it("pays 1st..4th according to PLACEMENT_TOKEN_REWARDS", () => {
+    const rewards = placementRewards([
+      { playerId: "a", score: 300 },
+      { playerId: "b", score: 150 },
+      { playerId: "c", score: 75 },
+      { playerId: "d", score: -25 },
+    ]);
+    expect(rewards.get("a")).toBe(PLACEMENT_TOKEN_REWARDS[0]);
+    expect(rewards.get("b")).toBe(PLACEMENT_TOKEN_REWARDS[1]);
+    expect(rewards.get("c")).toBe(PLACEMENT_TOKEN_REWARDS[2]);
+    expect(rewards.get("d")).toBe(PLACEMENT_TOKEN_REWARDS[3]);
+  });
+
+  it("breaks ties by seat order (stable sort), matching the client", () => {
+    const rewards = placementRewards([
+      { playerId: "a", score: 100 },
+      { playerId: "b", score: 100 },
+      { playerId: "c", score: 0 },
+      { playerId: "d", score: 0 },
+    ]);
+    expect(rewards.get("a")).toBe(PLACEMENT_TOKEN_REWARDS[0]);
+    expect(rewards.get("b")).toBe(PLACEMENT_TOKEN_REWARDS[1]);
   });
 });
