@@ -2,6 +2,7 @@ import { Room, type Client } from "colyseus";
 import type { Delayed } from "@colyseus/timer";
 
 import { HimbilGameSession, SWAP_TICK_MS, SLAM_WINDOW_MS, SCORING_PAUSE_MS, placementRewards } from "./gameSession.js";
+import { decideBotSlamDelayMs, decidePileOnDelayMs, decidesToPileOn, BOT_SLAM_DELAY_MAX_MS } from "./botPlayer.js";
 import type { RoundScoredMessage } from "../schema/messages.js";
 import type { GuestAccountStore } from "../persistence/guestAccountStore.js";
 import { generateRoomCode, JoinRateLimiter } from "./roomCode.js";
@@ -46,6 +47,7 @@ export class HimbilRoom extends Room {
 
   private session!: HimbilGameSession;
   private pendingTimer?: Delayed;
+  private readonly botTimers: Delayed[] = [];
   private guestStore?: GuestAccountStore;
   /** sessionId → verified guestId; only these players get ledger rewards. */
   private readonly guestIds = new Map<string, string>();
@@ -62,15 +64,8 @@ export class HimbilRoom extends Room {
     });
 
     this.onMessage("slamPress", (client: Client) => {
-      const outcome = this.session.pressSlam(client.sessionId, Date.now());
+      const outcome = this.handleSlamPress(client.sessionId);
       client.send("slamPressResult", { outcome });
-
-      if (outcome === "recorded" && this.session.isSlamWindowDue(Date.now())) {
-        this.pendingTimer?.clear();
-        this.finishSlamWindowAndContinue();
-      } else {
-        this.broadcastState();
-      }
     });
   }
 
@@ -111,12 +106,14 @@ export class HimbilRoom extends Room {
       this.session.setConnected(client.sessionId, true);
       this.broadcastState();
     } catch {
-      // Grace period expired without a reconnect. MVP behavior (per
-      // kılavuz §8: "MVP'de basit bir grace timer yeterli") is to leave the
-      // player's seat/hand/score in place but marked disconnected — their
-      // swap choices default to the timeout rule (random card) so the round
-      // keeps moving instead of stalling on a dropped player. Bot-takeover
-      // is intentionally out of scope here (docs/yapilmasi-gerekenler.md #61).
+      // Grace period expired without a reconnect: the seat is permanently
+      // handed to a server bot (madde #59'un "bot devralma" parçası). The
+      // player's hand/score stay in place; from here on their swap choices
+      // use the bot heuristic and they join slam races with human-ish
+      // delays, so the remaining humans play against a competent seat
+      // instead of a free-points zombie.
+      this.session.setBotControlled(client.sessionId);
+      this.broadcastState();
     }
   }
 
@@ -133,10 +130,55 @@ export class HimbilRoom extends Room {
       this.scheduleNextSwapTick();
     } else if (this.session.currentPhase === "slamWindow") {
       this.pendingTimer = this.clock.setTimeout(() => this.finishSlamWindowAndContinue(), SLAM_WINDOW_MS);
+      this.scheduleBotSlamPresses();
     }
   }
 
+  /**
+   * Central slam-press path for both real clients (onMessage) and takeover
+   * bots (scheduleBotSlamPresses): records the press, closes the window
+   * early once everyone has pressed, otherwise broadcasts the new order.
+   */
+  private handleSlamPress(sessionId: string): ReturnType<HimbilGameSession["pressSlam"]> {
+    const outcome = this.session.pressSlam(sessionId, Date.now());
+
+    if (outcome === "recorded" && this.session.isSlamWindowDue(Date.now())) {
+      this.pendingTimer?.clear();
+      this.clearBotTimers();
+      this.finishSlamWindowAndContinue();
+    } else if (outcome === "recorded" || outcome === "falseStart") {
+      this.broadcastState();
+    }
+    return outcome;
+  }
+
+  /**
+   * Bot devralmış koltukların slam yarışına katılımı: 4'lü sahibi botlar
+   * insansı bir gecikmeyle basar; 4'lüsüz botlar (bazen) ilk basıştan
+   * sonra üstüne basar. Pile-on zamanlayıcısı, tipik bir sahip basışının
+   * ardına gelecek şekilde kurulur; pencere hâlâ boşsa basış `tooEarly`
+   * olarak zararsızca düşer (insan kuralıyla aynı).
+   */
+  private scheduleBotSlamPresses() {
+    for (const id of this.session.botControlledWithQuartet()) {
+      this.botTimers.push(this.clock.setTimeout(() => this.handleSlamPress(id), decideBotSlamDelayMs()));
+    }
+    for (const id of this.session.botControlledWithoutQuartet()) {
+      if (!decidesToPileOn()) continue;
+      const delay = BOT_SLAM_DELAY_MAX_MS + decidePileOnDelayMs();
+      this.botTimers.push(this.clock.setTimeout(() => this.handleSlamPress(id), delay));
+    }
+  }
+
+  private clearBotTimers() {
+    for (const timer of this.botTimers) {
+      timer.clear();
+    }
+    this.botTimers.length = 0;
+  }
+
   private finishSlamWindowAndContinue() {
+    this.clearBotTimers();
     const results = this.session.finishSlamWindow();
     const roundScored: RoundScoredMessage = {
       roundNumber: this.session.currentRoundNumber,

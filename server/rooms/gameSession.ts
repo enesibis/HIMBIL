@@ -3,6 +3,7 @@ import { dealHands } from "../game/deal.js";
 import { resolveSwapTick, type SwapChoice } from "../game/swap.js";
 import { detectQuartet } from "../game/quartet.js";
 import { scoreSlamOrder, submitSlamPress, type SlamPressOutcome } from "../game/scoring.js";
+import { chooseLeastUsefulCard } from "./botPlayer.js";
 import type { Direction, GamePhase, Hand, SlamResult } from "../game/types.js";
 import type { PlayerView, RoomStateView } from "../schema/messages.js";
 
@@ -43,6 +44,8 @@ interface PlayerSlot {
   name: string;
   connected: boolean;
   score: number;
+  /** true: koltuk, reconnect grace'i dolan oyuncudan sunucu botuna devredildi. */
+  botControlled: boolean;
 }
 
 /**
@@ -93,13 +96,45 @@ export class HimbilGameSession {
 
   addPlayer(id: string, name: string): boolean {
     if (this.isFull() || this.phase !== "waiting") return false;
-    this.players.push({ id, name, connected: true, score: 0 });
+    this.players.push({ id, name, connected: true, score: 0, botControlled: false });
     return true;
   }
 
   setConnected(id: string, connected: boolean): void {
     const player = this.players.find((p) => p.id === id);
     if (player) player.connected = connected;
+  }
+
+  /**
+   * Reconnect grace'i dolan oyuncunun koltuğunu sunucu botuna devreder —
+   * takas seçimleri timeout kuralından (rastgele kart) bot sezgisine
+   * (en az işe yarayan kart) yükselir ve oyuncu slam yarışına katılır.
+   * Maç boyunca kalıcıdır (grace dolduktan sonra Colyseus reconnect
+   * token'ı zaten geçersizdir).
+   */
+  setBotControlled(id: string): void {
+    const player = this.players.find((p) => p.id === id);
+    if (player === undefined) return;
+    player.botControlled = true;
+    player.connected = false;
+  }
+
+  isBotControlled(id: string): boolean {
+    return this.players.find((p) => p.id === id)?.botControlled === true;
+  }
+
+  /** Slam penceresi açıldığında elinde 4'lü OLAN bot koltukları. */
+  botControlledWithQuartet(): string[] {
+    return this.players
+      .filter((p, i) => p.botControlled && detectQuartet(this.hands[i]) !== null)
+      .map((p) => p.id);
+  }
+
+  /** Slam penceresinde pile-on adayı olabilecek (4'lüsüz) bot koltukları. */
+  botControlledWithoutQuartet(): string[] {
+    return this.players
+      .filter((p, i) => p.botControlled && detectQuartet(this.hands[i]) === null)
+      .map((p) => p.id);
   }
 
   readyToStart(): boolean {
@@ -131,9 +166,14 @@ export class HimbilGameSession {
   resolveTick(now: number): void {
     if (this.phase !== "swapping") return;
 
-    const swapChoices: SwapChoice[] = this.players.map((p) => ({
-      cardId: this.choices.get(p.id) ?? null,
-    }));
+    const swapChoices: SwapChoice[] = this.players.map((p, i) => {
+      const chosen = this.choices.get(p.id) ?? null;
+      if (chosen !== null) return { cardId: chosen };
+      // Bot koltukları rastgele (timeout) yerine biriktirdiğini koruyan
+      // sezgiyle verir; insan koltuklarında timeout kuralı aynen kalır.
+      if (p.botControlled) return { cardId: chooseLeastUsefulCard(this.hands[i], this.rng) };
+      return { cardId: null };
+    });
 
     let result;
     try {
@@ -265,6 +305,7 @@ export class HimbilGameSession {
       handSize: this.handOf(p.id)?.length ?? 0,
       score: p.score,
       connected: p.connected,
+      botControlled: p.botControlled,
     }));
 
     return {

@@ -23,6 +23,8 @@ export interface PlayerView {
   handSize: number;
   score: number;
   connected: boolean;
+  /** seat taken over by a server bot after the reconnect grace expired */
+  botControlled: boolean;
 }
 
 export interface YouView {

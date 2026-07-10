@@ -300,3 +300,40 @@ describe("placementRewards", () => {
     expect(rewards.get("b")).toBe(PLACEMENT_TOKEN_REWARDS[1]);
   });
 });
+
+describe("bot takeover (setBotControlled)", () => {
+  it("bot-controlled seat gives the odd card out instead of a random one", () => {
+    const session = new HimbilGameSession("AB12CD", IDENTITY_SHUFFLE_RNG);
+    seatFourPlayers(session);
+    session.start();
+    // sessionWithQuartetOnP0'daki ilk iki scripted tick: p0'ya üç armut toplar
+    session.chooseCard("p0", 0);
+    session.chooseCard("p1", 5);
+    session.chooseCard("p2", 6);
+    session.chooseCard("p3", 7);
+    session.resolveTick(1_000);
+    session.chooseCard("p0", 8);
+    session.chooseCard("p1", 1);
+    session.chooseCard("p2", 5);
+    session.chooseCard("p3", 6);
+    session.resolveTick(2_000);
+
+    // p0 artık [armut, armut, armut, cilek(12)] tutuyor; koltuk bota geçiyor.
+    session.setBotControlled("p0");
+    expect(session.isBotControlled("p0")).toBe(true);
+    expect(session.view("p1").players.find((p) => p.id === "p0")?.botControlled).toBe(true);
+
+    // p0 hiç seçim yapmıyor: timeout kuralı rastgele verirdi (armut kaybı
+    // olasılığı 3/4); bot sezgisi tek işe yaramaz kartı (cilek 12) vermeli
+    // ve script'in kalanıyla 4'lü aynen tamamlanmalı.
+    session.chooseCard("p1", 8);
+    session.chooseCard("p2", 2);
+    session.chooseCard("p3", 5);
+    session.resolveTick(3_000);
+
+    expect(session.currentPhase).toBe("slamWindow");
+    expect(session.view("p0").you.hand.map((c) => c.objectType)).toEqual(["armut", "armut", "armut", "armut"]);
+    expect(session.botControlledWithQuartet()).toEqual(["p0"]);
+    expect(session.botControlledWithoutQuartet()).toEqual([]);
+  });
+});
