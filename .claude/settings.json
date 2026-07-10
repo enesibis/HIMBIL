@@ -15,7 +15,8 @@
       "Bash(flutter gen-l10n *)",
       "Bash(python -)",
       "Bash(python \"C:\\\\Users\\\\enesi\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--game-himbil\\\\c15d811c-415f-4103-bf0a-a0a32c1405b8\\\\scratchpad\\\\l10n_sweep.py\")",
-      "Bash(python \"C:\\\\Users\\\\enesi\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--game-himbil\\\\c15d811c-415f-4103-bf0a-a0a32c1405b8\\\\scratchpad\\\\deconst.py\")"
+      "Bash(python \"C:\\\\Users\\\\enesi\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--game-himbil\\\\c15d811c-415f-4103-bf0a-a0a32c1405b8\\\\scratchpad\\\\deconst.py\")",
+      "Bash(python \"C:\\\\Users\\\\enesi\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--game-himbil\\\\c15d811c-415f-4103-bf0a-a0a32c1405b8\\\\scratchpad\\\\docsync2.py\")"
     ]
   }
 }
