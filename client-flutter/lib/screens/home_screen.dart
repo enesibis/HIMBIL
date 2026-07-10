@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../audio/sound_service.dart';
 import '../l10n/l10n.dart';
+import '../net/leaderboard_service.dart';
 import '../theme/palette.dart';
 import '../theme/text_styles.dart';
 import '../widgets/carnival_background.dart';
@@ -37,6 +38,10 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _tabIndex = 0;
+
+  /// Bir kez çekilir (sekmeye her girişte istek atmamak için); sunucu
+  /// yoksa null döner ve "Yakında" durumu gösterilir.
+  late final Future<List<LeaderboardEntry>?> _leaderboardFuture = LeaderboardService.instance.fetch();
 
   @override
   void initState() {
@@ -254,14 +259,58 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(height: 18),
           Text(context.l10n.leaderboardTitle, style: AppText.baloo(size: 16, weight: FontWeight.w700)),
           const SizedBox(height: 8),
-          _leaderboardComingSoon(),
+          FutureBuilder<List<LeaderboardEntry>?>(
+            future: _leaderboardFuture,
+            builder: (context, snapshot) {
+              final entries = snapshot.data;
+              if (entries == null || entries.isEmpty) return _leaderboardComingSoon();
+              return _leaderboardCard(entries);
+            },
+          ),
         ],
       ),
     );
   }
 
-  // Çevrimiçi liderlik tablosu sunucu (Aşama 3+) gelmeden gerçek veriyle
-  // doldurulamaz; sahte isim/puan göstermek yerine "Yakında" durumu koyduk.
+  /// Sunucudan gelen gerçek online sıralama — kaynak, defterdeki maç
+  /// ödülleri olduğu için client hiçbir puanı şişiremez.
+  Widget _leaderboardCard(List<LeaderboardEntry> entries) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Palette.surface,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: Palette.textPrimary.withValues(alpha: 0.04), width: 2),
+        boxShadow: [BoxShadow(color: Palette.textPrimary.withValues(alpha: 0.06), blurRadius: 16, offset: const Offset(0, 6))],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        children: [
+          for (var i = 0; i < entries.length; i++) _leaderboardRow(rank: i + 1, entry: entries[i], isLast: i == entries.length - 1),
+        ],
+      ),
+    );
+  }
+
+  Widget _leaderboardRow({required int rank, required LeaderboardEntry entry, required bool isLast}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        border: isLast ? null : Border(bottom: BorderSide(color: Palette.textPrimary.withValues(alpha: 0.06))),
+      ),
+      child: Row(
+        children: [
+          SizedBox(width: 18, child: Text('$rank', style: AppText.baloo(size: 13, weight: FontWeight.w800, color: Palette.textSecondary))),
+          const SizedBox(width: 10),
+          Expanded(child: Text(entry.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: AppText.nunito(size: 14, weight: FontWeight.w700))),
+          Text('${entry.points}', style: AppText.baloo(size: 14, weight: FontWeight.w800, color: Palette.red)),
+        ],
+      ),
+    );
+  }
+
+  // Sunucuya ulaşılamıyorsa (ya da henüz kimse online oynamadıysa) sahte
+  // isim/puan göstermek yerine "Yakında" durumu.
   Widget _leaderboardComingSoon() {
     return Container(
       width: double.infinity,

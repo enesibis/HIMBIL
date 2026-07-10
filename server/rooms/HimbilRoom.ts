@@ -214,6 +214,8 @@ export class HimbilRoom extends Room {
     if (this.guestStore === undefined || typeof guestId !== "string" || typeof guestToken !== "string") return;
     if (!this.guestStore.verify(guestId, guestToken)) return;
     this.guestIds.set(sessionId, guestId);
+    // Liderlik tablosunda gösterilecek ad — her katılımda tazelenir.
+    this.guestStore.setDisplayName(guestId, (options.name ?? "Oyuncu").slice(0, 24));
   }
 
   /**

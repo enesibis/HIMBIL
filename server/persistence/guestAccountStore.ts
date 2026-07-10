@@ -14,6 +14,14 @@ export interface LedgerEntry {
   createdAt: number;
 }
 
+export interface LeaderboardEntry {
+  name: string;
+  /** online maç ödüllerinin toplamı (yerleşim puanı vekili) */
+  points: number;
+  /** birincilik sayısı (100'lük ödül girdileri) */
+  wins: number;
+}
+
 /**
  * Stage 7 (madde #60) guest-account + inventory persistence: moves the
  * token balance and cosmetic ownership that today live only in the
@@ -79,6 +87,39 @@ export class GuestAccountStore {
     this.db
       .prepare("INSERT INTO token_ledger (guest_id, amount, reason, created_at) VALUES (?, ?, ?, ?)")
       .run(guestId, amount, reason, Date.now());
+  }
+
+  /**
+   * Odaya katılırken kullanılan görünen adı hesaba yazar — liderlik
+   * tablosunda gösterilir. Her katılımda güncellenir (oyuncu adını
+   * değiştirmiş olabilir).
+   */
+  setDisplayName(guestId: string, name: string): void {
+    this.db.prepare("UPDATE guest_accounts SET display_name = ? WHERE guest_id = ?").run(name, guestId);
+  }
+
+  /**
+   * Online liderlik tablosu (madde #61 devamı): sıralama, sunucu defterine
+   * yazılan online maç ödüllerinin toplamına göre — client'ın kendisi hiçbir
+   * puan yazamadığı için hilelenemez. `match_reward:online:%` dışındaki
+   * defter girdileri (starting_grant vb.) sayılmaz.
+   */
+  getLeaderboard(limit: number): LeaderboardEntry[] {
+    const rows = this.db
+      .prepare(
+        `SELECT
+           COALESCE(a.display_name, 'Oyuncu') AS name,
+           SUM(l.amount) AS points,
+           SUM(CASE WHEN l.amount = 100 THEN 1 ELSE 0 END) AS wins
+         FROM token_ledger l
+         JOIN guest_accounts a ON a.guest_id = l.guest_id
+         WHERE l.reason LIKE 'match_reward:online:%'
+         GROUP BY l.guest_id
+         ORDER BY points DESC, wins DESC
+         LIMIT ?`
+      )
+      .all(limit) as LeaderboardEntry[];
+    return rows;
   }
 
   grantInventoryItem(guestId: string, itemId: string): void {

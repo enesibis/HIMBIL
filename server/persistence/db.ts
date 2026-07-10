@@ -21,7 +21,8 @@ export function createDatabase(path: string): Database.Database {
     CREATE TABLE IF NOT EXISTS guest_accounts (
       guest_id TEXT PRIMARY KEY,
       guest_token TEXT NOT NULL,
-      created_at INTEGER NOT NULL
+      created_at INTEGER NOT NULL,
+      display_name TEXT
     );
 
     CREATE TABLE IF NOT EXISTS token_ledger (
@@ -50,6 +51,14 @@ export function createDatabase(path: string): Database.Database {
 
     CREATE INDEX IF NOT EXISTS idx_analytics_events_name ON analytics_events(name, received_at);
   `);
+
+  // display_name sonradan eklendi (liderlik tablosu, madde #61 devamı);
+  // mevcut dosya tabanlı veritabanlarında kolonu idempotent şekilde aç.
+  try {
+    db.exec("ALTER TABLE guest_accounts ADD COLUMN display_name TEXT");
+  } catch {
+    // kolon zaten var — yeni kurulumda CREATE TABLE, eskisinde önceki ALTER
+  }
 
   return db;
 }

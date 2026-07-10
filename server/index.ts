@@ -6,6 +6,7 @@ import { AnalyticsStore } from "./persistence/analyticsStore.js";
 import { GuestAccountStore } from "./persistence/guestAccountStore.js";
 import { registerAnalyticsRoutes } from "./routes/analyticsRoutes.js";
 import { registerGuestRoutes } from "./routes/guestRoutes.js";
+import { registerLeaderboardRoutes } from "./routes/leaderboardRoutes.js";
 import { registerMonitorRoutes } from "./routes/monitorRoutes.js";
 import { HimbilRoom } from "./rooms/HimbilRoom.js";
 
@@ -24,6 +25,7 @@ const gameServer = new Server({
   express: (app) => {
     registerGuestRoutes(app, guestAccountStore);
     registerAnalyticsRoutes(app, analyticsStore, guestAccountStore); // madde #52 — client HttpAnalyticsSink buraya akar
+    registerLeaderboardRoutes(app, guestAccountStore); // madde #61 devamı — Profil sekmesindeki tablo
     registerMonitorRoutes(app); // madde #61 "admin panel" — no-op unless HIMBIL_ADMIN_TOKEN is set
   },
 });
