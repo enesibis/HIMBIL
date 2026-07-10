@@ -49,11 +49,11 @@ class _SlamCelebrationScreenState extends State<SlamCelebrationScreen> with Tick
     if (_missedRound) return _buildMissedRound(context);
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0xFFF5B95C), Palette.red],
+            colors: [const Color(0xFFF5B95C), Palette.red],
           ),
         ),
         child: Stack(
@@ -126,7 +126,7 @@ class _SlamCelebrationScreenState extends State<SlamCelebrationScreen> with Tick
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.timer_off_rounded, size: 44, color: Palette.textSecondary),
+                Icon(Icons.timer_off_rounded, size: 44, color: Palette.textSecondary),
                 const SizedBox(height: 14),
                 Text(context.l10n.celebrationMissedTitle, style: AppText.baloo(size: 20, weight: FontWeight.w700)),
                 const SizedBox(height: 4),

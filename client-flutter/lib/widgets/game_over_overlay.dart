@@ -149,7 +149,7 @@ class _GameOverOverlayState extends State<GameOverOverlay> with SingleTickerProv
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(colors: [Palette.mustardLight, Palette.mustard]),
+        gradient: LinearGradient(colors: [Palette.mustardLight, Palette.mustard]),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [BoxShadow(color: Palette.mustard.withValues(alpha: 0.4), blurRadius: 12, offset: const Offset(0, 4))],
       ),
@@ -165,7 +165,7 @@ class _GameOverOverlayState extends State<GameOverOverlay> with SingleTickerProv
   }
 
   List<Widget> _confetti() {
-    const dots = [
+    final dots = [
       _ConfettiDot(top: 64, left: 20, size: 18, color: Palette.mustard),
       _ConfettiDot(top: 110, right: 26, size: 13, color: Palette.green),
       _ConfettiDot(top: 36, right: 64, size: 9, color: Palette.blue),

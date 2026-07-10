@@ -44,7 +44,7 @@ class AvatarOptions {
     AvatarCharacterOption(imagePath: 'assets/avatars/15-nane.png', label: 'Nane'),
   ];
 
-  static const colors = [
+  static List<AvatarColorOption> get colors => [
     AvatarColorOption(label: 'Kırmızı', gradient: [Palette.redLight, Palette.red]),
     AvatarColorOption(label: 'Hardal', gradient: [Palette.mustardLight, Palette.mustard]),
     AvatarColorOption(label: 'Yeşil', gradient: [Color(0xFF5FB98C), Palette.green]),

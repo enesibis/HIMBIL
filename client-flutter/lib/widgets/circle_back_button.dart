@@ -42,7 +42,7 @@ class CircleBackButton extends StatelessWidget {
                 boxShadow: [BoxShadow(color: Palette.textPrimary.withValues(alpha: 0.08), blurRadius: 10, offset: const Offset(0, 4))],
               ),
               alignment: Alignment.center,
-              child: const Icon(Icons.arrow_back, size: 18, color: Palette.textPrimary),
+              child: Icon(Icons.arrow_back, size: 18, color: Palette.textPrimary),
             ),
           ),
         ),

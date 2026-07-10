@@ -10,8 +10,9 @@ class AppText {
   static TextStyle baloo({
     double size = 16,
     FontWeight weight = FontWeight.w700,
-    Color color = Palette.textPrimary,
+    Color? color,
   }) {
+    color ??= Palette.textPrimary;
     return TextStyle(
       fontFamily: 'Baloo2',
       fontSize: size,
@@ -24,8 +25,9 @@ class AppText {
   static TextStyle nunito({
     double size = 14,
     FontWeight weight = FontWeight.w700,
-    Color color = Palette.textPrimary,
+    Color? color,
   }) {
+    color ??= Palette.textPrimary;
     return TextStyle(
       fontFamily: 'Nunito',
       fontSize: size,

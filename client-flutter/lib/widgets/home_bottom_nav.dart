@@ -49,7 +49,7 @@ class HomeBottomNav extends StatelessWidget {
           duration: const Duration(milliseconds: 150),
           padding: const EdgeInsets.symmetric(vertical: 9),
           decoration: BoxDecoration(
-            gradient: active ? const LinearGradient(colors: [Palette.redLight, Palette.redPressedEnd]) : null,
+            gradient: active ? LinearGradient(colors: [Palette.redLight, Palette.redPressedEnd]) : null,
             borderRadius: BorderRadius.circular(19),
           ),
           child: ExcludeSemantics(

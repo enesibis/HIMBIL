@@ -302,10 +302,10 @@ class _LobbyScreenState extends State<LobbyScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Palette.surface, Color(0xFFFFF1DC)],
+          colors: [Palette.surface, Palette.surfaceWarm],
         ),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: Palette.red.withValues(alpha: 0.35), width: 2, style: BorderStyle.solid),
@@ -328,7 +328,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.ios_share_rounded, size: 15, color: Palette.blue),
+                  Icon(Icons.ios_share_rounded, size: 15, color: Palette.blue),
                   const SizedBox(width: 6),
                   ExcludeSemantics(
                     child: Text(context.l10n.lobbyShareInvite, style: AppText.nunito(size: 12, weight: FontWeight.w800, color: Palette.blue)),
@@ -347,10 +347,10 @@ class _LobbyScreenState extends State<LobbyScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Palette.surface, Color(0xFFFFF1DC)],
+          colors: [Palette.surface, Palette.surfaceWarm],
         ),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: Palette.red.withValues(alpha: 0.35), width: 2, style: BorderStyle.solid),

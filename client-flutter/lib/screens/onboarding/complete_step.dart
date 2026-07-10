@@ -66,7 +66,7 @@ class CompleteStep extends StatelessWidget {
   }
 
   List<Widget> _confetti() {
-    const dots = [
+    final dots = [
       _Dot(top: 40, left: 24, size: 16, color: Palette.mustard),
       _Dot(top: 90, right: 30, size: 12, color: Palette.green),
       _Dot(top: 10, right: 70, size: 9, color: Palette.blue),

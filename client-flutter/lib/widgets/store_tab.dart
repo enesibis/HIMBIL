@@ -50,7 +50,7 @@ class _StoreTabState extends State<StoreTab> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(colors: [Palette.mustardLight, Palette.mustard]),
+        gradient: LinearGradient(colors: [Palette.mustardLight, Palette.mustard]),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [BoxShadow(color: Palette.mustard.withValues(alpha: 0.35), blurRadius: 10, offset: const Offset(0, 3))],
       ),
@@ -90,7 +90,7 @@ class _StoreTabState extends State<StoreTab> {
         duration: const Duration(milliseconds: 150),
         padding: const EdgeInsets.symmetric(vertical: 9),
         decoration: BoxDecoration(
-          gradient: active ? const LinearGradient(colors: [Palette.redLight, Palette.redPressedEnd]) : null,
+          gradient: active ? LinearGradient(colors: [Palette.redLight, Palette.redPressedEnd]) : null,
           borderRadius: BorderRadius.circular(13),
         ),
         alignment: Alignment.center,
@@ -298,7 +298,7 @@ class _StoreItem extends StatelessWidget {
       return _pill(
         label: context.l10n.storeEquipped,
         icon: Icons.check_circle_rounded,
-        gradient: const [Palette.redLight, Palette.redPressedEnd],
+        gradient: [Palette.redLight, Palette.redPressedEnd],
         textColor: Colors.white,
         onTap: null,
       );
@@ -316,7 +316,7 @@ class _StoreItem extends StatelessWidget {
     return _pill(
       label: '$price',
       icon: Icons.monetization_on_rounded,
-      gradient: const [Palette.mustardLight, Palette.mustard],
+      gradient: [Palette.mustardLight, Palette.mustard],
       textColor: Colors.white,
       onTap: onBuy,
     );

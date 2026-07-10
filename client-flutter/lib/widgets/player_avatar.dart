@@ -58,7 +58,7 @@ class PlayerAvatarState extends State<PlayerAvatar> with SingleTickerProviderSta
             shape: BoxShape.circle,
           ),
           child: Container(
-            decoration: const BoxDecoration(color: Palette.surface, shape: BoxShape.circle),
+            decoration: BoxDecoration(color: Palette.surface, shape: BoxShape.circle),
             alignment: Alignment.center,
             child: Text(
               widget.name.isNotEmpty ? widget.name.substring(0, 1).toUpperCase() : '?',

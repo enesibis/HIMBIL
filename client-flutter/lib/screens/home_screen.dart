@@ -109,7 +109,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   boxShadow: [BoxShadow(color: Palette.textPrimary.withValues(alpha: 0.07), blurRadius: 10, offset: const Offset(0, 4))],
                 ),
                 alignment: Alignment.center,
-                child: const Icon(Icons.settings_rounded, size: 19, color: Palette.textSecondary),
+                child: Icon(Icons.settings_rounded, size: 19, color: Palette.textSecondary),
               ),
             ),
             const SizedBox(width: 10),
@@ -193,25 +193,25 @@ class _HomeScreenState extends State<HomeScreen> {
           value: '${PlayerSession.instance.gamesPlayed}',
           label: context.l10n.statGames,
           icon: Icons.style_rounded,
-          badgeGradient: const [Palette.redLight, Palette.red],
+          badgeGradient: [Palette.redLight, Palette.red],
         ),
         _ProfileStat(
           value: '${PlayerSession.instance.wins}',
           label: context.l10n.statWins,
           icon: Icons.emoji_events_rounded,
-          badgeGradient: const [Color(0xFF5FB98C), Palette.green],
+          badgeGradient: [const Color(0xFF5FB98C), Palette.green],
         ),
         _ProfileStat(
           value: '%${PlayerSession.instance.winRatePercent}',
           label: context.l10n.statWinRate,
           icon: Icons.bar_chart_rounded,
-          badgeGradient: const [Palette.mustardLight, Palette.mustard],
+          badgeGradient: [Palette.mustardLight, Palette.mustard],
         ),
         _ProfileStat(
           value: '${PlayerSession.instance.bestStreak}',
           label: context.l10n.statBestStreak,
           icon: Icons.local_fire_department_rounded,
-          badgeGradient: const [Color(0xFF5B8FC7), Palette.blue],
+          badgeGradient: [const Color(0xFF5B8FC7), Palette.blue],
         ),
       ];
 
@@ -233,7 +233,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 },
                 child: Row(
                   children: [
-                    const Icon(Icons.edit_rounded, size: 15, color: Palette.blue),
+                    Icon(Icons.edit_rounded, size: 15, color: Palette.blue),
                     const SizedBox(width: 4),
                     Text(context.l10n.profileEditButton, style: AppText.nunito(size: 12, weight: FontWeight.w800, color: Palette.blue)),
                   ],

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../audio/sound_service.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/palette.dart';
+import '../theme/theme_service.dart';
 import '../theme/text_styles.dart';
 import '../widgets/carnival_background.dart';
 import '../widgets/circle_back_button.dart';
@@ -27,6 +28,7 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   late bool _sfxEnabled = SoundService.instance.sfxEnabled;
   late bool _musicEnabled = SoundService.instance.musicEnabled;
+  late bool _darkMode = ThemeService.instance.isDark.value;
 
   @override
   Widget build(BuildContext context) {
@@ -62,6 +64,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     onChanged: (value) {
                       setState(() => _musicEnabled = value);
                       SoundService.instance.setMusicEnabled(value);
+                    },
+                  ),
+                  _divider(),
+                  _switchRow(
+                    icon: Icons.dark_mode_rounded,
+                    label: l10n.settingsDarkMode,
+                    value: _darkMode,
+                    onChanged: (value) {
+                      setState(() => _darkMode = value);
+                      ThemeService.instance.setDark(value);
                     },
                   ),
                 ]),
@@ -153,7 +165,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             Icon(icon, size: 20, color: Palette.textSecondary),
             const SizedBox(width: 12),
             Expanded(child: Text(label, style: AppText.nunito(size: 14, weight: FontWeight.w700))),
-            const Icon(Icons.chevron_right_rounded, size: 20, color: Palette.textSecondary),
+            Icon(Icons.chevron_right_rounded, size: 20, color: Palette.textSecondary),
           ],
         ),
       ),

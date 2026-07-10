@@ -14,6 +14,7 @@ import 'screens/splash_screen.dart';
 import 'session/guest_account_service.dart';
 import 'session/player_session.dart';
 import 'theme/palette.dart';
+import 'theme/theme_service.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
@@ -44,6 +45,7 @@ Future<void> _runApp() async {
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   await PlayerSession.instance.load();
   await GuestAccountService.instance.load();
+  await ThemeService.instance.load();
   await SoundService.instance.init();
   // Madde #52: olaylar hem yerel log'a (debug + ring buffer) hem sunucunun
   // analytics ucuna akar; sunucu yoksa HTTP sink sessizce kuyruğunda tutar.
@@ -84,6 +86,18 @@ class _HimbilAppState extends State<HimbilApp> {
 
   @override
   Widget build(BuildContext context) {
+    // Koyu tema anahtarı (ThemeService) kök MaterialApp'i yeniden kurar:
+    // ThemeData'nın parlaklığı değişince Theme'e bağımlı tüm Material
+    // bileşenleri yeniden build olur; Palette.x okuyan özel widget'lar da
+    // ekranlarının bir sonraki build'inde (Ayarlar'dan dönüşte route
+    // geçişi bunu tetikler) yeni paleti alır.
+    return ValueListenableBuilder<bool>(
+      valueListenable: ThemeService.instance.isDark,
+      builder: (context, isDark, _) => _buildApp(isDark),
+    );
+  }
+
+  Widget _buildApp(bool isDark) {
     return MaterialApp(
       navigatorKey: navigatorKey,
       onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
@@ -93,8 +107,12 @@ class _HimbilAppState extends State<HimbilApp> {
       locale: const Locale('tr'),
       theme: ThemeData(
         useMaterial3: true,
+        brightness: isDark ? Brightness.dark : Brightness.light,
         scaffoldBackgroundColor: Palette.bgCream,
-        colorScheme: ColorScheme.fromSeed(seedColor: Palette.red, brightness: Brightness.light),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Palette.red,
+          brightness: isDark ? Brightness.dark : Brightness.light,
+        ),
         fontFamily: 'Nunito',
       ),
       // Ekranların çoğu hassas piksel yerleşimli, sabit boyutlu kartlar

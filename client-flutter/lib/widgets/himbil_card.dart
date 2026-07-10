@@ -32,9 +32,9 @@ class HimbilCard extends StatelessWidget {
         width: width,
         height: height,
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            begin: Alignment(-0.6, -1),
-            end: Alignment(0.6, 1),
+          gradient: LinearGradient(
+            begin: const Alignment(-0.6, -1),
+            end: const Alignment(0.6, 1),
             colors: [Palette.surface, Palette.bgCream],
           ),
           borderRadius: BorderRadius.circular(16),

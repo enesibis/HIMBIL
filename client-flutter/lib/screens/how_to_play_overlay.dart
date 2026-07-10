@@ -79,7 +79,7 @@ class HowToPlayOverlay extends StatelessWidget {
           Container(
             width: 40,
             height: 40,
-            decoration: const BoxDecoration(gradient: LinearGradient(colors: [Palette.mustardLight, Palette.mustard]), shape: BoxShape.circle),
+            decoration: BoxDecoration(gradient: LinearGradient(colors: [Palette.mustardLight, Palette.mustard]), shape: BoxShape.circle),
             alignment: Alignment.center,
             child: Icon(card.icon, size: 20, color: Colors.white),
           ),

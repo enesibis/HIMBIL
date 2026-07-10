@@ -10,8 +10,8 @@ class SoftButton extends StatefulWidget {
   final String label;
   final double width;
   final double height;
-  final Color background;
-  final Color textColor;
+  final Color? background;
+  final Color? textColor;
   final double borderRadius;
   final double fontSize;
   final VoidCallback onTap;
@@ -21,8 +21,8 @@ class SoftButton extends StatefulWidget {
     required this.label,
     required this.width,
     required this.height,
-    this.background = Palette.surface,
-    this.textColor = Palette.textPrimary,
+    this.background,
+    this.textColor,
     this.borderRadius = 22,
     this.fontSize = 16,
     required this.onTap,
@@ -56,7 +56,7 @@ class _SoftButtonState extends State<SoftButton> {
             height: widget.height,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: widget.background,
+              color: widget.background ?? Palette.surface,
               borderRadius: BorderRadius.circular(widget.borderRadius),
               border: Border.all(color: Palette.textPrimary.withValues(alpha: 0.05), width: 2),
               boxShadow: [
@@ -64,7 +64,7 @@ class _SoftButtonState extends State<SoftButton> {
               ],
             ),
             child: ExcludeSemantics(
-              child: Text(widget.label, style: AppText.baloo(size: widget.fontSize, weight: FontWeight.w700, color: widget.textColor)),
+              child: Text(widget.label, style: AppText.baloo(size: widget.fontSize, weight: FontWeight.w700, color: widget.textColor ?? Palette.textPrimary)),
             ),
           ),
         ),
