@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import 'analytics/analytics_service.dart';
+import 'analytics/http_analytics_sink.dart';
 import 'audio/sound_service.dart';
 import 'l10n/app_localizations.dart';
 import 'net/deep_link_service.dart';
@@ -44,7 +45,12 @@ Future<void> _runApp() async {
   await PlayerSession.instance.load();
   await GuestAccountService.instance.load();
   await SoundService.instance.init();
+  // Madde #52: olaylar hem yerel log'a (debug + ring buffer) hem sunucunun
+  // analytics ucuna akar; sunucu yoksa HTTP sink sessizce kuyruğunda tutar.
+  final httpSink = HttpAnalyticsSink();
+  AnalyticsService.instance = AnalyticsService(sink: CompositeSink([const DebugPrintSink(), httpSink]));
   await AnalyticsService.instance.recordAppOpen();
+  unawaited(httpSink.flush());
   runApp(const HimbilApp());
 }
 

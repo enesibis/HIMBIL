@@ -2,7 +2,9 @@ import { Server } from "colyseus";
 import { WebSocketTransport } from "@colyseus/ws-transport";
 
 import { createDatabase } from "./persistence/db.js";
+import { AnalyticsStore } from "./persistence/analyticsStore.js";
 import { GuestAccountStore } from "./persistence/guestAccountStore.js";
+import { registerAnalyticsRoutes } from "./routes/analyticsRoutes.js";
 import { registerGuestRoutes } from "./routes/guestRoutes.js";
 import { registerMonitorRoutes } from "./routes/monitorRoutes.js";
 import { HimbilRoom } from "./rooms/HimbilRoom.js";
@@ -13,12 +15,15 @@ const port = Number(process.env.PORT) || 2567;
 // reward or a store purchase eventually lives here instead of the client's
 // `shared_preferences` (`PlayerSession`). SQLite file path overridable for
 // tests/deploys; defaults next to the compiled server.
-const guestAccountStore = new GuestAccountStore(createDatabase(process.env.HIMBIL_DB_PATH ?? "himbil.sqlite3"));
+const database = createDatabase(process.env.HIMBIL_DB_PATH ?? "himbil.sqlite3");
+const guestAccountStore = new GuestAccountStore(database);
+const analyticsStore = new AnalyticsStore(database);
 
 const gameServer = new Server({
   transport: new WebSocketTransport(),
   express: (app) => {
     registerGuestRoutes(app, guestAccountStore);
+    registerAnalyticsRoutes(app, analyticsStore, guestAccountStore); // madde #52 — client HttpAnalyticsSink buraya akar
     registerMonitorRoutes(app); // madde #61 "admin panel" — no-op unless HIMBIL_ADMIN_TOKEN is set
   },
 });

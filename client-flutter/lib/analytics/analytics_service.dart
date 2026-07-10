@@ -20,6 +20,20 @@ class DebugPrintSink implements AnalyticsSink {
   }
 }
 
+/// Aynı olayı birden çok hedefe (örn. debug log + HTTP backend) yayan sink.
+class CompositeSink implements AnalyticsSink {
+  const CompositeSink(this.sinks);
+
+  final List<AnalyticsSink> sinks;
+
+  @override
+  void record(String name, Map<String, Object?> params) {
+    for (final sink in sinks) {
+      sink.record(name, params);
+    }
+  }
+}
+
 /// Local-only analytics: turn duration, false-slam rate, and D1/D7
 /// retention (madde #52), so balance decisions ("is the false-slam penalty
 /// too harsh?") have real numbers behind them even before a backend exists.

@@ -38,6 +38,17 @@ export function createDatabase(path: string): Database.Database {
       acquired_at INTEGER NOT NULL,
       PRIMARY KEY (guest_id, item_id)
     );
+
+    CREATE TABLE IF NOT EXISTS analytics_events (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      guest_id TEXT,
+      name TEXT NOT NULL,
+      params_json TEXT NOT NULL,
+      client_at TEXT,
+      received_at INTEGER NOT NULL
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_analytics_events_name ON analytics_events(name, received_at);
   `);
 
   return db;
