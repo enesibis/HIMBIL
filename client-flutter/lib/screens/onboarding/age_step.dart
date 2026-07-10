@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../theme/palette.dart';
+import '../../l10n/l10n.dart';
 import '../../theme/text_styles.dart';
 import '../../widgets/fade_slide_in.dart';
 
@@ -20,13 +21,13 @@ class AgeStep extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         FadeSlideIn(
-          child: Text('Kaç yaşındasın?', textAlign: TextAlign.center, style: AppText.baloo(size: 24, weight: FontWeight.w800)),
+          child: Text(context.l10n.onbAgeTitle, textAlign: TextAlign.center, style: AppText.baloo(size: 24, weight: FontWeight.w800)),
         ),
         const SizedBox(height: 8),
         FadeSlideIn(
           delay: const Duration(milliseconds: 100),
           child: Text(
-            'Profilini kişiselleştirmek için kullanırız',
+            context.l10n.onbAgeSubtitle,
             textAlign: TextAlign.center,
             style: AppText.nunito(size: 14, weight: FontWeight.w700, color: Palette.textSecondary),
           ),

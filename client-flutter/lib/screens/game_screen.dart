@@ -6,6 +6,7 @@ import '../audio/sound_service.dart';
 import '../game/game_controller.dart';
 import '../game/game_driver.dart';
 import '../game/rules.dart';
+import '../l10n/l10n.dart';
 import '../session/player_session.dart';
 import '../theme/palette.dart';
 import '../theme/text_styles.dart';
@@ -133,7 +134,7 @@ class _GameScreenState extends State<GameScreen> {
       }
       ..onSlamAttemptRecorded = (seat) {
         if (seat == Seat.human) {
-          _showToast('Sıradasın!');
+          _showToast(context.l10n.gameToastYourTurn);
           SoundService.instance.playSfx(_humanHasQuartet ? Sfx.slamCorrect : Sfx.slamRankEcho);
         } else {
           _avatarKeys[seat]?.currentState?.pulse();
@@ -144,12 +145,12 @@ class _GameScreenState extends State<GameScreen> {
       ..onSlamOutcome = (outcome) {
         switch (outcome) {
           case SlamOutcome.already:
-            _showToast('Zaten bastın');
+            _showToast(context.l10n.gameToastAlreadyPressed);
           case SlamOutcome.falseStartForgiven:
-            _showToast('Henüz dörtlün yok — bu ilk yanlışın bedava!');
+            _showToast(context.l10n.gameToastFalseStartForgiven);
             SoundService.instance.playSfx(Sfx.falseSlam);
           case SlamOutcome.falseStart:
-            _showToast('Erken bastın! Ceza puanı');
+            _showToast(context.l10n.gameToastFalseStartPenalty);
             SoundService.instance.playSfx(Sfx.falseSlam);
           case SlamOutcome.recorded || SlamOutcome.tooEarly || SlamOutcome.ignored:
             break; // recorded sesi onSlamAttemptRecorded'da; tooEarly bilinçli sessiz
@@ -294,12 +295,12 @@ class _GameScreenState extends State<GameScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Turdan çıkılsın mı?', style: AppText.baloo(size: 18, weight: FontWeight.w700), textAlign: TextAlign.center),
+              Text(context.l10n.gameExitTitle, style: AppText.baloo(size: 18, weight: FontWeight.w700), textAlign: TextAlign.center),
               const SizedBox(height: 8),
               Text(
                 _driver.isOnline
-                    ? 'Menüye dönersen maçtan ayrılırsın; diğer oyuncular devam eder.'
-                    : 'Menüye dönersen bu tur ve puanların kaybolur.',
+                    ? context.l10n.gameExitBodyOnline
+                    : context.l10n.gameExitBodyLocal,
                 style: AppText.nunito(size: 13, weight: FontWeight.w700, color: Palette.textSecondary),
                 textAlign: TextAlign.center,
               ),
@@ -308,7 +309,7 @@ class _GameScreenState extends State<GameScreen> {
                 children: [
                   Expanded(
                     child: SoftButton(
-                      label: 'Vazgeç',
+                      label: context.l10n.commonCancel,
                       width: double.infinity,
                       height: 46,
                       borderRadius: 16,
@@ -319,7 +320,7 @@ class _GameScreenState extends State<GameScreen> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: SoftButton(
-                      label: 'Çık',
+                      label: context.l10n.gameExitConfirm,
                       width: double.infinity,
                       height: 46,
                       borderRadius: 16,
@@ -381,9 +382,9 @@ class _GameScreenState extends State<GameScreen> {
   Widget build(BuildContext context) {
     final showSlamHint = _phase == GamePhase.slamWindow && _humanHasQuartet;
     final hintText = switch (_phase) {
-      GamePhase.swapping => 'İşine yaramayan kartı seç, komşuna ver',
-      GamePhase.slamWindow => showSlamHint ? "4'lün tamam — HIMBIL'e bas!" : 'İşine yaramayan kartı seç, komşuna ver',
-      _ => 'Puanlar hesaplanıyor...',
+      GamePhase.swapping => context.l10n.gameHintSwap,
+      GamePhase.slamWindow => showSlamHint ? context.l10n.gameHintSlam : context.l10n.gameHintSwap,
+      _ => context.l10n.gameHintScoring,
     };
     final hintColor = showSlamHint ? Palette.green : Palette.textSecondary;
     final connectionStream = _driver.connectionStateStream;
@@ -407,7 +408,7 @@ class _GameScreenState extends State<GameScreen> {
                       child: Row(
                         children: [
                           SoftButton(
-                            label: '< Menü',
+                            label: context.l10n.gameMenuButton,
                             width: 96,
                             height: 40,
                             borderRadius: 18,
@@ -441,7 +442,7 @@ class _GameScreenState extends State<GameScreen> {
                         children: [
                           GradientCta(
                             key: _slamKey,
-                            title: 'HIMBIL!',
+                            title: context.l10n.gameSlamButton,
                             width: 116,
                             height: 116,
                             color: Palette.redLight,
@@ -452,7 +453,7 @@ class _GameScreenState extends State<GameScreen> {
                           ),
                           const SizedBox(height: 10),
                           Text(
-                            'Puanın: $_humanScore / ${_driver.targetScore}',
+                            context.l10n.gameScoreLabel(_humanScore, _driver.targetScore),
                             style: AppText.baloo(size: 15, weight: FontWeight.w700),
                           ),
                         ],
@@ -523,7 +524,7 @@ class _GameScreenState extends State<GameScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(label, style: AppText.nunito(size: 12, weight: FontWeight.w700, color: Palette.textSecondary)),
-                  Text('${_opponentScores[Seat.north]} puan', style: AppText.baloo(size: 10, weight: FontWeight.w700, color: Palette.red)),
+                  Text(context.l10n.gameOpponentScore(_opponentScores[Seat.north] ?? 0), style: AppText.baloo(size: 10, weight: FontWeight.w700, color: Palette.red)),
                 ],
               ),
             ],
@@ -546,7 +547,7 @@ class _GameScreenState extends State<GameScreen> {
           PlayerAvatar(key: _avatarKeys[seat], name: label),
           const SizedBox(height: 4),
           Text(
-            '$label · ${_opponentScores[seat]}',
+            context.l10n.gameSeatScore(label, _opponentScores[seat] ?? 0),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.center,
@@ -580,7 +581,7 @@ class _GameScreenState extends State<GameScreen> {
                 CountdownRing(progress: _maxSeconds <= 0 ? 0 : secondsLeft / _maxSeconds, size: 60),
                 const SizedBox(height: 12),
                 Text(
-                  'Tur ${_driver.roundNumber + 1} · ${secondsLeft.toStringAsFixed(1)}s',
+                  context.l10n.gameRoundTimer(_driver.roundNumber + 1, secondsLeft.toStringAsFixed(1)),
                   style: AppText.baloo(size: 13, weight: FontWeight.w700, color: Palette.textPrimary),
                 ),
               ],

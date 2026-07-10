@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/palette.dart';
+import '../l10n/l10n.dart';
 import '../theme/text_styles.dart';
 import 'gradient_cta.dart';
 import 'rank_row.dart';
@@ -84,7 +85,7 @@ class _GameOverOverlayState extends State<GameOverOverlay> with SingleTickerProv
                       ),
                       const SizedBox(height: 14),
                       Text(
-                        widget.isHumanWinner ? 'Kazandın!' : '${widget.winnerLabel} kazandı!',
+                        widget.isHumanWinner ? context.l10n.gameOverYouWon : context.l10n.gameOverPlayerWon(widget.winnerLabel),
                         style: AppText.baloo(size: 24, weight: FontWeight.w800),
                         textAlign: TextAlign.center,
                       ),
@@ -114,7 +115,7 @@ class _GameOverOverlayState extends State<GameOverOverlay> with SingleTickerProv
                       const SizedBox(height: 12),
                       if (widget.onPlayAgain != null) ...[
                         GradientCta(
-                          title: 'TEKRAR OYNA',
+                          title: context.l10n.gameOverPlayAgain,
                           width: 260,
                           height: 62,
                           color: Palette.redLight,
@@ -126,7 +127,7 @@ class _GameOverOverlayState extends State<GameOverOverlay> with SingleTickerProv
                         const SizedBox(height: 18),
                       ],
                       SoftButton(
-                        label: 'Ana Menü',
+                        label: context.l10n.gameOverMainMenu,
                         width: 260,
                         height: 48,
                         borderRadius: 20,
@@ -157,7 +158,7 @@ class _GameOverOverlayState extends State<GameOverOverlay> with SingleTickerProv
         children: [
           const Icon(Icons.monetization_on_rounded, size: 16, color: Colors.white),
           const SizedBox(width: 6),
-          Text('+$amount jeton', style: AppText.baloo(size: 13, weight: FontWeight.w800, color: Colors.white)),
+          Text(context.l10n.gameOverTokenReward(amount), style: AppText.baloo(size: 13, weight: FontWeight.w800, color: Colors.white)),
         ],
       ),
     );

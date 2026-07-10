@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../audio/sound_service.dart';
+import '../l10n/l10n.dart';
 import '../theme/palette.dart';
 import '../theme/text_styles.dart';
 
@@ -25,9 +26,9 @@ class HomeBottomNav extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Expanded(child: _tab(icon: Icons.play_arrow_rounded, label: 'Oyna', index: 0)),
-          Expanded(child: _tab(icon: Icons.storefront_rounded, label: 'Mağaza', index: 1)),
-          Expanded(child: _tab(icon: Icons.person_outline_rounded, label: 'Profil', index: 2)),
+          Expanded(child: _tab(icon: Icons.play_arrow_rounded, label: context.l10n.navPlay, index: 0)),
+          Expanded(child: _tab(icon: Icons.storefront_rounded, label: context.l10n.navStore, index: 1)),
+          Expanded(child: _tab(icon: Icons.person_outline_rounded, label: context.l10n.navProfile, index: 2)),
         ],
       ),
     );

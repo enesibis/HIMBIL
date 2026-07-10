@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:himbil/l10n/l10n.dart';
 import 'package:himbil/screens/game_screen.dart';
 import 'package:himbil/session/player_session.dart';
 import 'package:himbil/widgets/himbil_card.dart';
@@ -43,7 +44,12 @@ void main() {
     "İnsanın 4'lüsü yokken '4'lün tamam — HIMBIL'e bas!' metni asla render edilmez",
     (tester) async {
       _setPhoneSize(tester);
-      await tester.pumpWidget(const MaterialApp(home: GameScreen()));
+      await tester.pumpWidget(const MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: Locale('tr'),
+        home: GameScreen(),
+      ));
       await tester.pump();
 
       _expectHintOnlyWhenQuartet(tester);

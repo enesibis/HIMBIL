@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../theme/palette.dart';
+import '../../l10n/l10n.dart';
 import '../../theme/text_styles.dart';
 import '../../widgets/fade_slide_in.dart';
 
@@ -18,13 +19,13 @@ class NameStep extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         FadeSlideIn(
-          child: Text('Sana nasıl seslenelim?', textAlign: TextAlign.center, style: AppText.baloo(size: 24, weight: FontWeight.w800)),
+          child: Text(context.l10n.onbNameTitle, textAlign: TextAlign.center, style: AppText.baloo(size: 24, weight: FontWeight.w800)),
         ),
         const SizedBox(height: 8),
         FadeSlideIn(
           delay: const Duration(milliseconds: 100),
           child: Text(
-            'Diğer oyuncular seni bu isimle görecek',
+            context.l10n.onbNameSubtitle,
             textAlign: TextAlign.center,
             style: AppText.nunito(size: 14, weight: FontWeight.w700, color: Palette.textSecondary),
           ),
@@ -50,7 +51,7 @@ class NameStep extends StatelessWidget {
               decoration: InputDecoration(
                 counterText: '',
                 border: InputBorder.none,
-                hintText: 'İsmin',
+                hintText: context.l10n.onbNameHint,
                 hintStyle: AppText.baloo(size: 19, weight: FontWeight.w700, color: Palette.textSecondary.withValues(alpha: 0.5)),
                 contentPadding: const EdgeInsets.symmetric(vertical: 18),
               ),

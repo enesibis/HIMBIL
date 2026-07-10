@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../theme/avatar_options.dart';
 import '../../theme/palette.dart';
+import '../../l10n/l10n.dart';
 import '../../theme/text_styles.dart';
 import '../../widgets/fade_slide_in.dart';
 import '../../widgets/user_avatar.dart';
@@ -47,13 +48,13 @@ class CompleteStep extends StatelessWidget {
             const SizedBox(height: 22),
             FadeSlideIn(
               delay: const Duration(milliseconds: 200),
-              child: Text('Harika, $name!', textAlign: TextAlign.center, style: AppText.baloo(size: 25, weight: FontWeight.w800)),
+              child: Text(context.l10n.onbCompleteTitle(name), textAlign: TextAlign.center, style: AppText.baloo(size: 25, weight: FontWeight.w800)),
             ),
             const SizedBox(height: 6),
             FadeSlideIn(
               delay: const Duration(milliseconds: 280),
               child: Text(
-                'Profilin hazır — hadi ilk elini dağıt!',
+                context.l10n.onbCompleteBody,
                 textAlign: TextAlign.center,
                 style: AppText.nunito(size: 14, weight: FontWeight.w700, color: Palette.textSecondary),
               ),

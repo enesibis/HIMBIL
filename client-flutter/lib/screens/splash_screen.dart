@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../audio/sound_service.dart';
+import '../l10n/l10n.dart';
 import '../session/player_session.dart';
 import '../theme/palette.dart';
 import '../theme/text_styles.dart';
@@ -119,7 +120,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
           opacity: wordmark,
           child: Transform.translate(
             offset: Offset(0, (1 - wordmark) * 8),
-            child: Text('Hımbıl', style: AppText.baloo(size: 32, weight: FontWeight.w800)),
+            child: Text(context.l10n.appTitle, style: AppText.baloo(size: 32, weight: FontWeight.w800)),
           ),
         ),
       ],

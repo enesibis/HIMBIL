@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../audio/sound_service.dart';
+import '../l10n/l10n.dart';
 import '../theme/palette.dart';
 import '../theme/text_styles.dart';
 import '../widgets/rank_row.dart';
@@ -80,7 +81,7 @@ class _SlamCelebrationScreenState extends State<SlamCelebrationScreen> with Tick
                     ScaleTransition(
                       scale: CurvedAnimation(parent: _popController, curve: Curves.easeOutBack),
                       child: Text(
-                        'HIMBIL!',
+                        context.l10n.gameSlamButton,
                         style: AppText.baloo(size: 42, weight: FontWeight.w800, color: Colors.white),
                       ),
                     ),
@@ -127,10 +128,10 @@ class _SlamCelebrationScreenState extends State<SlamCelebrationScreen> with Tick
               children: [
                 const Icon(Icons.timer_off_rounded, size: 44, color: Palette.textSecondary),
                 const SizedBox(height: 14),
-                Text('Bu Tur Kaçırıldı', style: AppText.baloo(size: 20, weight: FontWeight.w700)),
+                Text(context.l10n.celebrationMissedTitle, style: AppText.baloo(size: 20, weight: FontWeight.w700)),
                 const SizedBox(height: 4),
                 Text(
-                  'Kimse zamanında basamadı',
+                  context.l10n.celebrationMissedBody,
                   style: AppText.nunito(size: 13, weight: FontWeight.w700, color: Palette.textSecondary),
                 ),
               ],

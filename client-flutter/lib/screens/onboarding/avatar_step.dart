@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../theme/avatar_frames.dart';
 import '../../theme/avatar_options.dart';
 import '../../theme/palette.dart';
+import '../../l10n/l10n.dart';
 import '../../theme/text_styles.dart';
 import '../../widgets/fade_slide_in.dart';
 import '../../widgets/user_avatar.dart';
@@ -41,13 +42,13 @@ class AvatarStep extends StatelessWidget {
       child: Column(
         children: [
           FadeSlideIn(
-            child: Text('Avatarını Oluştur', textAlign: TextAlign.center, style: AppText.baloo(size: 24, weight: FontWeight.w800)),
+            child: Text(context.l10n.onbAvatarTitle, textAlign: TextAlign.center, style: AppText.baloo(size: 24, weight: FontWeight.w800)),
           ),
           const SizedBox(height: 6),
           FadeSlideIn(
             delay: const Duration(milliseconds: 80),
             child: Text(
-              'Karakter, renk ve çerçeveni seç',
+              context.l10n.onbAvatarSubtitle,
               textAlign: TextAlign.center,
               style: AppText.nunito(size: 14, weight: FontWeight.w700, color: Palette.textSecondary),
             ),
@@ -62,15 +63,15 @@ class AvatarStep extends StatelessWidget {
             child: UserAvatar(size: 118, imagePath: imagePath, initial: initial, gradient: gradient, frame: frame),
           ),
           const SizedBox(height: 26),
-          FadeSlideIn(delay: const Duration(milliseconds: 120), child: _sectionLabel('KARAKTER')),
+          FadeSlideIn(delay: const Duration(milliseconds: 120), child: _sectionLabel(context.l10n.onbSectionCharacter)),
           const SizedBox(height: 10),
           FadeSlideIn(delay: const Duration(milliseconds: 160), child: _characterGrid()),
           const SizedBox(height: 22),
-          FadeSlideIn(delay: const Duration(milliseconds: 200), child: _sectionLabel('RENK')),
+          FadeSlideIn(delay: const Duration(milliseconds: 200), child: _sectionLabel(context.l10n.onbSectionColor)),
           const SizedBox(height: 10),
           FadeSlideIn(delay: const Duration(milliseconds: 240), child: _colorRow()),
           const SizedBox(height: 22),
-          FadeSlideIn(delay: const Duration(milliseconds: 280), child: _sectionLabel('ÇERÇEVE')),
+          FadeSlideIn(delay: const Duration(milliseconds: 280), child: _sectionLabel(context.l10n.onbSectionFrame)),
           const SizedBox(height: 10),
           FadeSlideIn(delay: const Duration(milliseconds: 320), child: _frameRow(gradient, imagePath)),
           const SizedBox(height: 8),

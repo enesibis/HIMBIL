@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../audio/sound_service.dart';
+import '../l10n/l10n.dart';
 import '../theme/palette.dart';
 import '../theme/text_styles.dart';
 import '../widgets/carnival_background.dart';
@@ -32,7 +33,7 @@ class RoundResultScreen extends StatelessWidget {
             child: Column(
               children: [
                 const SizedBox(height: 24),
-                Text('TUR $roundNumber SONUÇLARI', style: AppText.nunito(size: 12, weight: FontWeight.w800, color: Palette.textSecondary).copyWith(letterSpacing: 1)),
+                Text(context.l10n.roundResultsTitle(roundNumber), style: AppText.nunito(size: 12, weight: FontWeight.w800, color: Palette.textSecondary).copyWith(letterSpacing: 1)),
                 const SizedBox(height: 20),
                 Expanded(
                   child: Column(
@@ -60,7 +61,7 @@ class RoundResultScreen extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(bottom: 20),
                   child: GradientCta(
-                    title: isMatchOver ? 'Final Sonuçlar >' : 'Sonraki Tur >',
+                    title: isMatchOver ? context.l10n.roundFinal : context.l10n.roundNext,
                     width: MediaQuery.sizeOf(context).width - 48,
                     height: 68,
                     color: Palette.redLight,

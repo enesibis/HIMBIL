@@ -8,7 +8,13 @@
       "Skill(run:*)",
       "Bash(npx vitest *)",
       "Bash(npm test *)",
-      "Bash(flutter test *)"
+      "Bash(flutter test *)",
+      "Bash(grep -rn \"'[^']*[a-zA-ZçğıöşüÇĞİÖŞÜ]\\\\{2,\\\\}[^']*'\" lib/screens/home_screen.dart lib/screens/join_screen.dart lib/screens/how_to_play_overlay.dart lib/widgets/home_bottom_nav.dart lib/widgets/store_tab.dart)",
+      "Bash(grep -vE \"objectType|playerId|match_reward|analytics|//|/\\\\*\")",
+      "Bash(grep -vE \"//|/\\\\*|assets/\")",
+      "Bash(flutter gen-l10n *)",
+      "Bash(python -)",
+      "Bash(python \"C:\\\\Users\\\\enesi\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--game-himbil\\\\c15d811c-415f-4103-bf0a-a0a32c1405b8\\\\scratchpad\\\\l10n_sweep.py\")"
     ]
   }
 }

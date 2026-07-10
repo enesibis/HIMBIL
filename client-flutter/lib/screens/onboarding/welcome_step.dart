@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../theme/palette.dart';
+import '../../l10n/l10n.dart';
 import '../../theme/text_styles.dart';
 import '../../widgets/fade_slide_in.dart';
 
@@ -35,13 +36,13 @@ class WelcomeStep extends StatelessWidget {
         const SizedBox(height: 26),
         FadeSlideIn(
           delay: const Duration(milliseconds: 120),
-          child: Text('Hımbıl\'a Hoş Geldin!', textAlign: TextAlign.center, style: AppText.baloo(size: 27, weight: FontWeight.w800)),
+          child: Text(context.l10n.onbWelcomeTitle, textAlign: TextAlign.center, style: AppText.baloo(size: 27, weight: FontWeight.w800)),
         ),
         const SizedBox(height: 10),
         FadeSlideIn(
           delay: const Duration(milliseconds: 220),
           child: Text(
-            'Sana özel bir profil hazırlayalım —\nbirkaç kısa soru soracağız.',
+            context.l10n.onbWelcomeBody,
             textAlign: TextAlign.center,
             style: AppText.nunito(size: 14, weight: FontWeight.w700, color: Palette.textSecondary),
           ),
@@ -52,11 +53,11 @@ class WelcomeStep extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _pill('İsim', Icons.badge_rounded, Palette.red),
+              _pill(context.l10n.onbPillName, Icons.badge_rounded, Palette.red),
               const SizedBox(width: 10),
-              _pill('Yaş', Icons.cake_rounded, Palette.mustard),
+              _pill(context.l10n.onbPillAge, Icons.cake_rounded, Palette.mustard),
               const SizedBox(width: 10),
-              _pill('Avatar', Icons.face_retouching_natural_rounded, Palette.blue),
+              _pill(context.l10n.onbPillAvatar, Icons.face_retouching_natural_rounded, Palette.blue),
             ],
           ),
         ),

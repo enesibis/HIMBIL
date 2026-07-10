@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../audio/sound_service.dart';
+import '../l10n/l10n.dart';
 import '../theme/palette.dart';
 import '../theme/text_styles.dart';
 import '../widgets/carnival_background.dart';
@@ -89,7 +90,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Image.asset('assets/images/himbil_logo.png', fit: BoxFit.cover),
             ),
             const SizedBox(width: 9),
-            Text('Hımbıl', style: AppText.baloo(size: 23, weight: FontWeight.w800)),
+            Text(context.l10n.appTitle, style: AppText.baloo(size: 23, weight: FontWeight.w800)),
           ],
         ),
         Row(
@@ -133,13 +134,13 @@ class _HomeScreenState extends State<HomeScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 8),
-          Text('Merhaba,', style: AppText.nunito(size: 14, weight: FontWeight.w700, color: Palette.textSecondary)),
+          Text(context.l10n.homeGreeting, style: AppText.nunito(size: 14, weight: FontWeight.w700, color: Palette.textSecondary)),
           const SizedBox(height: 2),
-          Text('Bugün Hımbıl var!', style: AppText.baloo(size: 23, weight: FontWeight.w700)),
+          Text(context.l10n.homeTagline, style: AppText.baloo(size: 23, weight: FontWeight.w700)),
           const SizedBox(height: 20),
           GradientCta(
-            title: '▶  HIZLI OYNA',
-            subtitle: 'Rastgele oyuncularla eşleş',
+            title: context.l10n.homeQuickPlay,
+            subtitle: context.l10n.homeQuickPlaySubtitle,
             width: width,
             height: 96,
             color: Palette.redLight,
@@ -154,7 +155,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Expanded(child: Divider(color: Palette.textPrimary.withValues(alpha: 0.1), thickness: 2)),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Text('VEYA ÖZEL ODA', style: AppText.nunito(size: 11, weight: FontWeight.w800, color: Palette.textSecondary)),
+                child: Text(context.l10n.homeOrPrivateRoom, style: AppText.nunito(size: 11, weight: FontWeight.w800, color: Palette.textSecondary)),
               ),
               Expanded(child: Divider(color: Palette.textPrimary.withValues(alpha: 0.1), thickness: 2)),
             ],
@@ -164,7 +165,7 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               Expanded(
                 child: _secondaryCard(
-                  label: 'Oda Kur',
+                  label: context.l10n.homeCreateRoom,
                   icon: Icons.add_rounded,
                   iconColor: Palette.mustard,
                   onTap: () => _goToCreateRoom(context),
@@ -173,7 +174,7 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(width: 14),
               Expanded(
                 child: _secondaryCard(
-                  label: 'Kodla Katıl',
+                  label: context.l10n.homeJoinWithCode,
                   icon: Icons.key_rounded,
                   iconColor: Palette.blue,
                   onTap: () => _goToJoin(context),
@@ -190,25 +191,25 @@ class _HomeScreenState extends State<HomeScreen> {
   List<_ProfileStat> get _profileStats => [
         _ProfileStat(
           value: '${PlayerSession.instance.gamesPlayed}',
-          label: 'Oyun',
+          label: context.l10n.statGames,
           icon: Icons.style_rounded,
           badgeGradient: const [Palette.redLight, Palette.red],
         ),
         _ProfileStat(
           value: '${PlayerSession.instance.wins}',
-          label: 'Galibiyet',
+          label: context.l10n.statWins,
           icon: Icons.emoji_events_rounded,
           badgeGradient: const [Color(0xFF5FB98C), Palette.green],
         ),
         _ProfileStat(
           value: '%${PlayerSession.instance.winRatePercent}',
-          label: 'Kazanma Oranı',
+          label: context.l10n.statWinRate,
           icon: Icons.bar_chart_rounded,
           badgeGradient: const [Palette.mustardLight, Palette.mustard],
         ),
         _ProfileStat(
           value: '${PlayerSession.instance.bestStreak}',
-          label: 'En İyi Seri',
+          label: context.l10n.statBestStreak,
           icon: Icons.local_fire_department_rounded,
           badgeGradient: const [Color(0xFF5B8FC7), Palette.blue],
         ),
@@ -223,7 +224,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Profilim', style: AppText.baloo(size: 19, weight: FontWeight.w700)),
+              Text(context.l10n.profileTitle, style: AppText.baloo(size: 19, weight: FontWeight.w700)),
               GestureDetector(
                 onTap: () async {
                   SoundService.instance.playSfx(Sfx.buttonTap);
@@ -234,7 +235,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     const Icon(Icons.edit_rounded, size: 15, color: Palette.blue),
                     const SizedBox(width: 4),
-                    Text('Düzenle', style: AppText.nunito(size: 12, weight: FontWeight.w800, color: Palette.blue)),
+                    Text(context.l10n.profileEditButton, style: AppText.nunito(size: 12, weight: FontWeight.w800, color: Palette.blue)),
                   ],
                 ),
               ),
@@ -251,7 +252,7 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [for (final s in _profileStats) _statCard(s)],
           ),
           const SizedBox(height: 18),
-          Text('Liderlik Tablosu', style: AppText.baloo(size: 16, weight: FontWeight.w700)),
+          Text(context.l10n.leaderboardTitle, style: AppText.baloo(size: 16, weight: FontWeight.w700)),
           const SizedBox(height: 8),
           _leaderboardComingSoon(),
         ],
@@ -275,10 +276,10 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           Icon(Icons.leaderboard_rounded, size: 28, color: Palette.textSecondary.withValues(alpha: 0.5)),
           const SizedBox(height: 10),
-          Text('Yakında', style: AppText.baloo(size: 15, weight: FontWeight.w700)),
+          Text(context.l10n.leaderboardComingSoon, style: AppText.baloo(size: 15, weight: FontWeight.w700)),
           const SizedBox(height: 4),
           Text(
-            'Çevrimiçi liderlik tablosu sunucu bağlantısıyla açılacak',
+            context.l10n.leaderboardComingSoonBody,
             textAlign: TextAlign.center,
             style: AppText.nunito(size: 12, weight: FontWeight.w700, color: Palette.textSecondary),
           ),

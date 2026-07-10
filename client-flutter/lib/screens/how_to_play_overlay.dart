@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/palette.dart';
+import '../l10n/l10n.dart';
 import '../theme/text_styles.dart';
 import '../widgets/gradient_cta.dart';
 
@@ -12,23 +13,11 @@ class _HowToPlayCard {
   const _HowToPlayCard({required this.icon, required this.title, required this.description});
 }
 
-const _cards = [
-  _HowToPlayCard(
-    icon: Icons.swap_horiz_rounded,
-    title: 'Kart Ver, Kart Al',
-    description: 'İşine yaramayan bir kart seç; her tur sonunda komşuna geçer, sen de karşındakinden bir kart alırsın.',
-  ),
-  _HowToPlayCard(
-    icon: Icons.grid_view_rounded,
-    title: 'Dörtlünü Tamamla',
-    description: 'Elindeki 4 kart aynı türden olduğunda dörtlün tamamlanmış olur.',
-  ),
-  _HowToPlayCard(
-    icon: Icons.bolt_rounded,
-    title: "HIMBIL'e Bas",
-    description: 'Dörtlün tamamlanır tamamlanmaz hızlıca bas — ne kadar erken basarsan o kadar çok puan alırsın. Ama dörtlün yokken basarsan puan kaybedersin!',
-  ),
-];
+List<_HowToPlayCard> _cards(AppLocalizations l10n) => [
+      _HowToPlayCard(icon: Icons.swap_horiz_rounded, title: l10n.howToCard1Title, description: l10n.howToCard1Body),
+      _HowToPlayCard(icon: Icons.grid_view_rounded, title: l10n.howToCard2Title, description: l10n.howToCard2Body),
+      _HowToPlayCard(icon: Icons.bolt_rounded, title: l10n.howToCard3Title, description: l10n.howToCard3Body),
+    ];
 
 /// Oyuna ilk girişte gösterilen, 3 kartlık kısa kurallar anlatımı
 /// (bkz. yapılması-gerekenler #14). Kurallar hiçbir yerde anlatılmadığı
@@ -50,15 +39,15 @@ class HowToPlayOverlay extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('Nasıl Oynanır?', style: AppText.baloo(size: 22, weight: FontWeight.w800, color: Colors.white)),
+                  Text(context.l10n.howToPlayTitle, style: AppText.baloo(size: 22, weight: FontWeight.w800, color: Colors.white)),
                   const SizedBox(height: 18),
-                  for (final card in _cards) ...[
+                  for (final card in _cards(context.l10n)) ...[
                     _card(card),
                     const SizedBox(height: 12),
                   ],
                   const SizedBox(height: 6),
                   GradientCta(
-                    title: 'ANLADIM, BAŞLA!',
+                    title: context.l10n.howToPlayStart,
                     width: 260,
                     height: 62,
                     color: Palette.redLight,

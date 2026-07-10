@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../audio/sound_service.dart';
 import '../../session/player_session.dart';
+import '../../l10n/l10n.dart';
 import '../../theme/palette.dart';
 import '../../widgets/carnival_background.dart';
 import '../../widgets/circle_back_button.dart';
@@ -27,7 +28,11 @@ class OnboardingScreen extends StatefulWidget {
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
   static const _totalSteps = 5;
-  static const _buttonLabels = ['Haydi Başlayalım', 'Devam Et', 'Devam Et', 'Devam Et', 'Oyuna Başla'];
+  String _buttonLabel(int step) {
+    if (step == 0) return context.l10n.onbLetsStart;
+    if (step == _totalSteps - 1) return context.l10n.onbStartPlaying;
+    return context.l10n.onbContinue;
+  }
 
   final _pageController = PageController();
   late final TextEditingController _nameController;
@@ -165,7 +170,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 child: Opacity(
                   opacity: _canContinue ? 1.0 : 0.45,
                   child: GradientCta(
-                    title: _buttonLabels[_step].toUpperCase(),
+                    title: _buttonLabel(_step).toUpperCase(),
                     width: MediaQuery.sizeOf(context).width - 56,
                     height: 68,
                     color: Palette.redLight,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../session/player_session.dart';
+import '../l10n/l10n.dart';
 import '../theme/avatar_frames.dart';
 import '../theme/card_skins.dart';
 import '../theme/palette.dart';
@@ -32,7 +33,7 @@ class _StoreTabState extends State<StoreTab> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Mağaza', style: AppText.baloo(size: 19, weight: FontWeight.w700)),
+              Text(context.l10n.storeTitle, style: AppText.baloo(size: 19, weight: FontWeight.w700)),
               _tokenChip(),
             ],
           ),
@@ -74,8 +75,8 @@ class _StoreTabState extends State<StoreTab> {
       ),
       child: Row(
         children: [
-          Expanded(child: _sectionTab(label: 'Kart Sırtları', index: 0)),
-          Expanded(child: _sectionTab(label: 'Çerçeveler', index: 1)),
+          Expanded(child: _sectionTab(label: context.l10n.storeCardBacks, index: 0)),
+          Expanded(child: _sectionTab(label: context.l10n.storeFrames, index: 1)),
         ],
       ),
     );
@@ -198,7 +199,7 @@ class _StoreTabState extends State<StoreTab> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                "$name'i $price jetona satın al?",
+                context.l10n.storeBuyConfirm(name, price),
                 style: AppText.baloo(size: 17, weight: FontWeight.w700),
                 textAlign: TextAlign.center,
               ),
@@ -207,7 +208,7 @@ class _StoreTabState extends State<StoreTab> {
                 children: [
                   Expanded(
                     child: SoftButton(
-                      label: 'Vazgeç',
+                      label: context.l10n.commonCancel,
                       width: double.infinity,
                       height: 46,
                       borderRadius: 16,
@@ -218,7 +219,7 @@ class _StoreTabState extends State<StoreTab> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: SoftButton(
-                      label: 'Satın Al',
+                      label: context.l10n.storeBuy,
                       width: double.infinity,
                       height: 46,
                       borderRadius: 16,
@@ -245,7 +246,7 @@ class _StoreTabState extends State<StoreTab> {
 
   void _showInsufficientFunds() {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Yetersiz jeton'), duration: Duration(milliseconds: 1200)),
+      SnackBar(content: Text(context.l10n.storeInsufficientTokens), duration: const Duration(milliseconds: 1200)),
     );
   }
 }
@@ -286,16 +287,16 @@ class _StoreItem extends StatelessWidget {
           const SizedBox(height: 8),
           Text(name, textAlign: TextAlign.center, style: AppText.baloo(size: 13, weight: FontWeight.w700)),
           const SizedBox(height: 8),
-          _actionButton(),
+          _actionButton(context),
         ],
       ),
     );
   }
 
-  Widget _actionButton() {
+  Widget _actionButton(BuildContext context) {
     if (equipped) {
       return _pill(
-        label: 'Kullanılıyor',
+        label: context.l10n.storeEquipped,
         icon: Icons.check_circle_rounded,
         gradient: const [Palette.redLight, Palette.redPressedEnd],
         textColor: Colors.white,
@@ -304,7 +305,7 @@ class _StoreItem extends StatelessWidget {
     }
     if (owned) {
       return _pill(
-        label: 'Kullan',
+        label: context.l10n.storeEquip,
         icon: null,
         gradient: null,
         background: Palette.bgCream,

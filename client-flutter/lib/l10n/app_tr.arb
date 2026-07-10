@@ -14,5 +14,179 @@
   "profileEditTitle": "Profili Düzenle",
   "profileEditNameLabel": "İSİM",
   "profileEditSave": "Kaydet",
-  "profileEditSaving": "Kaydediliyor…"
+  "profileEditSaving": "Kaydediliyor…",
+
+  "commonCancel": "Vazgeç",
+
+  "navPlay": "Oyna",
+  "navStore": "Mağaza",
+  "navProfile": "Profil",
+
+  "homeGreeting": "Merhaba,",
+  "homeTagline": "Bugün Hımbıl var!",
+  "homeQuickPlay": "▶  HIZLI OYNA",
+  "homeQuickPlaySubtitle": "Rastgele oyuncularla eşleş",
+  "homeOrPrivateRoom": "VEYA ÖZEL ODA",
+  "homeCreateRoom": "Oda Kur",
+  "homeJoinWithCode": "Kodla Katıl",
+  "statGames": "Oyun",
+  "statWins": "Galibiyet",
+  "statWinRate": "Kazanma Oranı",
+  "statBestStreak": "En İyi Seri",
+  "profileTitle": "Profilim",
+  "profileEditButton": "Düzenle",
+  "leaderboardTitle": "Liderlik Tablosu",
+  "leaderboardComingSoon": "Yakında",
+  "leaderboardComingSoonBody": "Çevrimiçi liderlik tablosu sunucu bağlantısıyla açılacak",
+
+  "joinTitle": "Kod ile Katıl",
+  "joinSubtitle": "Arkadaşının oda kodunu gir",
+  "joinDemoFill": "Örnek kod ile doldur (K7X29M)",
+
+  "lobbyRoomCode": "ODA KODU",
+  "lobbyShareInvite": "Daveti Paylaş",
+  "lobbyShareInviteHint": "Oda kodunu paylaş",
+  "lobbyShareText": "Hımbıl'da bana katıl! Oda kodu: {code}\nhimbil://join/{code}",
+  "@lobbyShareText": {
+    "placeholders": {
+      "code": {"type": "String"}
+    }
+  },
+  "lobbyShareSubject": "Hımbıl oda daveti",
+  "lobbyQuickMatch": "HIZLI EŞLEŞME",
+  "lobbyRandomPlayers": "Rastgele Oyuncular",
+  "lobbyConnecting": "Sunucuya bağlanılıyor…",
+  "lobbyWaitingPlayers": "Oyuncular bekleniyor ({count}/4) — oda dolunca otomatik başlar",
+  "@lobbyWaitingPlayers": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "lobbyMatchFound": "Eşleşme bulundu, başlıyor…",
+  "lobbySearching": "Rakipler aranıyor…",
+  "lobbyStartGame": "Oyunu Başlat",
+  "lobbyReady": "✓ Hazır",
+  "lobbyWaitingStatus": "Bekleniyor…",
+  "lobbyEmptySlot": "Bekleniyor",
+  "lobbyFallbackJoinFailed": "Odaya katılamadı (sunucu kapalı ya da kod geçersiz) — botlarla oynuyorsun.",
+  "lobbyFallbackServerUnreachable": "Sunucuya ulaşılamadı — botlarla oynuyorsun.",
+
+  "gameToastYourTurn": "Sıradasın!",
+  "gameToastAlreadyPressed": "Zaten bastın",
+  "gameToastFalseStartForgiven": "Henüz dörtlün yok — bu ilk yanlışın bedava!",
+  "gameToastFalseStartPenalty": "Erken bastın! Ceza puanı",
+  "gameExitTitle": "Turdan çıkılsın mı?",
+  "gameExitBodyOnline": "Menüye dönersen maçtan ayrılırsın; diğer oyuncular devam eder.",
+  "gameExitBodyLocal": "Menüye dönersen bu tur ve puanların kaybolur.",
+  "gameExitConfirm": "Çık",
+  "gameHintSwap": "İşine yaramayan kartı seç, komşuna ver",
+  "gameHintSlam": "4'lün tamam — HIMBIL'e bas!",
+  "gameHintScoring": "Puanlar hesaplanıyor...",
+  "gameMenuButton": "< Menü",
+  "gameSlamButton": "HIMBIL!",
+  "gameScoreLabel": "Puanın: {score} / {target}",
+  "@gameScoreLabel": {
+    "placeholders": {
+      "score": {"type": "int"},
+      "target": {"type": "int"}
+    }
+  },
+  "gameRoundTimer": "Tur {round} · {seconds}s",
+  "@gameRoundTimer": {
+    "placeholders": {
+      "round": {"type": "int"},
+      "seconds": {"type": "String"}
+    }
+  },
+  "gameOpponentScore": "{score} puan",
+  "@gameOpponentScore": {
+    "placeholders": {
+      "score": {"type": "int"}
+    }
+  },
+  "gameSeatScore": "{name} · {score}",
+  "@gameSeatScore": {
+    "placeholders": {
+      "name": {"type": "String"},
+      "score": {"type": "int"}
+    }
+  },
+
+  "roundResultsTitle": "TUR {round} SONUÇLARI",
+  "@roundResultsTitle": {
+    "placeholders": {
+      "round": {"type": "int"}
+    }
+  },
+  "roundNext": "Sonraki Tur >",
+  "roundFinal": "Final Sonuçlar >",
+
+  "celebrationMissedTitle": "Bu Tur Kaçırıldı",
+  "celebrationMissedBody": "Kimse zamanında basamadı",
+
+  "gameOverYouWon": "Kazandın!",
+  "gameOverPlayerWon": "{name} kazandı!",
+  "@gameOverPlayerWon": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "gameOverPlayAgain": "TEKRAR OYNA",
+  "gameOverMainMenu": "Ana Menü",
+  "gameOverTokenReward": "+{amount} jeton",
+  "@gameOverTokenReward": {
+    "placeholders": {
+      "amount": {"type": "int"}
+    }
+  },
+
+  "storeTitle": "Mağaza",
+  "storeCardBacks": "Kart Sırtları",
+  "storeFrames": "Çerçeveler",
+  "storeBuyConfirm": "{name}, {price} jetona satın alınsın mı?",
+  "@storeBuyConfirm": {
+    "placeholders": {
+      "name": {"type": "String"},
+      "price": {"type": "int"}
+    }
+  },
+  "storeBuy": "Satın Al",
+  "storeInsufficientTokens": "Yetersiz jeton",
+  "storeEquipped": "Kullanılıyor",
+  "storeEquip": "Kullan",
+
+  "howToPlayTitle": "Nasıl Oynanır?",
+  "howToPlayStart": "ANLADIM, BAŞLA!",
+  "howToCard1Title": "Kart Ver, Kart Al",
+  "howToCard1Body": "İşine yaramayan bir kart seç; her tur sonunda komşuna geçer, sen de karşındakinden bir kart alırsın.",
+  "howToCard2Title": "Dörtlünü Tamamla",
+  "howToCard2Body": "Elindeki 4 kart aynı türden olduğunda dörtlün tamamlanmış olur.",
+  "howToCard3Title": "HIMBIL'e Bas",
+  "howToCard3Body": "Dörtlün tamamlanır tamamlanmaz hızlıca bas — ne kadar erken basarsan o kadar çok puan alırsın. Ama dörtlün yokken basarsan puan kaybedersin!",
+
+  "onbLetsStart": "Haydi Başlayalım",
+  "onbContinue": "Devam Et",
+  "onbStartPlaying": "Oyuna Başla",
+  "onbWelcomeTitle": "Hımbıl'a Hoş Geldin!",
+  "onbWelcomeBody": "Sana özel bir profil hazırlayalım —\nbirkaç kısa soru soracağız.",
+  "onbPillName": "İsim",
+  "onbPillAge": "Yaş",
+  "onbPillAvatar": "Avatar",
+  "onbNameTitle": "Sana nasıl seslenelim?",
+  "onbNameSubtitle": "Diğer oyuncular seni bu isimle görecek",
+  "onbNameHint": "İsmin",
+  "onbAgeTitle": "Kaç yaşındasın?",
+  "onbAgeSubtitle": "Profilini kişiselleştirmek için kullanırız",
+  "onbAvatarTitle": "Avatarını Oluştur",
+  "onbAvatarSubtitle": "Karakter, renk ve çerçeveni seç",
+  "onbSectionCharacter": "KARAKTER",
+  "onbSectionColor": "RENK",
+  "onbSectionFrame": "ÇERÇEVE",
+  "onbCompleteTitle": "Harika, {name}!",
+  "@onbCompleteTitle": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "onbCompleteBody": "Profilin hazır — hadi ilk elini dağıt!"
 }

@@ -6,6 +6,7 @@ import 'package:share_plus/share_plus.dart';
 import '../audio/sound_service.dart';
 import '../game/bots.dart';
 import '../game/server_game_driver.dart';
+import '../l10n/l10n.dart';
 import '../net/himbil_net_client.dart';
 import '../net/room_code.dart';
 import '../session/player_session.dart';
@@ -148,8 +149,8 @@ class _LobbyScreenState extends State<LobbyScreen> {
       _mode = _LobbyMode.offline;
       _offlineRoomCode = widget.joinCode ?? generateLocalRoomCode();
       _note = widget.joinCode != null
-          ? 'Odaya katılamadı (sunucu kapalı ya da kod geçersiz) — botlarla oynuyorsun.'
-          : 'Sunucuya ulaşılamadı — botlarla oynuyorsun.';
+          ? context.l10n.lobbyFallbackJoinFailed
+          : context.l10n.lobbyFallbackServerUnreachable;
     });
 
     Future.delayed(const Duration(milliseconds: 1500), () {
@@ -172,8 +173,8 @@ class _LobbyScreenState extends State<LobbyScreen> {
     SoundService.instance.playSfx(Sfx.buttonTap);
     SharePlus.instance.share(
       ShareParams(
-        text: 'Hımbıl\'da bana katıl! Oda kodu: $_displayRoomCode\nhimbil://join/$_displayRoomCode',
-        subject: 'Hımbıl oda daveti',
+        text: context.l10n.lobbyShareText(_displayRoomCode),
+        subject: context.l10n.lobbyShareSubject,
       ),
     );
   }
@@ -245,7 +246,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
       case _LobbyMode.online:
         return [
           for (final p in _onlinePlayers) _lobbySlot(p.name, ready: p.connected),
-          for (var i = _onlinePlayers.length; i < 3; i++) _lobbySlot('Bekleniyor', ready: false),
+          for (var i = _onlinePlayers.length; i < 3; i++) _lobbySlot(context.l10n.lobbyEmptySlot, ready: false),
         ];
       case _LobbyMode.offline:
         return [for (final bot in Bots.all) _lobbySlot(bot.name, ready: _botsReady)];
@@ -256,27 +257,27 @@ class _LobbyScreenState extends State<LobbyScreen> {
     switch (_mode) {
       case _LobbyMode.connecting:
         return Text(
-          'Sunucuya bağlanılıyor…',
+          context.l10n.lobbyConnecting,
           style: AppText.nunito(size: 13, weight: FontWeight.w700, color: Palette.textSecondary),
         );
       case _LobbyMode.online:
         // Sunucu 4 oyuncu dolunca maçı kendisi başlatır; manuel başlatma yok.
         return Text(
-          'Oyuncular bekleniyor (${_onlinePlayers.length + 1}/4) — oda dolunca otomatik başlar',
+          context.l10n.lobbyWaitingPlayers(_onlinePlayers.length + 1),
           textAlign: TextAlign.center,
           style: AppText.nunito(size: 13, weight: FontWeight.w700, color: Palette.textSecondary),
         );
       case _LobbyMode.offline:
         if (widget.quickPlay) {
           return Text(
-            _botsReady ? 'Eşleşme bulundu, başlıyor…' : 'Rakipler aranıyor…',
+            _botsReady ? context.l10n.lobbyMatchFound : context.l10n.lobbySearching,
             style: AppText.nunito(size: 13, weight: FontWeight.w700, color: Palette.textSecondary),
           );
         }
         return Opacity(
           opacity: _botsReady ? 1.0 : 0.45,
           child: GradientCta(
-            title: 'Oyunu Başlat',
+            title: context.l10n.lobbyStartGame,
             width: MediaQuery.sizeOf(context).width - 48,
             height: 68,
             color: Palette.redLight,
@@ -305,7 +306,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
       ),
       child: Column(
         children: [
-          Text('ODA KODU', style: AppText.nunito(size: 11, weight: FontWeight.w800, color: Palette.textSecondary)),
+          Text(context.l10n.lobbyRoomCode, style: AppText.nunito(size: 11, weight: FontWeight.w800, color: Palette.textSecondary)),
           const SizedBox(height: 4),
           Text(
             _displayRoomCode,
@@ -314,7 +315,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
           const SizedBox(height: 8),
           Semantics(
             button: true,
-            label: 'Oda kodunu paylaş',
+            label: context.l10n.lobbyShareInviteHint,
             child: GestureDetector(
               onTap: _shareInvite,
               child: Row(
@@ -323,7 +324,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
                   const Icon(Icons.ios_share_rounded, size: 15, color: Palette.blue),
                   const SizedBox(width: 6),
                   ExcludeSemantics(
-                    child: Text('Daveti Paylaş', style: AppText.nunito(size: 12, weight: FontWeight.w800, color: Palette.blue)),
+                    child: Text(context.l10n.lobbyShareInvite, style: AppText.nunito(size: 12, weight: FontWeight.w800, color: Palette.blue)),
                   ),
                 ],
               ),
@@ -350,9 +351,9 @@ class _LobbyScreenState extends State<LobbyScreen> {
       ),
       child: Column(
         children: [
-          Text('HIZLI EŞLEŞME', style: AppText.nunito(size: 11, weight: FontWeight.w800, color: Palette.textSecondary)),
+          Text(context.l10n.lobbyQuickMatch, style: AppText.nunito(size: 11, weight: FontWeight.w800, color: Palette.textSecondary)),
           const SizedBox(height: 4),
-          Text('Rastgele Oyuncular', style: AppText.baloo(size: 22, weight: FontWeight.w800, color: Palette.red)),
+          Text(context.l10n.lobbyRandomPlayers, style: AppText.baloo(size: 22, weight: FontWeight.w800, color: Palette.red)),
         ],
       ),
     );
@@ -374,7 +375,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
           Text(name, style: AppText.baloo(size: 14, weight: FontWeight.w700)),
           const SizedBox(height: 2),
           Text(
-            ready ? '✓ Hazır' : 'Bekleniyor…',
+            ready ? context.l10n.lobbyReady : context.l10n.lobbyWaitingStatus,
             style: AppText.nunito(size: 11, weight: FontWeight.w800, color: ready ? Palette.green : Palette.textSecondary),
           ),
         ],

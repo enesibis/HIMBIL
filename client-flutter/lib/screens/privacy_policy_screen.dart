@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
 import '../theme/palette.dart';
 import '../theme/text_styles.dart';
 import '../widgets/carnival_background.dart';
@@ -27,7 +28,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
                 const SizedBox(height: 8),
                 CircleBackButton(onTap: () => Navigator.of(context).pop()),
                 const SizedBox(height: 14),
-                Text('Gizlilik Politikası', style: AppText.baloo(size: 21, weight: FontWeight.w700)),
+                Text(context.l10n.settingsPrivacyPolicy, style: AppText.baloo(size: 21, weight: FontWeight.w700)),
                 const SizedBox(height: 4),
                 Text(
                   'Son güncelleme: bu taslak, uygulamanın şu anki (ağsız/bot) sürümünü yansıtır.',

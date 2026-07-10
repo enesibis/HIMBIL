@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../audio/sound_service.dart';
+import '../l10n/l10n.dart';
 import '../net/room_code.dart';
 import '../theme/palette.dart';
 import '../theme/text_styles.dart';
@@ -96,9 +97,9 @@ class _JoinScreenState extends State<JoinScreen> {
                 const SizedBox(height: 8),
                 CircleBackButton(onTap: () => Navigator.of(context).pop()),
                 const SizedBox(height: 14),
-                Text('Kod ile Katıl', style: AppText.baloo(size: 21, weight: FontWeight.w700)),
+                Text(context.l10n.joinTitle, style: AppText.baloo(size: 21, weight: FontWeight.w700)),
                 const SizedBox(height: 2),
-                Text('Arkadaşının oda kodunu gir', style: AppText.nunito(size: 13, weight: FontWeight.w700, color: Palette.textSecondary)),
+                Text(context.l10n.joinSubtitle, style: AppText.nunito(size: 13, weight: FontWeight.w700, color: Palette.textSecondary)),
                 const SizedBox(height: 24),
                 GestureDetector(
                   onTap: () => _focusNode.requestFocus(),
@@ -143,7 +144,7 @@ class _JoinScreenState extends State<JoinScreen> {
                   child: GestureDetector(
                     onTap: _fillDemoCode,
                     child: Text(
-                      'Örnek kod ile doldur (K7X29M)',
+                      context.l10n.joinDemoFill,
                       style: AppText.nunito(size: 12, weight: FontWeight.w800, color: Palette.blue).copyWith(decoration: TextDecoration.underline),
                     ),
                   ),
