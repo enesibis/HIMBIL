@@ -44,6 +44,12 @@ class _GameScreenState extends State<GameScreen> {
   late GameDriver _driver;
 
   List<CardModel> _humanHand = [];
+  /// Sadece elin görsel gösterimi için — bkz. [_runPassRelay]. Oyunun
+  /// gerçek durumu (4'lü algısı, hımbıl ipucu, kart id'leri) her zaman
+  /// [_humanHand]'den okunur ve state güncellemesiyle aynı anda değişir;
+  /// bu liste yalnız o slottaki kartın görseli, uçuş animasyonu bitene
+  /// kadar eski karta takılı kalsın diye bir tık geriden gelir.
+  List<CardModel> _displayHand = [];
   int? _selectedIndex;
   GamePhase _phase = GamePhase.swapping;
   final ValueNotifier<double> _secondsLeftNotifier = ValueNotifier(0);
@@ -74,6 +80,11 @@ class _GameScreenState extends State<GameScreen> {
   /// tick süresi kısalıp yeni bir relay başladığında eski animasyonların
   /// üst üste binmesini önler.
   int _relayGeneration = 0;
+
+  /// Mevcut slam penceresinde ilk basış zaten duyurulduysa true — bkz.
+  /// [onSlamAttemptRecorded]. `onPhaseChanged`'de her faz geçişinde
+  /// sıfırlanır (yeni pencere = yeni duyuru hakkı).
+  bool _slamWindowAlerted = false;
 
   final GlobalKey<GradientCtaState> _slamKey = GlobalKey<GradientCtaState>();
   final Map<Seat, GlobalKey<PlayerAvatarState>> _avatarKeys = {
@@ -107,6 +118,7 @@ class _GameScreenState extends State<GameScreen> {
       ..onPhaseChanged = (phase) {
         if (!mounted) return;
         _lastCountdownSecond = null;
+        _slamWindowAlerted = false;
         setState(() {
           _phase = phase;
           _selectedIndex = null;
@@ -116,11 +128,21 @@ class _GameScreenState extends State<GameScreen> {
         if (!mounted) return;
         if (changedSlot == -1) {
           SoundService.instance.playSfx(Sfx.dealCards);
-          setState(() => _humanHand = hand);
+          setState(() {
+            _humanHand = hand;
+            _displayHand = hand;
+          });
           return;
         }
         SoundService.instance.playSfx(Sfx.swapTick);
-        _runPassRelay(hand, changedSlot);
+        // Gerçek el/4'lü durumu HEMEN güncellenir — hımbıl butonunun ve
+        // ipucunun kendi 4'lünü fark etmesi, aşağıdaki görsel uçuş
+        // animasyonunun ~1.5sn'lik süresine bağımlı kalmamalı (aksi halde
+        // insan oyuncu, animasyonla uğraşmayan botlara karşı slam
+        // yarışını haksız yere geç başlamış olur).
+        final outgoingCard = changedSlot < _displayHand.length ? _displayHand[changedSlot] : hand[changedSlot];
+        setState(() => _humanHand = hand);
+        _runPassRelay(outgoingCard, hand, changedSlot);
       }
       ..onCountdownTick = (secondsLeft, maxSeconds) {
         if (!mounted || _passSlot != null) return;
@@ -133,12 +155,22 @@ class _GameScreenState extends State<GameScreen> {
         }
       }
       ..onSlamAttemptRecorded = (seat) {
+        final isFirstPressOfWindow = !_slamWindowAlerted;
+        _slamWindowAlerted = true;
         if (seat == Seat.human) {
           _showToast(context.l10n.gameToastYourTurn);
           SoundService.instance.playSfx(_humanHasQuartet ? Sfx.slamCorrect : Sfx.slamRankEcho);
         } else {
           _avatarKeys[seat]?.currentState?.pulse();
           SoundService.instance.playSfx(Sfx.slamRankEcho);
+          // İlk basış: pencerenin var olduğu artık sunucu tarafından zaten
+          // herkese duyurulmuş demektir (bu basış olmadan önce hiçbir şey
+          // yayınlanmadı) — elinde 4'lü olmayan bir insana bunu net bir
+          // banner ile göstermek `_humanHasQuartet` gizleme kuralını
+          // (bkz. CLAUDE.md, game_screen.dart _humanHasQuartet) bozmaz,
+          // çünkü mash-önleme sadece "ilk basan kişi 4'lü sahibi olmalı"
+          // kuralını korur — buradan sonrası zaten meşru pile-on yarışı.
+          if (isFirstPressOfWindow) _showToast(context.l10n.gameToastSlamOpen);
         }
         _syncScores();
       }
@@ -177,10 +209,16 @@ class _GameScreenState extends State<GameScreen> {
   /// kart Batı'dan Güney'e uçarak gelir. Süreler ve easing'ler
   /// design_handoff_kart_tasarimlari_ve_animasyonlar/README.md'deki
   /// keyframe'lerle birebir eşleşir.
-  Future<void> _runPassRelay(List<CardModel> newHand, int slot) async {
+  Future<void> _runPassRelay(CardModel outgoingCard, List<CardModel> newHand, int slot) async {
     final generation = ++_relayGeneration;
     final flyKey = _flyKeys[slot];
-    setState(() => _passSlot = slot);
+    // _humanHand (gerçek durum) çoktan güncellendi; _displayHand bu slotta
+    // eski kartı gösterip fly-out kolu bitene kadar geride kalır, ki
+    // animasyon hâlâ "eski kart uçup gidiyor" gibi görünsün.
+    setState(() {
+      _passSlot = slot;
+      _displayHand = [for (var i = 0; i < newHand.length; i++) i == slot ? outgoingCard : newHand[i]];
+    });
 
     flyKey.currentState?.jumpTo();
     _eastFanKey.currentState?.pulse(duration: const Duration(milliseconds: 420));
@@ -194,7 +232,7 @@ class _GameScreenState extends State<GameScreen> {
     );
     if (!mounted || generation != _relayGeneration) return;
 
-    setState(() => _humanHand = newHand);
+    setState(() => _displayHand = newHand);
     _northFanKey.currentState?.pulse(duration: const Duration(milliseconds: 340));
     await Future.delayed(const Duration(milliseconds: 340));
     if (!mounted || generation != _relayGeneration) return;
@@ -478,7 +516,7 @@ class _GameScreenState extends State<GameScreen> {
   /// şey değişmez.
   Widget _buildHumanHandRow() {
     const cardGap = 9.0;
-    final cardCount = _humanHand.length;
+    final cardCount = _displayHand.length;
     final naturalWidth = cardCount == 0 ? 0.0 : cardCount * HimbilCard.width + (cardCount - 1) * cardGap;
 
     return LayoutBuilder(
@@ -495,7 +533,7 @@ class _GameScreenState extends State<GameScreen> {
                   FlyingCard(
                     key: _flyKeys[i],
                     child: HimbilCard(
-                      objectType: _humanHand[i].objectType,
+                      objectType: _displayHand[i].objectType,
                       selected: _selectedIndex == i,
                       onTap: () => _onCardTapped(i),
                     ),

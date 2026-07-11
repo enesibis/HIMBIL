@@ -141,11 +141,17 @@ export class HimbilGameSession {
     return this.phase === "waiting" && this.players.length === NUM_PLAYERS;
   }
 
-  /** Deals a fresh deck to all seated players and opens the first swap tick. */
+  /**
+   * Deals a fresh deck to all seated players and opens the first swap tick —
+   * or, if the deal itself hands someone a natural quartet (possible even
+   * though rare: nothing forces the four-of-a-kind to be scattered), opens
+   * the slam window immediately instead. Without this check that quartet
+   * would otherwise be silently broken on the very next forced swap tick,
+   * without ever giving anyone a chance to press.
+   */
   start(now: number = Date.now()): void {
     this.dealNewRound();
-    this.phase = "swapping";
-    this.swapTickDeadline = now + SWAP_TICK_MS;
+    this.beginSwappingOrSlamWindow(now);
   }
 
   private dealNewRound(): void {
@@ -194,10 +200,15 @@ export class HimbilGameSession {
     this.hands = result.hands;
     this.choices.clear();
     this.tickNumber++;
+    this.beginSwappingOrSlamWindow(now);
+  }
 
+  /** Opens the slam window if the current hands already contain a quartet, else (re)starts the swap-tick countdown. */
+  private beginSwappingOrSlamWindow(now: number): void {
     if (this.hands.some((hand) => detectQuartet(hand) !== null)) {
       this.openSlamWindow(now);
     } else {
+      this.phase = "swapping";
       this.swapTickDeadline = now + SWAP_TICK_MS;
     }
   }
@@ -268,8 +279,7 @@ export class HimbilGameSession {
   startNextRound(now: number = Date.now()): void {
     if (this.phase !== "scoring") return;
     this.dealNewRound();
-    this.phase = "swapping";
-    this.swapTickDeadline = now + SWAP_TICK_MS;
+    this.beginSwappingOrSlamWindow(now);
   }
 
   /** Every player's running total — feeds the `roundScored` broadcast. */

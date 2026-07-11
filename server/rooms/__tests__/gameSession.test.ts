@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { HimbilGameSession, TARGET_SCORE, PLACEMENT_TOKEN_REWARDS, placementRewards } from "../gameSession.js";
+import { mulberry32 } from "../../game/deck.js";
 
 /**
  * Identity-shuffle rng: Fisher-Yates picks `j = floor(rng() * (i + 1))`, and
@@ -51,6 +52,26 @@ describe("HimbilGameSession lobby", () => {
     session.addPlayer("p0", "Ayşe");
     session.addPlayer("p1", "Mehmet");
     expect(session.readyToStart()).toBe(false);
+  });
+
+  it("opens the slam window immediately when the deal itself hands someone a quartet", () => {
+    // Nothing about createDeck/shuffle/dealHands prevents a four-of-a-kind
+    // from landing on one player straight out of the deal — seed 221 is a
+    // known repro (found by brute-force search) where p1 is dealt all four
+    // "cilek" cards. Before the deal-time quartet check, start() forced
+    // phase="swapping" unconditionally here, so that quartet would have
+    // been silently broken on the next swap tick without ever opening a
+    // slam window — the round-timeout-with-no-points bug.
+    const session = new HimbilGameSession("AB12CD", mulberry32(221));
+    seatFourPlayers(session);
+    session.start(1_000);
+
+    expect(session.currentPhase).toBe("slamWindow");
+    expect(session.view("p1").you.hand.map((c) => c.objectType)).toEqual(["cilek", "cilek", "cilek", "cilek"]);
+    expect(session.view("p1").slamWindowDeadline).toBe(1_000 + 4_000);
+    expect(session.view("p1").swapTickDeadline).toBeNull();
+
+    expect(session.pressSlam("p1", 1_100)).toBe("recorded");
   });
 });
 

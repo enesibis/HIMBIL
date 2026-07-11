@@ -84,7 +84,7 @@ export class HimbilRoom extends Room {
 
     if (this.session.readyToStart()) {
       this.session.start(Date.now());
-      this.scheduleNextSwapTick();
+      this.scheduleFollowUp();
     }
 
     this.broadcastState();
@@ -125,7 +125,19 @@ export class HimbilRoom extends Room {
   private onSwapTick() {
     this.session.resolveTick(Date.now());
     this.broadcastState();
+    this.scheduleFollowUp();
+  }
 
+  /**
+   * Schedules whatever timer the session's *current* phase needs next.
+   * Shared by onSwapTick, onJoin (session.start() can open the slam window
+   * immediately if the deal itself contains a quartet), and the
+   * scoring-pause callback (session.startNextRound() has the same
+   * possibility) — every phase-advancing call must go through this so a
+   * quartet dealt straight into a hand still gets its auto-close timer and
+   * bot presses scheduled, instead of silently sitting unresolved.
+   */
+  private scheduleFollowUp() {
     if (this.session.currentPhase === "swapping") {
       this.scheduleNextSwapTick();
     } else if (this.session.currentPhase === "slamWindow") {
@@ -196,7 +208,7 @@ export class HimbilRoom extends Room {
       this.pendingTimer = this.clock.setTimeout(() => {
         this.session.startNextRound(Date.now());
         this.broadcastState();
-        this.scheduleNextSwapTick();
+        this.scheduleFollowUp();
       }, SCORING_PAUSE_MS);
     }
     // phase === "finished": nothing more to schedule; room auto-disposes

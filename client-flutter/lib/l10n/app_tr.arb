@@ -73,6 +73,7 @@
   "lobbyFallbackServerUnreachable": "Sunucuya ulaşılamadı — botlarla oynuyorsun.",
 
   "gameToastYourTurn": "Sıradasın!",
+  "gameToastSlamOpen": "Biri HIMBIL dedi! Elinde 4'lü varsa hemen bas!",
   "gameToastAlreadyPressed": "Zaten bastın",
   "gameToastFalseStartForgiven": "Henüz dörtlün yok — bu ilk yanlışın bedava!",
   "gameToastFalseStartPenalty": "Erken bastın! Ceza puanı",
