@@ -128,6 +128,15 @@ class GameController {
     _pendingChoice[0] = cardId;
   }
 
+  /// "Onayla" butonu: insan kartını seçtiyse takas tick'ini 25 sn'nin
+  /// dolmasını beklemeden hemen çözer. Offline modda tek insan olduğu için
+  /// onun onayı = herkes hazır (botlar kararını zaten çözüm anında verir);
+  /// LAN/online eşdeğerleri tüm insan koltukların onayını bekler.
+  void confirmHumanChoice() {
+    if (phase != GamePhase.swapping || _pendingChoice[0] == null) return;
+    _resolveSwap();
+  }
+
   /// HIMBIL butonu her zaman basılabilir.
   SlamOutcome submitHumanSlam() {
     if (phase == GamePhase.slamWindow) {
@@ -145,7 +154,7 @@ class GameController {
         AnalyticsService.instance.logEvent('false_slam', {'roundNumber': roundNumber, 'forgiven': true});
         return SlamOutcome.falseStartForgiven;
       }
-      scores[humanId] = (scores[humanId] ?? 0) + Rules.falseSlamPenalty;
+      scores[humanId] = Rules.clampScore((scores[humanId] ?? 0) + Rules.falseSlamPenalty);
       onFalseSlamPenalty?.call(humanId, scores[humanId]!);
       AnalyticsService.instance.logEvent('false_slam', {'roundNumber': roundNumber, 'forgiven': false});
       return SlamOutcome.falseStart;
@@ -198,7 +207,7 @@ class GameController {
     final wasIdle = humanIsIdle;
     _humanConsecutiveTimeouts++;
     if (_humanConsecutiveTimeouts >= idlePenaltyStreak) {
-      scores[humanId] = (scores[humanId] ?? 0) + idlePenaltyScore;
+      scores[humanId] = Rules.clampScore((scores[humanId] ?? 0) + idlePenaltyScore);
       onIdlePenalty?.call(humanId, scores[humanId]!);
     }
     if (!wasIdle && humanIsIdle) onHumanIdleWarning?.call();

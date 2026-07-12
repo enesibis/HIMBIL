@@ -56,6 +56,44 @@ void main() {
     controller.dispose();
   });
 
+  test('ceza tabanı: tekrarlanan yanlış basışlar skoru Rules.minScore altına indiremez', () {
+    final controller = GameController();
+    controller.hands = fourEmptyHands();
+    controller.phase = GamePhase.swapping;
+
+    controller.submitHumanSlam(); // ilk yanlış affedilir
+    // Tabana inmeye yetenden fazla basış: ham toplam -100 olurdu.
+    final presses = (Rules.minScore ~/ Rules.falseSlamPenalty) + 2;
+    for (var i = 0; i < presses; i++) {
+      expect(controller.submitHumanSlam(), SlamOutcome.falseStart);
+    }
+    expect(controller.scores[GameController.humanId], Rules.minScore);
+    controller.dispose();
+  });
+
+  test("Onayla: kart seçilmişse takas tick'i süre dolmadan hemen çözülür", () {
+    fakeAsync((async) {
+      final controller = GameController();
+      var ticksResolved = 0;
+      controller.onHandsUpdated = (hands, changedSlot) {
+        if (changedSlot != -1) ticksResolved++; // -1 = yeni dağıtım, tick değil
+      };
+
+      controller.start();
+      async.elapse(Duration.zero);
+      _ensureSwappingPhase(controller, async);
+
+      controller.confirmHumanChoice(); // seçim yokken no-op
+      expect(ticksResolved, 0);
+
+      controller.submitHumanChoice(controller.hands[0][0].id);
+      controller.confirmHumanChoice();
+      expect(ticksResolved, 1, reason: '25 sn beklenmeden çözülmeli');
+
+      controller.dispose();
+    });
+  });
+
   test('aynı pencerede ikinci basış already döner', () {
     final controller = GameController();
     controller.hands = fourEmptyHands();

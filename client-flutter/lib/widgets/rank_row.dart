@@ -62,7 +62,10 @@ class RankRow extends StatelessWidget {
             child: Text('$rank', style: AppText.nunito(size: badgeTextSize, weight: FontWeight.w800, color: Colors.white)),
           ),
           SizedBox(width: gap),
-          Expanded(child: Text(entry.label, style: nameStyle)),
+          // Uzun isimler ikinci satıra sarıp satır yüksekliğini değiştirmesin
+          // (tur sonuçları ekranındaki "kayma" şikâyetinin kaynağı) — tek
+          // satırda kırpılır, puan sütunu hep aynı hizada kalır.
+          Expanded(child: Text(entry.label, style: nameStyle, maxLines: 1, overflow: TextOverflow.ellipsis)),
           Text('$pointsPrefix${entry.points}', style: pointsStyle),
         ],
       ),

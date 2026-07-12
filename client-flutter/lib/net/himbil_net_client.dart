@@ -230,6 +230,8 @@ class HimbilNetClient {
 
   void chooseCard(int? cardId) => _send('chooseCard', {'cardId': cardId});
 
+  void confirmChoice() => _send('confirmChoice');
+
   void pressSlam() => _send('slamPress');
 
   void _send(String type, [Object? payload]) {

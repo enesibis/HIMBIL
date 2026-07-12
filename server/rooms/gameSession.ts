@@ -2,7 +2,7 @@ import { createDeck, shuffle } from "../game/deck.js";
 import { dealHands } from "../game/deal.js";
 import { resolveSwapTick, type SwapChoice } from "../game/swap.js";
 import { detectQuartet } from "../game/quartet.js";
-import { scoreSlamOrder, submitSlamPress, type SlamPressOutcome } from "../game/scoring.js";
+import { clampScore, scoreSlamOrder, submitSlamPress, type SlamPressOutcome } from "../game/scoring.js";
 import { chooseLeastUsefulCard, assignReflexTier, type BotReflexTier } from "./botPlayer.js";
 import type { Direction, GamePhase, Hand, SlamResult } from "../game/types.js";
 import type { PlayerView, RoomStateView } from "../schema/messages.js";
@@ -84,6 +84,13 @@ export class HimbilGameSession {
   private players: PlayerSlot[] = [];
   private hands: Hand[] = [];
   private choices = new Map<string, number | null>();
+  /**
+   * Players who pressed "Onayla" (confirm) this swap tick. When every
+   * active human seat has confirmed, the room may resolve the tick early
+   * instead of waiting out the full SWAP_TICK_MS (see confirmChoice /
+   * allActiveHumansConfirmed). Cleared on every resolution and deal.
+   */
+  private confirmedChoices = new Set<string>();
   private direction: Direction = 1;
   private phase: GamePhase = "waiting";
   private tickNumber = 0;
@@ -194,12 +201,36 @@ export class HimbilGameSession {
     const { hands } = dealHands(shuffled, NUM_PLAYERS);
     this.hands = hands;
     this.choices.clear();
+    this.confirmedChoices.clear();
   }
 
   chooseCard(playerId: string, cardId: number | null): void {
     if (this.phase !== "swapping") return;
     if (!this.hasPlayer(playerId)) return;
     this.choices.set(playerId, cardId);
+  }
+
+  /**
+   * "Onayla" intent: only counts for a player who has actually chosen a
+   * card this tick. The decision to resolve early belongs to the caller
+   * (`HimbilRoom` checks {@link allActiveHumansConfirmed} and cancels its
+   * timer) — same split as chooseCard/resolveTick.
+   */
+  confirmChoice(playerId: string): void {
+    if (this.phase !== "swapping") return;
+    if ((this.choices.get(playerId) ?? null) === null) return;
+    this.confirmedChoices.add(playerId);
+  }
+
+  /**
+   * True when every seat that could still confirm (human-controlled and
+   * connected) has done so. Bot seats decide at resolution time and
+   * disconnected players can't send a confirm — neither is waited on; the
+   * SWAP_TICK_MS timer remains the fallback for those cases.
+   */
+  allActiveHumansConfirmed(): boolean {
+    const active = this.players.filter((p) => !p.botControlled && p.connected);
+    return active.length > 0 && active.every((p) => this.confirmedChoices.has(p.id));
   }
 
   /** Resolves the current swap tick. Call on a fixed timer (SWAP_TICK_MS). */
@@ -234,6 +265,7 @@ export class HimbilGameSession {
 
     this.hands = result.hands;
     this.choices.clear();
+    this.confirmedChoices.clear();
     this.tickNumber++;
     this.beginSwappingOrSlamWindow(now);
   }
@@ -352,10 +384,11 @@ export class HimbilGameSession {
   }
 
   private addScore(playerId: string, delta: number): void {
-    // No floor at 0: false-slam penalties can take a score negative, matching
-    // the Dart client's GameController (scores[id] += falseSlamPenalty, no clamp).
+    // Penalties may take a score negative, but never below MIN_SCORE —
+    // repeated false slams used to sink a score without bound. Matches the
+    // Dart ports (Rules.clampScore in GameController / LanHostSession).
     const player = this.players.find((p) => p.id === playerId);
-    if (player) player.score += delta;
+    if (player) player.score = clampScore(player.score + delta);
   }
 
   private handOf(playerId: string): Hand | undefined {

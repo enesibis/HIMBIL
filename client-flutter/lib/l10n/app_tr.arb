@@ -85,6 +85,7 @@
       "name": {"type": "String"}
     }
   },
+  "lanAddBot": "+ Bot Ekle",
   "lanScanning": "Yakındaki oyunlar aranıyor…",
   "lanNoHostsFound": "Henüz oyun bulunamadı — host'un aynı Wi-Fi ağında olduğundan emin ol.",
   "lanConnecting": "Bağlanıyor…",
@@ -103,6 +104,8 @@
   "gameExitBodyLocal": "Menüye dönersen bu tur ve puanların kaybolur.",
   "gameExitConfirm": "Çık",
   "gameHintSwap": "İşine yaramayan kartı seç, komşuna ver",
+  "gameConfirmChoice": "Onayla",
+  "gameWaitingForOthers": "Diğerleri bekleniyor…",
   "gameHintSlam": "4'lün tamam — HIMBIL'e bas!",
   "gameHintScoring": "Puanlar hesaplanıyor...",
   "gameMenuButton": "< Menü",

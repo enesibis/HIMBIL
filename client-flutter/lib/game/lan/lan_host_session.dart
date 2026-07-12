@@ -67,7 +67,16 @@ class LanHostSession {
   final List<LanPlayerSlot> _players = [];
   List<List<CardModel>> _hands = [];
   final Map<String, int?> _choices = {};
+  /// Bu takas tick'inde "Onayla" diyen oyuncular — tüm aktif insan
+  /// koltuklar onayladığında tick süre dolmadan çözülebilir (bkz.
+  /// [allActiveHumansConfirmed]); her çözümde/dağıtımda sıfırlanır.
+  final Set<String> _confirmedChoices = {};
   static const int _direction = 1;
+
+  /// Host'un elle eklediği bot koltukları için hazır isimler (madde:
+  /// "2 kişiyiz, 2 de bot olsun") — offline modun Bots kadrosuyla uyumlu.
+  static const List<String> botNames = ['Bot Mehmet', 'Bot Zeynep', 'Bot Ayşe'];
+  int _nextBotIndex = 0;
 
   LanPhase phase = LanPhase.waiting;
   int tickNumber = 0;
@@ -86,6 +95,22 @@ class LanHostSession {
   bool addPlayer(String id, String name) {
     if (isFull() || phase != LanPhase.waiting) return false;
     _players.add(LanPlayerSlot(id: id, name: name));
+    return true;
+  }
+
+  /// Host'un lobide elle eklediği bot koltuğu (madde: "odayı kuran kişi
+  /// bot ekleyebilsin"). Devralınan koltuklardan farkı baştan bot olarak
+  /// doğması — bağlantısı yok ama "orada": connected=true kalır ki lobi
+  /// listesinde normal bir oyuncu gibi görünsün.
+  bool addBot() {
+    if (isFull() || phase != LanPhase.waiting) return false;
+    final name = botNames[_nextBotIndex % botNames.length];
+    _players.add(LanPlayerSlot(
+      id: 'bot-${_nextBotIndex++}',
+      name: name,
+      botControlled: true,
+      reflexTier: BotAI.assignReflexTier(),
+    ));
     return true;
   }
 
@@ -119,6 +144,10 @@ class LanHostSession {
   bool readyToStart() => phase == LanPhase.waiting && _players.length == numPlayers;
 
   void start(int nowMs) {
+    // Oturma sırası maç başında bir kez karıştırılır (madde: "sıralamayı
+    // da rastgele yapsın") — kim kimin komşusu olacağı, katılma/bot-ekleme
+    // sırasına bağlı kalmasın.
+    _players.shuffle(_rng);
     _dealNewRound();
     _beginSwappingOrSlamWindow(nowMs);
   }
@@ -127,12 +156,32 @@ class LanHostSession {
     final deck = Rules.shuffle(Rules.createDeck(numPlayers), _rng);
     _hands = Rules.dealHands(deck, numPlayers).hands;
     _choices.clear();
+    _confirmedChoices.clear();
   }
 
   void chooseCard(String playerId, int? cardId) {
     if (phase != LanPhase.swapping) return;
     if (!hasPlayer(playerId)) return;
     _choices[playerId] = cardId;
+  }
+
+  /// "Onayla" intent'i: yalnız kartını gerçekten seçmiş bir oyuncunun
+  /// onayı sayılır. Kararı (tick'i erken çözmek) çağıran (LanHostServer)
+  /// verir — gameSession.ts'in confirmChoice/allActiveHumansConfirmed
+  /// ikilisiyle aynı bölüşüm.
+  void confirmChoice(String playerId) {
+    if (phase != LanPhase.swapping) return;
+    if (_choices[playerId] == null) return;
+    _confirmedChoices.add(playerId);
+  }
+
+  /// Bot olmayan, hâlâ bağlı her koltuk onayladıysa true — botlar kararını
+  /// zaten çözüm anında verdiği, kopuk oyuncular da onay gönderemeyeceği
+  /// için ikisi de beklenmez (kopuklar için 25 sn'lik zamanlayıcı zaten
+  /// taban güvence).
+  bool allActiveHumansConfirmed() {
+    final active = _players.where((p) => !p.botControlled && p.connected);
+    return active.isNotEmpty && active.every((p) => _confirmedChoices.contains(p.id));
   }
 
   void resolveTick(int nowMs) {
@@ -155,6 +204,7 @@ class LanHostSession {
     final result = Rules.resolveSwapTick(_hands, choices, _direction, rng: _rng);
     _hands = result.hands;
     _choices.clear();
+    _confirmedChoices.clear();
     tickNumber++;
     _beginSwappingOrSlamWindow(nowMs);
   }
@@ -251,7 +301,9 @@ class LanHostSession {
 
   void _addScore(String playerId, int delta) {
     final player = _playerOf(playerId);
-    if (player != null) player.score += delta;
+    // Rules.minScore tabanı: cezalar skoru sınırsız eksiye götüremez
+    // (pozitif deltalar etkilenmez, skor tabanın altına inmiş olamaz).
+    if (player != null) player.score = Rules.clampScore(player.score + delta);
   }
 
   LanPlayerSlot? _playerOf(String id) {

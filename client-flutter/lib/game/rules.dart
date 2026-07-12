@@ -36,6 +36,14 @@ class Rules {
   static const int slamScoreStep = 25;
   static const int falseSlamPenalty = -25;
 
+  /// Cezaların (yanlış slam, AFK) toplam skoru indirebileceği taban.
+  /// Sınırsız tekrar eden basışlarla skorun "sonsuza kadar" eksiye gitmesini
+  /// engeller — server/game/scoring.ts'deki MIN_SCORE ile bire bir.
+  static const int minScore = -50;
+
+  /// Skor toplamına bir delta uygularken tabanı korur ([minScore]).
+  static int clampScore(int score) => score < minScore ? minScore : score;
+
   static List<String> pickObjectTypes(int numPlayers, [List<String> pool = objectPool]) {
     if (numPlayers < 2) {
       throw ArgumentError('numPlayers must be at least 2');

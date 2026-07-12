@@ -9,10 +9,16 @@ import 'rules.dart';
 /// hissi verir. Aralıklar server/rooms/botPlayer.ts'deki aynı isimli
 /// sabitlerle bire bir eşleşmeli (CLAUDE.md: "tune both or bots will feel
 /// different online/offline").
+///
+/// Aralıklar bilinçli olarak insan algı+motor süresinin (toast'ı görüp
+/// basmak ~0.5-1.0 sn) ÜZERİNDE tutulur: ekrandaki kart uçuş animasyonunu
+/// izleyen bir insanın, dörtlüsünü fark edip basacak kadar zamanı olmalı —
+/// eski değerlerle (0.15-1.2 sn) hızlı tıklayan insan bile hep sona
+/// kalıyordu.
 enum BotReflexTier {
-  easy(minSeconds: 0.7, maxSeconds: 1.2),
-  medium(minSeconds: 0.35, maxSeconds: 0.8),
-  hard(minSeconds: 0.15, maxSeconds: 0.5);
+  easy(minSeconds: 1.2, maxSeconds: 2.0),
+  medium(minSeconds: 0.8, maxSeconds: 1.5),
+  hard(minSeconds: 0.5, maxSeconds: 1.0);
 
   final double minSeconds;
   final double maxSeconds;
@@ -51,7 +57,10 @@ class BotAI {
 
   /// Pile-on gecikmesi ilk gerçek basıştan itibaren sayılır (pencere
   /// açılışından değil) — 4'lüsü olmayan bir bot asla ilk basan olamaz.
+  /// Taban, toast'ı gören bir insanın tepki süresinden yüksek tutulur ki
+  /// ilk basışa yetişen insan pile-on botlarına yenilmesin (madde: "ne
+  /// kadar hızlı tıklarsam tıklayayım sonuncu oluyorum").
   static double decidePileOnDelay() {
-    return 0.5 + _random.nextDouble() * (1.2 - 0.5);
+    return 1.2 + _random.nextDouble() * (2.4 - 1.2);
   }
 }

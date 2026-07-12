@@ -63,6 +63,11 @@ export class HimbilRoom extends Room {
       this.session.chooseCard(client.sessionId, message?.cardId ?? null);
     });
 
+    this.onMessage("confirmChoice", (client: Client) => {
+      this.session.confirmChoice(client.sessionId);
+      this.maybeResolveTickEarly();
+    });
+
     this.onMessage("slamPress", (client: Client) => {
       const outcome = this.handleSlamPress(client.sessionId);
       client.send("slamPressResult", { outcome });
@@ -126,6 +131,18 @@ export class HimbilRoom extends Room {
     this.session.resolveTick(Date.now());
     this.broadcastState();
     this.scheduleFollowUp();
+  }
+
+  /**
+   * Early-advance path (madde: 25 sn'yi boşuna bekletme): once every active
+   * human seat has confirmed its chosen card, resolve the swap tick now
+   * instead of waiting out SWAP_TICK_MS. Goes through the exact same
+   * onSwapTick pipeline as the timer so timing is the only difference.
+   */
+  private maybeResolveTickEarly() {
+    if (this.session.currentPhase !== "swapping" || !this.session.allActiveHumansConfirmed()) return;
+    this.pendingTimer?.clear();
+    this.onSwapTick();
   }
 
   /**

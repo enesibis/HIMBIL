@@ -107,6 +107,8 @@ class LanHostServer {
         switch (type) {
           case 'chooseCard':
             session.chooseCard(id, (message['cardId'] as num?)?.toInt());
+          case 'confirmChoice':
+            _handleConfirmChoice(id);
           case 'slamPress':
             final outcome = _handleSlamPress(id);
             channel.send({'type': 'slamPressResult', 'outcome': outcome.name});
@@ -161,9 +163,32 @@ class LanHostServer {
 
   void chooseCardLocal(int? cardId) => session.chooseCard(lanHostPlayerId, cardId);
 
+  void confirmChoiceLocal() => _handleConfirmChoice(lanHostPlayerId);
+
   void pressSlamLocal() {
     final outcome = _handleSlamPress(lanHostPlayerId);
     _localSlamResultController.add({'outcome': outcome.name});
+  }
+
+  /// Lobide host'un "Bot Ekle" butonu — yalnız host'un yerel arayüzünden
+  /// çağrılabilir (misafir mesajı yolu bilinçli olarak yok). Koltuk
+  /// dolduğunda maç, insan katılımıyla aynı yoldan otomatik başlar.
+  void addBotLocal() {
+    if (!session.addBot()) return;
+    if (session.readyToStart()) {
+      session.start(DateTime.now().millisecondsSinceEpoch);
+      _scheduleFollowUp();
+    }
+    _broadcastState();
+  }
+
+  /// Tüm aktif insan koltuklar onayladıysa takas tick'ini süre dolmadan
+  /// çözer — HimbilRoom.ts'in confirmChoice mesaj işleyicisiyle aynı akış.
+  void _handleConfirmChoice(String id) {
+    session.confirmChoice(id);
+    if (session.phase != LanPhase.swapping || !session.allActiveHumansConfirmed()) return;
+    _pendingTimer?.cancel();
+    _onSwapTick();
   }
 
   LanSlamOutcome _handleSlamPress(String id) {

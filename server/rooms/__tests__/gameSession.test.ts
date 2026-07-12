@@ -10,6 +10,7 @@ import {
   IDLE_REMOVAL_STREAK,
 } from "../gameSession.js";
 import { mulberry32 } from "../../game/deck.js";
+import { FALSE_SLAM_PENALTY, MIN_SCORE } from "../../game/scoring.js";
 
 /**
  * Identity-shuffle rng: Fisher-Yates picks `j = floor(rng() * (i + 1))`, and
@@ -154,6 +155,78 @@ describe("HimbilGameSession swap ticks", () => {
     const view = session.view("p0");
     expect(view.you.hand.map((c) => c.objectType)).toEqual(["armut", "armut", "armut", "armut"]);
     expect(view.slamWindowDeadline).toBe(3_000 + 25_000);
+  });
+});
+
+describe("confirmChoice (early tick advance)", () => {
+  function startedSession() {
+    const session = new HimbilGameSession("AB12CD", IDENTITY_SHUFFLE_RNG);
+    seatFourPlayers(session);
+    session.start();
+    return session;
+  }
+
+  it("only reports all-confirmed once every active human confirmed a chosen card", () => {
+    const session = startedSession();
+
+    // Kart seçmeden gelen onay sayılmaz.
+    session.confirmChoice("p0");
+    expect(session.allActiveHumansConfirmed()).toBe(false);
+
+    session.chooseCard("p0", 0);
+    session.chooseCard("p1", 5);
+    session.chooseCard("p2", 6);
+    session.chooseCard("p3", 7);
+    session.confirmChoice("p0");
+    session.confirmChoice("p1");
+    session.confirmChoice("p2");
+    expect(session.allActiveHumansConfirmed()).toBe(false);
+
+    session.confirmChoice("p3");
+    expect(session.allActiveHumansConfirmed()).toBe(true);
+  });
+
+  it("skips bot-controlled and disconnected seats when checking confirmations", () => {
+    const session = startedSession();
+    session.setBotControlled("p3"); // botlar kararını çözüm anında verir
+    session.setConnected("p2", false); // kopuk oyuncu onay gönderemez; timer taban güvence
+
+    session.chooseCard("p0", 0);
+    session.chooseCard("p1", 5);
+    session.confirmChoice("p0");
+    session.confirmChoice("p1");
+    expect(session.allActiveHumansConfirmed()).toBe(true);
+  });
+
+  it("clears confirmations on every tick resolution", () => {
+    const session = startedSession();
+    session.chooseCard("p0", 0);
+    session.chooseCard("p1", 5);
+    session.chooseCard("p2", 6);
+    session.chooseCard("p3", 7);
+    for (const id of ["p0", "p1", "p2", "p3"]) session.confirmChoice(id);
+    expect(session.allActiveHumansConfirmed()).toBe(true);
+
+    session.resolveTick(1_000);
+    expect(session.allActiveHumansConfirmed()).toBe(false);
+  });
+});
+
+describe("score floor (MIN_SCORE)", () => {
+  it("repeated false-slam penalties never sink a score below the floor", () => {
+    const session = new HimbilGameSession("AB12CD", IDENTITY_SHUFFLE_RNG);
+    seatFourPlayers(session);
+    session.start();
+
+    // Tabana inmeye yetenden daha fazla yanlış basış: ham toplam -100
+    // olurdu, taban -50'de durdurur.
+    const presses = Math.ceil(MIN_SCORE / FALSE_SLAM_PENALTY) + 2;
+    for (let i = 0; i < presses; i++) {
+      expect(session.pressSlam("p1", 100 + i)).toBe("falseStart");
+    }
+
+    const score = session.view("p1").players.find((p) => p.id === "p1")?.score;
+    expect(score).toBe(MIN_SCORE);
   });
 });
 

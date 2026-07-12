@@ -21,6 +21,7 @@ abstract class _LanTransport {
   Stream<Map<String, Object?>> get slamResults;
   Stream<Map<String, Object?>> get roundScoredEvents;
   void chooseCard(int? cardId);
+  void confirmChoice();
   void pressSlam();
   Future<void> disconnect();
 }
@@ -37,6 +38,8 @@ class _HostTransport implements _LanTransport {
   Stream<Map<String, Object?>> get roundScoredEvents => _server.localRoundScored;
   @override
   void chooseCard(int? cardId) => _server.chooseCardLocal(cardId);
+  @override
+  void confirmChoice() => _server.confirmChoiceLocal();
   @override
   void pressSlam() => _server.pressSlamLocal();
   @override
@@ -87,6 +90,8 @@ class _GuestTransport implements _LanTransport {
   Stream<Map<String, Object?>> get roundScoredEvents => _roundScoredController.stream;
   @override
   void chooseCard(int? cardId) => _channel.send({'type': 'chooseCard', 'cardId': cardId});
+  @override
+  void confirmChoice() => _channel.send({'type': 'confirmChoice'});
   @override
   void pressSlam() => _channel.send({'type': 'slamPress'});
   @override
@@ -206,6 +211,9 @@ class LanGameDriver extends GameDriver {
 
   @override
   void chooseCard(int cardId) => _transport.chooseCard(cardId);
+
+  @override
+  void confirmChoice() => _transport.confirmChoice();
 
   @override
   void pressSlam() => _transport.pressSlam();

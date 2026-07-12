@@ -15,6 +15,7 @@ import '../theme/text_styles.dart';
 import '../widgets/carnival_background.dart';
 import '../widgets/circle_back_button.dart';
 import '../widgets/gradient_cta.dart';
+import '../widgets/soft_button.dart';
 import 'game_screen.dart';
 
 enum _LanMode { choosing, hosting, scanning, connecting, error }
@@ -266,6 +267,23 @@ class _LanLobbyScreenState extends State<LanLobbyScreen> {
             padding: const EdgeInsets.symmetric(vertical: 3),
             child: Text(name, style: AppText.nunito(size: 13, weight: FontWeight.w800)),
           ),
+        // Host, boş koltukları botlarla doldurabilir (madde: "ben 2 kişiyim,
+        // 2 tane de bot olsun") — oda dolunca maç normal yoldan otomatik
+        // başlar; oturma sırası maç başında zaten rastgele karılır.
+        if (_waitingCount < 4) ...[
+          const SizedBox(height: 18),
+          SoftButton(
+            label: context.l10n.lanAddBot,
+            width: 150,
+            height: 44,
+            borderRadius: 18,
+            fontSize: 14,
+            onTap: () {
+              SoundService.instance.playSfx(Sfx.buttonTap);
+              _hostServer?.addBotLocal();
+            },
+          ),
+        ],
       ],
     );
   }

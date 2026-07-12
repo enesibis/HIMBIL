@@ -51,6 +51,11 @@ class _GameScreenState extends State<GameScreen> {
   /// kadar eski karta takılı kalsın diye bir tık geriden gelir.
   List<CardModel> _displayHand = [];
   int? _selectedIndex;
+
+  /// Bu takas tick'inde "Onayla"ya basıldı mı — buton gizlenir, LAN/online
+  /// modda diğer insanlar beklenirken kısa bir bilgi metni gösterilir.
+  /// Her faz değişiminde ve her el güncellemesinde (yeni tick) sıfırlanır.
+  bool _choiceConfirmed = false;
   GamePhase _phase = GamePhase.swapping;
   final ValueNotifier<double> _secondsLeftNotifier = ValueNotifier(0);
   double _maxSeconds = GameController.swapTickDuration;
@@ -125,6 +130,7 @@ class _GameScreenState extends State<GameScreen> {
         setState(() {
           _phase = phase;
           _selectedIndex = null;
+          _choiceConfirmed = false;
         });
       }
       ..onHandUpdated = (hand, changedSlot) {
@@ -135,6 +141,8 @@ class _GameScreenState extends State<GameScreen> {
           setState(() {
             _humanHand = hand;
             _displayHand = hand;
+            _selectedIndex = null;
+            _choiceConfirmed = false;
           });
           _pulseIfQuartetJustFormed(hadQuartet, hand);
           return;
@@ -146,7 +154,14 @@ class _GameScreenState extends State<GameScreen> {
         // insan oyuncu, animasyonla uğraşmayan botlara karşı slam
         // yarışını haksız yere geç başlamış olur).
         final outgoingCard = changedSlot < _displayHand.length ? _displayHand[changedSlot] : hand[changedSlot];
-        setState(() => _humanHand = hand);
+        // Yeni tick = yeni seçim: önceki tick'in seçimi/onayı taşınmaz.
+        // (Yerel modda onPhaseChanged zaten sıfırlar; LAN/online'da faz
+        // swapping'te kaldığı için sıfırlama buradan gelir.)
+        setState(() {
+          _humanHand = hand;
+          _selectedIndex = null;
+          _choiceConfirmed = false;
+        });
         _pulseIfQuartetJustFormed(hadQuartet, hand);
         _runPassRelay(outgoingCard, hand, changedSlot);
       }
@@ -396,6 +411,18 @@ class _GameScreenState extends State<GameScreen> {
     _slamKey.currentState?.bounce();
     SoundService.instance.playSfx(Sfx.slamPress);
     _driver.pressSlam();
+  }
+
+  /// "Onayla": seçilen kartı kilitler; tüm insan koltuklar onayladığında
+  /// tick süre dolmadan çözülür (offline'da tek insan olduğu için hemen).
+  /// Bayrak, driver çağrısından ÖNCE set edilir — yerel sürücü senkron
+  /// çözümleyip callback'lerle sıfırlayabilir, sonradan set etmek o
+  /// sıfırlamayı ezerdi.
+  void _onConfirmChoiceTap() {
+    if (_choiceConfirmed || _phase != GamePhase.swapping || _selectedIndex == null) return;
+    SoundService.instance.playSfx(Sfx.buttonTap);
+    setState(() => _choiceConfirmed = true);
+    _driver.confirmChoice();
   }
 
   // Slam penceresi elinde 4'lü olmayan bir insana asla görsel olarak
@@ -669,6 +696,29 @@ class _GameScreenState extends State<GameScreen> {
                   context.l10n.gameRoundTimer(_driver.roundNumber + 1, secondsLeft.toStringAsFixed(1)),
                   style: AppText.baloo(size: 13, weight: FontWeight.w700, color: Palette.textPrimary),
                 ),
+                // Kart seçilir seçilmez beliren erken-ilerleme butonu: 25
+                // sn'yi boşuna beklemek yerine seçimi onaylayıp tick'i
+                // (herkes onaylayınca) hemen çözdürür.
+                if (_phase == GamePhase.swapping && _selectedIndex != null) ...[
+                  const SizedBox(height: 10),
+                  if (_choiceConfirmed)
+                    Text(
+                      context.l10n.gameWaitingForOthers,
+                      textAlign: TextAlign.center,
+                      style: AppText.nunito(size: 11, weight: FontWeight.w700, color: Palette.textSecondary),
+                    )
+                  else
+                    SoftButton(
+                      label: context.l10n.gameConfirmChoice,
+                      width: 112,
+                      height: 42,
+                      borderRadius: 18,
+                      fontSize: 14,
+                      background: Palette.green,
+                      textColor: Colors.white,
+                      onTap: _onConfirmChoiceTap,
+                    ),
+                ],
               ],
             );
           },

@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:himbil/game/bot_ai.dart';
 import 'package:himbil/game/lan/lan_host_session.dart';
+import 'package:himbil/game/rules.dart';
 
 /// Fisher-Yates'i (`List.shuffle`'ın kullandığı) her adımda kendisiyle
 /// takas ettirip (`nextInt(max) == max - 1`, ki takas anında hedef indeks
@@ -16,6 +17,19 @@ class IdentityRandom implements math.Random {
   int nextInt(int max) => max - 1;
   @override
   double nextDouble() => 0.999999;
+  @override
+  bool nextBool() => false;
+}
+
+/// `nextInt` hep 0: `List.shuffle` bunu her adımda öne takasa çevirir, yani
+/// sıra deterministik olarak DEĞİŞİR — start()'ın oturma sırasını gerçekten
+/// karıştırdığını, id kümesini bozmadan doğrulamak için.
+class ZeroRandom implements math.Random {
+  const ZeroRandom();
+  @override
+  int nextInt(int max) => 0;
+  @override
+  double nextDouble() => 0.0;
   @override
   bool nextBool() => false;
 }
@@ -294,6 +308,115 @@ void main() {
       session.chooseCard('p1', cardId);
       session.resolveTick(3000);
       expect(playerView(session, 'p1'), {'idle': false, 'score': 0, 'botControlled': false});
+    });
+  });
+
+  group('confirmChoice (erken tick çözümü)', () {
+    test('kart seçip onaylamayan kaldıkça all-confirmed false, herkes onaylayınca true', () {
+      final session = LanHostSession(rng: const IdentityRandom());
+      seatFour(session);
+      session.start(0);
+
+      session.confirmChoice('p0'); // kart seçilmeden onay sayılmaz
+      expect(session.allActiveHumansConfirmed(), false);
+
+      session.chooseCard('p0', 0);
+      session.chooseCard('p1', 5);
+      session.chooseCard('p2', 6);
+      session.chooseCard('p3', 7);
+      for (final id in ['p0', 'p1', 'p2']) {
+        session.confirmChoice(id);
+      }
+      expect(session.allActiveHumansConfirmed(), false);
+
+      session.confirmChoice('p3');
+      expect(session.allActiveHumansConfirmed(), true);
+
+      session.resolveTick(1000);
+      expect(session.allActiveHumansConfirmed(), false, reason: 'her çözümde onaylar sıfırlanır');
+    });
+
+    test('bot-kontrollü ve kopuk koltukların onayı beklenmez', () {
+      final session = LanHostSession(rng: const IdentityRandom());
+      seatFour(session);
+      session.start(0);
+      session.setBotControlled('p3'); // botlar kararını çözüm anında verir
+      session.setConnected('p2', false); // kopuk oyuncu onay gönderemez
+
+      session.chooseCard('p0', 0);
+      session.chooseCard('p1', 5);
+      session.confirmChoice('p0');
+      session.confirmChoice('p1');
+      expect(session.allActiveHumansConfirmed(), true);
+    });
+  });
+
+  group('ceza tabanı (Rules.minScore)', () {
+    test('tekrarlanan yanlış basışlar skoru tabanın altına indiremez', () {
+      final session = LanHostSession(rng: const IdentityRandom());
+      seatFour(session);
+      session.start(0);
+
+      // Ham toplam -100 olurdu; taban -50'de durdurur.
+      final presses = (Rules.minScore ~/ Rules.falseSlamPenalty) + 2;
+      for (var i = 0; i < presses; i++) {
+        expect(session.pressSlam('p1', i * 10), LanSlamOutcome.falseStart);
+      }
+      final score = ((session.view('p1')['players'] as List).cast<Map<String, Object?>>())
+          .firstWhere((p) => p['id'] == 'p1')['score'];
+      expect(score, Rules.minScore);
+    });
+  });
+
+  group('host bot ekleme + rastgele oturma', () {
+    test('host botlarla odayı doldurabilir; bot koltuğu bot-kontrollü doğar', () {
+      final session = LanHostSession(rng: const IdentityRandom());
+      session.addPlayer('host', 'Enes');
+      session.addPlayer('p-0', 'Misafir');
+      expect(session.addBot(), true);
+      expect(session.addBot(), true);
+      expect(session.isFull(), true);
+      expect(session.readyToStart(), true);
+      expect(session.addBot(), false, reason: 'oda doluyken bot eklenemez');
+
+      final players = (session.view('host')['players'] as List).cast<Map<String, Object?>>();
+      final bots = players.where((p) => p['botControlled'] == true).toList();
+      expect(bots, hasLength(2));
+      expect(bots.map((p) => p['name']), containsAll(['Bot Mehmet', 'Bot Zeynep']));
+      for (final bot in bots) {
+        expect(session.reflexTierOf(bot['id'] as String), isNotNull);
+      }
+    });
+
+    test("bot koltukları takas tick'inde BotAI ile kart verir (maç akışı takılmaz)", () {
+      final session = LanHostSession(rng: const IdentityRandom());
+      session.addPlayer('host', 'Enes');
+      session.addPlayer('p-0', 'Misafir');
+      session.addBot();
+      session.addBot();
+      session.start(0);
+
+      session.resolveTick(1000); // kimse seçmese bile patlamadan çözülmeli
+      expect(session.phase, anyOf(LanPhase.swapping, LanPhase.slamWindow));
+    });
+
+    test('start() oturma sırasını karıştırır ama id kümesini korur', () {
+      final session = LanHostSession(rng: const ZeroRandom());
+      session.addPlayer('host', 'Enes');
+      session.addPlayer('p-0', 'Misafir');
+      session.addBot();
+      session.addBot();
+      session.start(0);
+
+      final ids = [
+        for (final p in (session.view('host')['players'] as List).cast<Map<String, Object?>>()) p['id'],
+      ];
+      expect(ids.toSet(), {'host', 'p-0', 'bot-0', 'bot-1'});
+      expect(ids, isNot(['host', 'p-0', 'bot-0', 'bot-1']), reason: 'katılım sırası aynen kalmamalı');
+      for (final id in ids) {
+        final hand = (session.view(id as String)['you'] as Map)['hand'] as List;
+        expect(hand, hasLength(4));
+      }
     });
   });
 

@@ -80,6 +80,12 @@ abstract class GameDriver {
   /// Yerel modda bir sonraki turu dağıtır; online modda no-op (sunucu dağıtır).
   void requestNextRound();
   void chooseCard(int cardId);
+
+  /// Seçilen kartı onaylar ("Onayla" butonu): tüm insan koltuklar
+  /// onayladığında takas tick'i 25 sn'nin dolması beklenmeden çözülür.
+  /// Yerel modda tek insanın onayı yeterlidir; LAN/online modda yetkili
+  /// taraf (host/sunucu) tüm aktif insanların onayını bekler.
+  void confirmChoice();
   void pressSlam();
 
   /// Bilinçli çıkış ("< Menü") — online modda sunucuya onaylı kapanış gönderir.
@@ -165,6 +171,9 @@ class LocalGameDriver extends GameDriver {
 
   @override
   void chooseCard(int cardId) => _controller.submitHumanChoice(cardId);
+
+  @override
+  void confirmChoice() => _controller.confirmHumanChoice();
 
   @override
   void pressSlam() {

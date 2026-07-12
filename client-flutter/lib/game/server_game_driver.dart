@@ -110,6 +110,9 @@ class ServerGameDriver extends GameDriver {
   void chooseCard(int cardId) => _client.chooseCard(cardId);
 
   @override
+  void confirmChoice() => _client.confirmChoice();
+
+  @override
   void pressSlam() => _client.pressSlam();
 
   @override

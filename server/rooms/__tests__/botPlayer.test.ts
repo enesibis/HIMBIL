@@ -47,9 +47,9 @@ describe("bot reflex tiers", () => {
 
   it("slam delay stays inside each tier's human-ish window", () => {
     const ranges: Record<BotReflexTier, [number, number]> = {
-      easy: [700, 1200],
-      medium: [350, 800],
-      hard: [150, 500],
+      easy: [1200, 2000],
+      medium: [800, 1500],
+      hard: [500, 1000],
     };
     for (const tier of Object.keys(ranges) as BotReflexTier[]) {
       const [min, max] = ranges[tier];

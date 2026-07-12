@@ -5,6 +5,18 @@ export const SLAM_SCORE_STEP = 25;
 export const FALSE_SLAM_PENALTY = -25;
 
 /**
+ * Floor for a player's running total: penalties (false slams, AFK) can't
+ * drag a score below this, so repeated presses no longer sink it toward
+ * -Infinity. Mirrors `Rules.minScore` in the Dart port — tune together.
+ */
+export const MIN_SCORE = -50;
+
+/** Applies the {@link MIN_SCORE} floor to a running total. */
+export function clampScore(score: number): number {
+  return Math.max(MIN_SCORE, score);
+}
+
+/**
  * Scores an already-open slam window's presses, in the arrival order the
  * server received them in. The window only opens because some player's
  * hand actually completed a quartet, so every press inside it is a

@@ -62,6 +62,8 @@ export interface RoomStateView {
 
 export type ClientToServerMessage =
   | { type: "chooseCard"; cardId: number | null }
+  /** confirm the chosen card; when all active humans confirm, the swap tick resolves early */
+  | { type: "confirmChoice" }
   | { type: "slamPress" };
 
 export interface SlamPressResultMessage {

@@ -23,10 +23,16 @@ import type { Hand } from "../game/types.js";
  */
 export type BotReflexTier = "easy" | "medium" | "hard";
 
+/**
+ * Deliberately slower than a human's perceive+tap time (~500-1000ms): a
+ * player watching the pass animation must have a fair shot at pressing
+ * first on their own quartet. The old 150-1200ms ranges meant even a fast
+ * human always finished last (yapılması-gerekenler: bot-refleks şikâyeti).
+ */
 const REFLEX_RANGE_MS: Record<BotReflexTier, { min: number; max: number }> = {
-  easy: { min: 700, max: 1200 },
-  medium: { min: 350, max: 800 },
-  hard: { min: 150, max: 500 },
+  easy: { min: 1200, max: 2000 },
+  medium: { min: 800, max: 1500 },
+  hard: { min: 500, max: 1000 },
 };
 
 const REFLEX_TIERS: BotReflexTier[] = ["easy", "medium", "hard"];
@@ -34,10 +40,14 @@ const REFLEX_TIERS: BotReflexTier[] = ["easy", "medium", "hard"];
 /** Upper bound across all tiers — used as the pile-on delay's floor offset, same role BOT_SLAM_DELAY_MAX_MS played before tiering. */
 export const MAX_REFLEX_DELAY_MS = REFLEX_RANGE_MS.easy.max;
 
-/** Chance and delay for piling on after someone else's press. */
+/**
+ * Chance and delay for piling on after someone else's press. The delay
+ * floor sits above a human's reaction to the "someone slammed" toast so a
+ * player who reacts promptly reliably beats the pile-on bots to 2nd place.
+ */
 export const BOT_PILE_ON_CHANCE = 0.6;
-export const BOT_PILE_ON_DELAY_MIN_MS = 500;
-export const BOT_PILE_ON_DELAY_MAX_MS = 1200;
+export const BOT_PILE_ON_DELAY_MIN_MS = 1200;
+export const BOT_PILE_ON_DELAY_MAX_MS = 2400;
 
 export function assignReflexTier(rng: () => number = Math.random): BotReflexTier {
   return REFLEX_TIERS[Math.floor(rng() * REFLEX_TIERS.length)];

@@ -36,26 +36,31 @@ class RoundResultScreen extends StatelessWidget {
                 Text(context.l10n.roundResultsTitle(roundNumber), style: AppText.nunito(size: 12, weight: FontWeight.w800, color: Palette.textSecondary).copyWith(letterSpacing: 1)),
                 const SizedBox(height: 20),
                 Expanded(
-                  child: Column(
-                    children: [
-                      for (var i = 0; i < ranking.length; i++)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 10),
-                          child: RankRow(
-                            rank: i + 1,
-                            entry: ranking[i],
-                            badgeColor: Palette.rankColors[i.clamp(0, Palette.rankColors.length - 1)],
-                            nameStyle: AppText.baloo(size: 15, weight: FontWeight.w700),
-                            pointsStyle: AppText.baloo(size: 16, weight: FontWeight.w800, color: Palette.red),
-                            pointsPrefix: '+',
-                            decoration: BoxDecoration(
-                              color: Palette.surface,
-                              borderRadius: BorderRadius.circular(16),
-                              boxShadow: [BoxShadow(color: Palette.textPrimary.withValues(alpha: 0.06), blurRadius: 16, offset: const Offset(0, 6))],
+                  // Kısa/dar ekranlarda ya da büyük sistem yazı boyutunda
+                  // satırlar dikeyde sığmayıp taşabiliyordu ("kayma") —
+                  // liste kendi alanında kaydırılabilir, CTA hep sabit.
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        for (var i = 0; i < ranking.length; i++)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 10),
+                            child: RankRow(
+                              rank: i + 1,
+                              entry: ranking[i],
+                              badgeColor: Palette.rankColors[i.clamp(0, Palette.rankColors.length - 1)],
+                              nameStyle: AppText.baloo(size: 15, weight: FontWeight.w700),
+                              pointsStyle: AppText.baloo(size: 16, weight: FontWeight.w800, color: Palette.red),
+                              pointsPrefix: '+',
+                              decoration: BoxDecoration(
+                                color: Palette.surface,
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [BoxShadow(color: Palette.textPrimary.withValues(alpha: 0.06), blurRadius: 16, offset: const Offset(0, 6))],
+                              ),
                             ),
                           ),
-                        ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
                 Padding(

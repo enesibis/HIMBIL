@@ -73,9 +73,12 @@ class _SlamCelebrationScreenState extends State<SlamCelebrationScreen> with Tick
                 ),
               ),
             ),
+            // Kısa ekranlarda / büyük sistem yazı boyutunda sıralama
+            // kartları dikeyde taşabiliyordu ("kayma") — içerik gerekirse
+            // kendi içinde kayar, ekran gövdesi asla taşmaz.
             SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.only(top: 40),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.only(top: 40, bottom: 16),
                 child: Column(
                   children: [
                     ScaleTransition(
