@@ -24,10 +24,19 @@ enum SlamOutcome { recorded, already, tooEarly, falseStart, falseStartForgiven, 
 /// client-local çalışıyor (tek kişilik + bot).
 class GameController {
   static const int numPlayers = 4;
-  static const double swapTickDuration = 4.0;
-  static const double slamWindowDuration = 4.0;
+  static const double swapTickDuration = 25.0;
+  static const double slamWindowDuration = 25.0;
   static const int targetScore = 300;
   static const String humanId = 'human';
+
+  /// AFK handling (madde #4): art arda kaç takas tick'i kart seçmeden
+  /// geçerse insan "idle" sayılır/cezalandırılır. Offline modda zaten tek
+  /// insan botlara karşı oynadığı için (devredilecek başka bir insan yok)
+  /// çevrimiçi moddaki gibi koltuğu bota devretme adımı yok — yalnız
+  /// uyarı + puan cezası.
+  static const int idleWarningStreak = 2;
+  static const int idlePenaltyStreak = 3;
+  static const int idlePenaltyScore = -5;
 
   /// Maç sonu, final sıralamasındaki yerine göre ödenen jeton — 1.'den
   /// 4.'ye. Ekonominin tek yönlü olmaması (bkz. yapılması-gerekenler #9)
@@ -49,6 +58,12 @@ class GameController {
   void Function(String playerId, int newScore)? onFalseSlamPenalty;
   void Function(int amount)? onMatchTokensAwarded;
 
+  /// İnsanın idle streak'i tam uyarı eşiğine ulaştığı an (false->true kenar
+  /// geçişi) bir kez tetiklenir — ekran bunu bir toast'a bağlar.
+  void Function()? onHumanIdleWarning;
+  /// Ceza eşiğinden itibaren her ek kaçırılan turda bir kez tetiklenir.
+  void Function(String playerId, int newScore)? onIdlePenalty;
+
   /// Tur bittiğinde bir kez çağrılır; devam etmek UI'nin sorumluluğunda —
   /// bu sınıf artık kendiliğinden bir sonraki tura geçmiyor. `winnerId`
   /// null değilse maç bitmiştir, UI Maç Sonu'na geçmeli; null ise UI
@@ -66,12 +81,22 @@ class GameController {
   bool _falseStartForgiven = false;
   Timer? _ticker;
   DateTime? _roundStartedAt;
+  int _humanConsecutiveTimeouts = 0;
+
+  bool get humanIsIdle => _humanConsecutiveTimeouts >= idleWarningStreak;
+
+  /// Her bota (index 1-3) maç başında bir kez atanan, maç boyunca sabit
+  /// refleks katmanı — bkz. BotAI.assignReflexTier.
+  final Map<int, BotReflexTier> _botReflexTiers = {};
 
   static const Duration _tickInterval = Duration(milliseconds: 100);
 
   GameController() {
     for (final pid in playerIds) {
       scores[pid] = 0;
+    }
+    for (var i = 1; i < numPlayers; i++) {
+      _botReflexTiers[i] = BotAI.assignReflexTier();
     }
   }
 
@@ -153,12 +178,30 @@ class GameController {
         choices.add(BotAI.decideCardToPass(hands[i]));
       }
     }
+    _updateHumanIdleStreak(choices[0] != null);
 
     final result = Rules.resolveSwapTick(hands, choices, direction);
     hands = result.hands;
     _pendingChoice.clear();
     onHandsUpdated?.call(hands, result.changedIndex[0]);
     _checkQuartetsOrStartSwapping();
+  }
+
+  /// İnsanın art arda kart seçmeden geçen tur sayısını izler — zamanında
+  /// seçtiğinde sıfırlanır, aksi halde uyarı/ceza eşiklerinde callback'leri
+  /// tetikler (bkz. idleWarningStreak/idlePenaltyStreak).
+  void _updateHumanIdleStreak(bool chose) {
+    if (chose) {
+      _humanConsecutiveTimeouts = 0;
+      return;
+    }
+    final wasIdle = humanIsIdle;
+    _humanConsecutiveTimeouts++;
+    if (_humanConsecutiveTimeouts >= idlePenaltyStreak) {
+      scores[humanId] = (scores[humanId] ?? 0) + idlePenaltyScore;
+      onIdlePenalty?.call(humanId, scores[humanId]!);
+    }
+    if (!wasIdle && humanIsIdle) onHumanIdleWarning?.call();
   }
 
   /// Hem dağıtımdan hemen sonra hem her takas tick'inden sonra çağrılır,
@@ -184,7 +227,7 @@ class GameController {
     for (var i = 0; i < numPlayers; i++) {
       if (i == 0) continue;
       if (Rules.detectQuartet(hands[i]) != null) {
-        _slamCandidates.add(_SlamCandidate(index: i, delay: BotAI.decideSlamDelay()));
+        _slamCandidates.add(_SlamCandidate(index: i, delay: BotAI.decideSlamDelay(_botReflexTiers[i]!)));
       } else if (BotAI.decidesToPileOn()) {
         _pileOnCandidates.add(_SlamCandidate(index: i, delay: BotAI.decidePileOnDelay()));
       }

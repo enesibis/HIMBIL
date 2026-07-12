@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../theme/palette.dart';
@@ -53,6 +55,11 @@ class _GameOverOverlayState extends State<GameOverOverlay> with SingleTickerProv
 
   @override
   Widget build(BuildContext context) {
+    // Telefonlarda MediaQuery genişliği zaten 360'ın altında kalır (280/260
+    // sabitlerinin yerini alır); geniş ekranlarda (tablet/masaüstü) kart
+    // aşırı uzamasın diye üst sınır — round_result_screen.dart'taki
+    // "width - 48" örüntüsüyle aynı, yalnız burada bir üst sınırla.
+    final contentWidth = math.min(MediaQuery.sizeOf(context).width - 48, 360.0);
     return Positioned.fill(
       child: Container(
         color: Palette.textPrimary.withValues(alpha: 0.6),
@@ -97,7 +104,7 @@ class _GameOverOverlayState extends State<GameOverOverlay> with SingleTickerProv
                             rank: i + 1,
                             entry: widget.ranking[i],
                             badgeColor: Palette.rankColors[i.clamp(0, Palette.rankColors.length - 1)],
-                            width: 280,
+                            width: contentWidth,
                             nameStyle: AppText.baloo(size: 15, weight: FontWeight.w700),
                             pointsStyle: AppText.baloo(size: 16, weight: FontWeight.w800, color: Palette.green),
                             decoration: BoxDecoration(
@@ -116,7 +123,7 @@ class _GameOverOverlayState extends State<GameOverOverlay> with SingleTickerProv
                       if (widget.onPlayAgain != null) ...[
                         GradientCta(
                           title: context.l10n.gameOverPlayAgain,
-                          width: 260,
+                          width: contentWidth,
                           height: 62,
                           color: Palette.redLight,
                           shadowBarColor: Palette.redShadow,
@@ -128,7 +135,7 @@ class _GameOverOverlayState extends State<GameOverOverlay> with SingleTickerProv
                       ],
                       SoftButton(
                         label: context.l10n.gameOverMainMenu,
-                        width: 260,
+                        width: contentWidth,
                         height: 48,
                         borderRadius: 20,
                         fontSize: 15,

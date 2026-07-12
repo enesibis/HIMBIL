@@ -2,7 +2,7 @@ import { Room, type Client } from "colyseus";
 import type { Delayed } from "@colyseus/timer";
 
 import { HimbilGameSession, SWAP_TICK_MS, SLAM_WINDOW_MS, SCORING_PAUSE_MS, placementRewards } from "./gameSession.js";
-import { decideBotSlamDelayMs, decidePileOnDelayMs, decidesToPileOn, BOT_SLAM_DELAY_MAX_MS } from "./botPlayer.js";
+import { decideBotSlamDelayMs, decidePileOnDelayMs, decidesToPileOn, MAX_REFLEX_DELAY_MS } from "./botPlayer.js";
 import type { RoundScoredMessage } from "../schema/messages.js";
 import type { GuestAccountStore } from "../persistence/guestAccountStore.js";
 import { generateRoomCode, JoinRateLimiter } from "./roomCode.js";
@@ -141,6 +141,7 @@ export class HimbilRoom extends Room {
     if (this.session.currentPhase === "swapping") {
       this.scheduleNextSwapTick();
     } else if (this.session.currentPhase === "slamWindow") {
+      this.pendingTimer?.clear();
       this.pendingTimer = this.clock.setTimeout(() => this.finishSlamWindowAndContinue(), SLAM_WINDOW_MS);
       this.scheduleBotSlamPresses();
     }
@@ -173,11 +174,12 @@ export class HimbilRoom extends Room {
    */
   private scheduleBotSlamPresses() {
     for (const id of this.session.botControlledWithQuartet()) {
-      this.botTimers.push(this.clock.setTimeout(() => this.handleSlamPress(id), decideBotSlamDelayMs()));
+      const tier = this.session.reflexTierOf(id) ?? "medium";
+      this.botTimers.push(this.clock.setTimeout(() => this.handleSlamPress(id), decideBotSlamDelayMs(tier)));
     }
     for (const id of this.session.botControlledWithoutQuartet()) {
       if (!decidesToPileOn()) continue;
-      const delay = BOT_SLAM_DELAY_MAX_MS + decidePileOnDelayMs();
+      const delay = MAX_REFLEX_DELAY_MS + decidePileOnDelayMs();
       this.botTimers.push(this.clock.setTimeout(() => this.handleSlamPress(id), delay));
     }
   }
@@ -190,6 +192,18 @@ export class HimbilRoom extends Room {
   }
 
   private finishSlamWindowAndContinue() {
+    // Defense-in-depth (madde #9): every current call site already clears
+    // its own timer before invoking this, so this guard is not reachable
+    // today — but it makes the "only ever finish an open slam window once"
+    // invariant self-enforcing instead of relying purely on caller
+    // discipline, which is cheap insurance against a future call site
+    // (e.g. a LAN host mirroring this room) accidentally double-firing it.
+    // (Bound to a local first, not compared inline, so TS doesn't narrow
+    // the `currentPhase` getter itself — its backing state changes a few
+    // lines down via finishSlamWindow(), which a narrowed getter type
+    // can't account for.)
+    const phaseBeforeFinish = this.session.currentPhase;
+    if (phaseBeforeFinish !== "slamWindow") return;
     this.clearBotTimers();
     const results = this.session.finishSlamWindow();
     const roundScored: RoundScoredMessage = {

@@ -30,10 +30,13 @@ class ServerGameDriver extends GameDriver {
     if (initialState != null) _onState(initialState);
   }
 
-  /// Sunucudaki SWAP_TICK_MS / SLAM_WINDOW_MS (4000ms) ile eşleşir — geri
-  /// sayım halkasının dolu/boş oranı için gerekir; deadline'ın kendisi her
-  /// state mesajında sunucudan gelir.
-  static const double _phaseSeconds = 4.0;
+  /// Sunucudaki SWAP_TICK_MS / SLAM_WINDOW_MS ile eşleşmesi gerekir — geri
+  /// sayım halkasının dolu/boş oranı için kullanılır; deadline'ın kendisi
+  /// her state mesajında sunucudan gelir. `GameController.swapTickDuration`'a
+  /// referans vererek tek bir yerden (client tarafında) değiştirilebilir
+  /// hale getirildi — sunucudaki değer hâlâ ayrıca güncellenmeli
+  /// (server/rooms/gameSession.ts, farklı bir çalışma zamanı).
+  static const double _phaseSeconds = GameController.swapTickDuration;
 
   final HimbilNetClient _client;
   final List<StreamSubscription<Object?>> _subs = [];
@@ -48,6 +51,7 @@ class ServerGameDriver extends GameDriver {
   List<String> _slamOrder = const [];
   final Map<String, int> _scores = {};
   final Map<String, String> _names = {};
+  final Map<String, bool> _idle = {};
   final Map<Seat, String> _idBySeat = {};
   int? _activeDeadlineMs;
   bool _matchRewardGiven = false;
@@ -82,6 +86,9 @@ class ServerGameDriver extends GameDriver {
 
   @override
   int scoreOf(Seat seat) => _scores[_idBySeat[seat]] ?? 0;
+
+  @override
+  bool isIdle(Seat seat) => _idle[_idBySeat[seat]] ?? false;
 
   @override
   void start() {
@@ -140,6 +147,10 @@ class ServerGameDriver extends GameDriver {
       orderedIds.add(id);
       _names[id] = (player['name'] as String?) ?? '...';
       _scores[id] = (player['score'] as num?)?.toInt() ?? 0;
+      final wasIdle = _idle[id] ?? false;
+      final isIdleNow = player['idle'] as bool? ?? false;
+      _idle[id] = isIdleNow;
+      if (!wasIdle && isIdleNow && id == _selfId) onIdleWarning?.call();
     }
 
     final selfIndex = _selfId == null ? -1 : orderedIds.indexOf(_selfId!);

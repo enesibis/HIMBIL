@@ -13,14 +13,35 @@ import type { Hand } from "../game/types.js";
  * bots in online games.
  */
 
-/** Delay before a takeover bot presses when it holds the quartet (ms). */
-export const BOT_SLAM_DELAY_MIN_MS = 350;
-export const BOT_SLAM_DELAY_MAX_MS = 1300;
+/**
+ * How human-like-slow a bot's Hımbıl reflex is (madde #5): bots shouldn't
+ * all press with near-zero, identical delay. Each takeover bot gets one of
+ * these assigned once (when the seat becomes bot-controlled) and keeps it
+ * for the rest of the match — a consistent "personality" rather than a
+ * fresh roll every round. Mirrors `client-flutter/lib/game/bot_ai.dart`'s
+ * `BotReflexTier` exactly — tune both together.
+ */
+export type BotReflexTier = "easy" | "medium" | "hard";
+
+const REFLEX_RANGE_MS: Record<BotReflexTier, { min: number; max: number }> = {
+  easy: { min: 700, max: 1200 },
+  medium: { min: 350, max: 800 },
+  hard: { min: 150, max: 500 },
+};
+
+const REFLEX_TIERS: BotReflexTier[] = ["easy", "medium", "hard"];
+
+/** Upper bound across all tiers — used as the pile-on delay's floor offset, same role BOT_SLAM_DELAY_MAX_MS played before tiering. */
+export const MAX_REFLEX_DELAY_MS = REFLEX_RANGE_MS.easy.max;
 
 /** Chance and delay for piling on after someone else's press. */
 export const BOT_PILE_ON_CHANCE = 0.6;
 export const BOT_PILE_ON_DELAY_MIN_MS = 500;
 export const BOT_PILE_ON_DELAY_MAX_MS = 1200;
+
+export function assignReflexTier(rng: () => number = Math.random): BotReflexTier {
+  return REFLEX_TIERS[Math.floor(rng() * REFLEX_TIERS.length)];
+}
 
 /**
  * Picks the id of a card of the least-collected type in `hand` — the card
@@ -36,8 +57,9 @@ export function chooseLeastUsefulCard(hand: Hand, rng: () => number = Math.rando
   return candidates[Math.floor(rng() * candidates.length)].id;
 }
 
-export function decideBotSlamDelayMs(rng: () => number = Math.random): number {
-  return BOT_SLAM_DELAY_MIN_MS + rng() * (BOT_SLAM_DELAY_MAX_MS - BOT_SLAM_DELAY_MIN_MS);
+export function decideBotSlamDelayMs(tier: BotReflexTier, rng: () => number = Math.random): number {
+  const { min, max } = REFLEX_RANGE_MS[tier];
+  return min + rng() * (max - min);
 }
 
 export function decidesToPileOn(rng: () => number = Math.random): boolean {

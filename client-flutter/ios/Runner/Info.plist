@@ -26,6 +26,11 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<!-- Madde #10: sunucusuz LAN modu — aynı Wi-Fi ağındaki cihazlarla UDP
+	     keşif + TCP maç bağlantısı için iOS 14+ zorunlu izni. Bonjour/mDNS
+	     kullanılmadığı (salt UDP broadcast) için NSBonjourServices gerekmiyor. -->
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Aynı Wi-Fi ağındaki diğer cihazlarla internetsiz LAN oyunu oynamak için yerel ağ erişimi gerekir.</string>
 	<!-- Oda daveti deep link'i (madde #58): himbil://join/AB12CD -->
 	<key>CFBundleURLTypes</key>
 	<array>

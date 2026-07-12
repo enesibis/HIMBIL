@@ -1,5 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { HimbilGameSession, TARGET_SCORE, PLACEMENT_TOKEN_REWARDS, placementRewards } from "../gameSession.js";
+import {
+  HimbilGameSession,
+  TARGET_SCORE,
+  PLACEMENT_TOKEN_REWARDS,
+  placementRewards,
+  IDLE_WARNING_STREAK,
+  IDLE_PENALTY_STREAK,
+  IDLE_PENALTY_SCORE,
+  IDLE_REMOVAL_STREAK,
+} from "../gameSession.js";
 import { mulberry32 } from "../../game/deck.js";
 
 /**
@@ -68,7 +77,7 @@ describe("HimbilGameSession lobby", () => {
 
     expect(session.currentPhase).toBe("slamWindow");
     expect(session.view("p1").you.hand.map((c) => c.objectType)).toEqual(["cilek", "cilek", "cilek", "cilek"]);
-    expect(session.view("p1").slamWindowDeadline).toBe(1_000 + 4_000);
+    expect(session.view("p1").slamWindowDeadline).toBe(1_000 + 25_000);
     expect(session.view("p1").swapTickDeadline).toBeNull();
 
     expect(session.pressSlam("p1", 1_100)).toBe("recorded");
@@ -144,7 +153,7 @@ describe("HimbilGameSession swap ticks", () => {
     expect(session.currentPhase).toBe("slamWindow");
     const view = session.view("p0");
     expect(view.you.hand.map((c) => c.objectType)).toEqual(["armut", "armut", "armut", "armut"]);
-    expect(view.slamWindowDeadline).toBe(3_000 + 4_000);
+    expect(view.slamWindowDeadline).toBe(3_000 + 25_000);
   });
 });
 
@@ -206,7 +215,7 @@ describe("HimbilGameSession slam presses", () => {
     const session = sessionWithQuartetOnP0();
     session.pressSlam("p0", 3_100);
     expect(session.isSlamWindowDue(3_101)).toBe(false);
-    expect(session.isSlamWindowDue(3_000 + 4_000)).toBe(true);
+    expect(session.isSlamWindowDue(3_000 + 25_000)).toBe(true);
   });
 
   it("scores presses in arrival order, pauses in scoring, then deals the next round", () => {
@@ -238,7 +247,7 @@ describe("HimbilGameSession slam presses", () => {
     view = session.view("p0");
     expect(view.phase).toBe("swapping");
     expect(view.you.hand).toHaveLength(4);
-    expect(view.swapTickDeadline).toBe(8_000 + 4_000);
+    expect(view.swapTickDeadline).toBe(8_000 + 25_000);
   });
 
   it("ends the match once a player reaches the target score", () => {
@@ -356,5 +365,88 @@ describe("bot takeover (setBotControlled)", () => {
     expect(session.view("p0").you.hand.map((c) => c.objectType)).toEqual(["armut", "armut", "armut", "armut"]);
     expect(session.botControlledWithQuartet()).toEqual(["p0"]);
     expect(session.botControlledWithoutQuartet()).toEqual([]);
+  });
+
+  it("assigns a reflex tier once, on takeover, and keeps it fixed for the rest of the match", () => {
+    const session = new HimbilGameSession("AB12CD", IDENTITY_SHUFFLE_RNG);
+    seatFourPlayers(session);
+    session.start();
+
+    expect(session.reflexTierOf("p1")).toBeNull();
+    session.setBotControlled("p1");
+    const tier = session.reflexTierOf("p1");
+    expect(["easy", "medium", "hard"]).toContain(tier);
+
+    // Calling it again (e.g. a redundant onDrop) must not re-roll the tier.
+    session.setBotControlled("p1");
+    expect(session.reflexTierOf("p1")).toBe(tier);
+  });
+});
+
+describe("AFK handling (idle streak)", () => {
+  // With IDENTITY_SHUFFLE_RNG, an uncontested player who never chooses always
+  // has their last-slot card auto-picked (rng() always floors to the top
+  // index) — verified by direct simulation to stay in "swapping" for at
+  // least 12 ticks without ever accidentally completing a quartet, which
+  // makes it a safe, deterministic scenario for exercising the idle streak
+  // across its full warning -> penalty -> removal range in one run.
+  function sessionWithP1Afk(): HimbilGameSession {
+    const session = new HimbilGameSession("AB12CD", IDENTITY_SHUFFLE_RNG);
+    seatFourPlayers(session);
+    session.start(0);
+    return session;
+  }
+
+  function idleViewOf(session: HimbilGameSession, id: string) {
+    const p = session.view(id).players.find((pl) => pl.id === id)!;
+    return { idle: p.idle, score: p.score, botControlled: p.botControlled };
+  }
+
+  it("stays quiet below the warning streak, then flags idle without penalty", () => {
+    const session = sessionWithP1Afk();
+    session.resolveTick(1_000);
+    expect(idleViewOf(session, "p1")).toEqual({ idle: false, score: 0, botControlled: false });
+
+    session.resolveTick(2_000);
+    expect(IDLE_WARNING_STREAK).toBe(2);
+    expect(idleViewOf(session, "p1")).toEqual({ idle: true, score: 0, botControlled: false });
+  });
+
+  it("penalizes each consecutive miss from the penalty streak onward", () => {
+    const session = sessionWithP1Afk();
+    for (let i = 0; i < IDLE_PENALTY_STREAK; i++) session.resolveTick((i + 1) * 1_000);
+    // At exactly IDLE_PENALTY_STREAK misses, the first penalty has landed.
+    expect(idleViewOf(session, "p1")).toEqual({ idle: true, score: IDLE_PENALTY_SCORE, botControlled: false });
+
+    session.resolveTick((IDLE_PENALTY_STREAK + 1) * 1_000);
+    expect(idleViewOf(session, "p1").score).toBe(IDLE_PENALTY_SCORE * 2);
+  });
+
+  it("resets the streak (and stops penalizing) the moment the player chooses in time", () => {
+    const session = sessionWithP1Afk();
+    session.resolveTick(1_000);
+    session.resolveTick(2_000);
+    expect(idleViewOf(session, "p1").idle).toBe(true);
+
+    session.chooseCard("p1", session.view("p1").you.hand[0].id);
+    session.resolveTick(3_000);
+    expect(idleViewOf(session, "p1")).toEqual({ idle: false, score: 0, botControlled: false });
+  });
+
+  it("hands the seat to the bot once the removal streak is reached, and stops accruing further penalty", () => {
+    const session = sessionWithP1Afk();
+    for (let i = 0; i < IDLE_REMOVAL_STREAK; i++) session.resolveTick((i + 1) * 1_000);
+    expect(idleViewOf(session, "p1")).toEqual({
+      idle: true,
+      score: IDLE_PENALTY_SCORE * (IDLE_REMOVAL_STREAK - IDLE_PENALTY_STREAK + 1),
+      botControlled: true,
+    });
+    expect(session.isBotControlled("p1")).toBe(true);
+
+    const scoreAtHandoff = idleViewOf(session, "p1").score;
+    session.resolveTick((IDLE_REMOVAL_STREAK + 1) * 1_000);
+    // Bot-controlled seats always "choose" (via chooseLeastUsefulCard), so
+    // the idle streak no longer advances or costs points once handed off.
+    expect(idleViewOf(session, "p1").score).toBe(scoreAtHandoff);
   });
 });

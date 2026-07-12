@@ -92,6 +92,9 @@ class _GameScreenState extends State<GameScreen> {
     Seat.north: GlobalKey<PlayerAvatarState>(),
     Seat.east: GlobalKey<PlayerAvatarState>(),
   };
+  /// İnsanın eli 4'lü tamamladığı an (bkz. [_pulseIfQuartetJustFormed) kısa
+  /// bir vurgu animasyonu için — madde #6'nın istediği "kısa animasyon".
+  final GlobalKey<CardFanPulseState> _humanFanKey = GlobalKey<CardFanPulseState>();
   final GlobalKey<CardFanPulseState> _northFanKey = GlobalKey<CardFanPulseState>();
   final GlobalKey<CardFanPulseState> _westFanKey = GlobalKey<CardFanPulseState>();
   final GlobalKey<CardFanPulseState> _eastFanKey = GlobalKey<CardFanPulseState>();
@@ -126,12 +129,14 @@ class _GameScreenState extends State<GameScreen> {
       }
       ..onHandUpdated = (hand, changedSlot) {
         if (!mounted) return;
+        final hadQuartet = Rules.detectQuartet(_humanHand) != null;
         if (changedSlot == -1) {
           SoundService.instance.playSfx(Sfx.dealCards);
           setState(() {
             _humanHand = hand;
             _displayHand = hand;
           });
+          _pulseIfQuartetJustFormed(hadQuartet, hand);
           return;
         }
         SoundService.instance.playSfx(Sfx.swapTick);
@@ -142,6 +147,7 @@ class _GameScreenState extends State<GameScreen> {
         // yarışını haksız yere geç başlamış olur).
         final outgoingCard = changedSlot < _displayHand.length ? _displayHand[changedSlot] : hand[changedSlot];
         setState(() => _humanHand = hand);
+        _pulseIfQuartetJustFormed(hadQuartet, hand);
         _runPassRelay(outgoingCard, hand, changedSlot);
       }
       ..onCountdownTick = (secondsLeft, maxSeconds) {
@@ -189,6 +195,9 @@ class _GameScreenState extends State<GameScreen> {
         }
       }
       ..onScoresChanged = _syncScores
+      ..onIdleWarning = () {
+        _showToast(context.l10n.gameToastIdleWarning);
+      }
       ..onMatchTokensAwarded = (amount) {
         if (!mounted) return;
         setState(() => _tokenReward = amount);
@@ -394,6 +403,14 @@ class _GameScreenState extends State<GameScreen> {
   // dönmesini beklemek başlı başına kazanan bir strateji olur.
   bool get _humanHasQuartet => Rules.detectQuartet(_humanHand) != null;
 
+  /// 4'lü tam bu güncellemede tamamlandıysa (false->true kenar geçişi) elin
+  /// üzerinde kısa bir vurgu animasyonu oynatır — madde #6.
+  void _pulseIfQuartetJustFormed(bool hadQuartet, List<CardModel> newHand) {
+    if (!hadQuartet && Rules.detectQuartet(newHand) != null) {
+      _humanFanKey.currentState?.pulse();
+    }
+  }
+
   void _playAgain() {
     SoundService.instance.playSfx(Sfx.buttonTap);
     _driver.dispose();
@@ -472,7 +489,7 @@ class _GameScreenState extends State<GameScreen> {
                     ),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(18, 8, 18, 4),
-                      child: _buildHumanHandRow(),
+                      child: CardFanPulse(key: _humanFanKey, child: _buildHumanHandRow()),
                     ),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(20, 14, 20, 20),
@@ -556,7 +573,7 @@ class _GameScreenState extends State<GameScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              PlayerAvatar(key: _avatarKeys[Seat.north], name: label),
+              _avatarWithIdleBadge(Seat.north, PlayerAvatar(key: _avatarKeys[Seat.north], name: label)),
               const SizedBox(width: 6),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -574,6 +591,36 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
+  /// Art arda birkaç turdur kart seçmeyen bir koltuğun avatarına küçük bir
+  /// "AFK" rozeti bindirir (bkz. GameDriver.isIdle) — insan kendi uyarısını
+  /// bir toast olarak ayrıca görür (onIdleWarning), bu yalnız DİĞER koltuklar
+  /// için bilgilendirme amaçlı.
+  Widget _avatarWithIdleBadge(Seat seat, Widget avatar) {
+    if (!_driver.isIdle(seat)) return avatar;
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        avatar,
+        Positioned(
+          right: -2,
+          top: -2,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+            decoration: BoxDecoration(
+              color: Palette.red,
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(color: Colors.white, width: 1),
+            ),
+            child: Text(
+              context.l10n.gameAfkBadge,
+              style: AppText.nunito(size: 8, weight: FontWeight.w800, color: Colors.white),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildSideColumn({required Seat seat}) {
     final east = seat == Seat.east;
     final label = _driver.labelFor(seat);
@@ -582,7 +629,7 @@ class _GameScreenState extends State<GameScreen> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          PlayerAvatar(key: _avatarKeys[seat], name: label),
+          _avatarWithIdleBadge(seat, PlayerAvatar(key: _avatarKeys[seat], name: label)),
           const SizedBox(height: 4),
           Text(
             context.l10n.gameSeatScore(label, _opponentScores[seat] ?? 0),

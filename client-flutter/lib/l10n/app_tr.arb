@@ -30,6 +30,7 @@
   "homeOrPrivateRoom": "VEYA ÖZEL ODA",
   "homeCreateRoom": "Oda Kur",
   "homeJoinWithCode": "Kodla Katıl",
+  "homeLanGame": "LAN Oyunu",
   "statGames": "Oyun",
   "statWins": "Galibiyet",
   "statWinRate": "Kazanma Oranı",
@@ -72,11 +73,31 @@
   "lobbyFallbackJoinFailed": "Odaya katılamadı (sunucu kapalı ya da kod geçersiz) — botlarla oynuyorsun.",
   "lobbyFallbackServerUnreachable": "Sunucuya ulaşılamadı — botlarla oynuyorsun.",
 
+  "lanTitle": "LAN Oyunu",
+  "lanSubtitle": "Aynı Wi-Fi ağındaki cihazlarla, internetsiz oyna",
+  "lanHostAction": "Oda Aç",
+  "lanHostActionSubtitle": "Bu cihaz host olsun",
+  "lanJoinAction": "Oyun Ara",
+  "lanJoinActionSubtitle": "Yakındaki bir odaya katıl",
+  "lanRoomNameOf": "{name} Odası",
+  "@lanRoomNameOf": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "lanScanning": "Yakındaki oyunlar aranıyor…",
+  "lanNoHostsFound": "Henüz oyun bulunamadı — host'un aynı Wi-Fi ağında olduğundan emin ol.",
+  "lanConnecting": "Bağlanıyor…",
+  "lanConnectionFailed": "Bağlanılamadı — host hâlâ açık mı kontrol et.",
+  "lanHostStartFailed": "Oda açılamadı (port kullanımda olabilir).",
+
   "gameToastYourTurn": "Sıradasın!",
   "gameToastSlamOpen": "Biri HIMBIL dedi! Elinde 4'lü varsa hemen bas!",
   "gameToastAlreadyPressed": "Zaten bastın",
   "gameToastFalseStartForgiven": "Henüz dörtlün yok — bu ilk yanlışın bedava!",
   "gameToastFalseStartPenalty": "Erken bastın! Ceza puanı",
+  "gameToastIdleWarning": "Hareketsizsin! Kart seçmezsen otomatik seçilmeye devam edilecek.",
+  "gameAfkBadge": "AFK",
   "gameExitTitle": "Turdan çıkılsın mı?",
   "gameExitBodyOnline": "Menüye dönersen maçtan ayrılırsın; diğer oyuncular devam eder.",
   "gameExitBodyLocal": "Menüye dönersen bu tur ve puanların kaybolur.",

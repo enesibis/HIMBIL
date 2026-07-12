@@ -45,6 +45,11 @@ abstract class GameDriver {
   String labelFor(Seat seat);
   int scoreOf(Seat seat);
 
+  /// Art arda birkaç turdur kart seçmeyen (AFK uyarı eşiğini geçmiş) bir
+  /// koltuk için true — ekran küçük bir rozetle gösterir. Botlar/aktif
+  /// oyuncular için her zaman false.
+  bool isIdle(Seat seat) => false;
+
   void Function(GamePhase phase)? onPhaseChanged;
 
   /// [changedSlot] -1 ise el tamamen yenilendi (yeni tur dağıtımı); değilse
@@ -60,6 +65,10 @@ abstract class GameDriver {
   /// [scoreOf] ile yeniden okur.
   void Function()? onScoresChanged;
   void Function(int amount)? onMatchTokensAwarded;
+
+  /// İnsanın kendi idle uyarı eşiğine ulaştığı an (bkz. [isIdle]) — ekran
+  /// bunu bir toast'a bağlar.
+  void Function()? onIdleWarning;
   void Function(int roundNumber, List<RoundRankEntry> results, Seat? winnerSeat)? onRoundScored;
 
   /// Ağ/oda hatası — ekran toast gösterir. Yerel modda hiç tetiklenmez.
@@ -93,6 +102,8 @@ class LocalGameDriver extends GameDriver {
     };
     _controller.onSlamAttemptRecorded = (playerId) => onSlamAttemptRecorded?.call(_seatOf(playerId));
     _controller.onFalseSlamPenalty = (_, _) => onScoresChanged?.call();
+    _controller.onIdlePenalty = (_, _) => onScoresChanged?.call();
+    _controller.onHumanIdleWarning = () => onIdleWarning?.call();
     _controller.onMatchTokensAwarded = (amount) => onMatchTokensAwarded?.call(amount);
     _controller.onRoundScored = (roundNumber, results, scores, winnerId) {
       onScoresChanged?.call();
@@ -142,6 +153,9 @@ class LocalGameDriver extends GameDriver {
 
   @override
   int scoreOf(Seat seat) => _controller.scores[_idBySeat[seat]!] ?? 0;
+
+  @override
+  bool isIdle(Seat seat) => seat == Seat.human && _controller.humanIsIdle;
 
   @override
   void start() => _controller.start();

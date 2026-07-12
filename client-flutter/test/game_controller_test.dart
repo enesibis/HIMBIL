@@ -83,13 +83,13 @@ void main() {
       _ensureSwappingPhase(controller, async);
       _forceBotEastQuartet(controller);
 
-      // swapTickDuration (4.0s) + biraz pay -> takas çözülür, bot_east 4'lü tamamlar.
-      async.elapse(const Duration(milliseconds: 4300));
+      // swapTickDuration (25.0s) + biraz pay -> takas çözülür, bot_east 4'lü tamamlar.
+      async.elapse(const Duration(milliseconds: 25300));
       expect(controller.phase, GamePhase.slamWindow);
 
-      // slamWindowDuration (4.0s) + biraz pay -> bot_east'in gecikmeli basışı
+      // slamWindowDuration (25.0s) + biraz pay -> bot_east'in gecikmeli basışı
       // (0.35-1.3s) kesin gerçekleşir ve pencere kapanır.
-      async.elapse(const Duration(milliseconds: 4300));
+      async.elapse(const Duration(milliseconds: 25300));
 
       expect(capturedResults, isNotNull);
       expect(capturedResults!.first.playerId, 'bot_east');
@@ -115,14 +115,57 @@ void main() {
       controller.scores[GameController.humanId] = GameController.targetScore;
       _forceBotEastQuartet(controller);
 
-      async.elapse(const Duration(milliseconds: 4300));
+      async.elapse(const Duration(milliseconds: 25300));
       expect(controller.phase, GamePhase.slamWindow);
-      async.elapse(const Duration(milliseconds: 4300));
+      async.elapse(const Duration(milliseconds: 25300));
 
       expect(capturedWinnerId, GameController.humanId);
       // insan skoru (>=300) her bot'un bu turda alabileceğinden kesin yüksek
       // kalır, yani sıralamada 1. olur.
       expect(capturedReward, GameController.placementTokenRewards[0]);
+
+      controller.dispose();
+    });
+  });
+
+  test('AFK: insan art arda kart seçmezse uyarılır ve cezalandırılır, zamanında seçince sıfırlanır', () {
+    fakeAsync((async) {
+      final controller = GameController();
+      var warningCount = 0;
+      controller.onHumanIdleWarning = () => warningCount++;
+
+      controller.start();
+      async.elapse(Duration.zero);
+      _ensureSwappingPhase(controller, async);
+
+      // Her tick öncesi eli "taze" (4 farklı tür) haline resetleriz ki
+      // insanın rastgele kart kaybı asla bir 4'lü oluşturamasın — bu test
+      // idle sayacını doğruluyor, tur/4'lü mantığını değil.
+      void idleTick() {
+        controller.hands = fourEmptyHands();
+        async.elapse(const Duration(milliseconds: 25300));
+        expect(controller.phase, GamePhase.swapping, reason: 'quartet accidentally formed');
+      }
+
+      for (var i = 0; i < GameController.idleWarningStreak; i++) {
+        idleTick();
+      }
+      expect(controller.humanIsIdle, true);
+      expect(warningCount, 1, reason: 'warning fires once, on the false->true edge');
+      expect(controller.scores[GameController.humanId], 0, reason: 'below the penalty streak, no score hit yet');
+
+      for (var i = GameController.idleWarningStreak; i < GameController.idlePenaltyStreak; i++) {
+        idleTick();
+      }
+      expect(controller.scores[GameController.humanId], GameController.idlePenaltyScore);
+      expect(warningCount, 1, reason: 'no repeated warnings once already idle');
+
+      // Zamanında seçim sayaç ve idle bayrağını sıfırlar; ceza birikmeyi durdurur.
+      controller.hands = fourEmptyHands();
+      controller.submitHumanChoice(controller.hands[0][0].id);
+      async.elapse(const Duration(milliseconds: 25300));
+      expect(controller.humanIsIdle, false);
+      expect(controller.scores[GameController.humanId], GameController.idlePenaltyScore, reason: 'no further penalty this tick');
 
       controller.dispose();
     });

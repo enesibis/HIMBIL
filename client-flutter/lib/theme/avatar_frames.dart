@@ -8,8 +8,20 @@ class AvatarFrameSkin {
   final String name;
   final int price;
   final String assetPath;
+  /// true ise çerçeve seçilen avatar rengiyle boyanır (bkz. `UserAvatar`).
+  /// Yalnız düz, tek-ton stroke'lu çerçeveler (bugün için `standart`)
+  /// bunun için uygundur — diğerleri kendi baskılı çok renkli sanatına
+  /// sahip tematik illüstrasyonlar (alev, karpuz, nazar...), düz bir
+  /// renkle boyanırsa sanat işi bozulur.
+  final bool isColorable;
 
-  const AvatarFrameSkin({required this.id, required this.name, required this.price, required this.assetPath});
+  const AvatarFrameSkin({
+    required this.id,
+    required this.name,
+    required this.price,
+    required this.assetPath,
+    this.isColorable = false,
+  });
 
   bool get isFree => price == 0;
 }
@@ -19,7 +31,7 @@ class AvatarFrameSkins {
   AvatarFrameSkins._();
 
   static const all = [
-    AvatarFrameSkin(id: 'standart', name: 'Standart', price: 0, assetPath: 'assets/frames/standart.svg'),
+    AvatarFrameSkin(id: 'standart', name: 'Standart', price: 0, assetPath: 'assets/frames/standart.svg', isColorable: true),
     AvatarFrameSkin(id: 'alev', name: 'Alev', price: 0, assetPath: 'assets/frames/alev.svg'),
     AvatarFrameSkin(id: 'simit', name: 'Susamlı Simit', price: 250, assetPath: 'assets/frames/simit.svg'),
     AvatarFrameSkin(id: 'karpuz', name: 'Karpuz Dilimi', price: 250, assetPath: 'assets/frames/karpuz.svg'),

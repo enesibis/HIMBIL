@@ -29,7 +29,10 @@ class JoinScreen extends StatefulWidget {
 
 class _UpperCaseTextFormatter extends TextInputFormatter {
   @override
-  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
     return newValue.copyWith(text: newValue.text.toUpperCase());
   }
 }
@@ -44,7 +47,9 @@ class _JoinScreenState extends State<JoinScreen> {
   void initState() {
     super.initState();
     _controller.addListener(_onTextChanged);
-    WidgetsBinding.instance.addPostFrameCallback((_) => _focusNode.requestFocus());
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => _focusNode.requestFocus(),
+    );
   }
 
   void _onTextChanged() {
@@ -64,16 +69,27 @@ class _JoinScreenState extends State<JoinScreen> {
   void _fillDemoCode() {
     SoundService.instance.playSfx(Sfx.buttonTap);
     const demo = 'K7X29M';
-    _controller.value = const TextEditingValue(text: demo, selection: TextSelection.collapsed(offset: demo.length));
+    _controller.value = const TextEditingValue(
+      text: demo,
+      selection: TextSelection.collapsed(offset: demo.length),
+    );
   }
 
   void _goToLobbySoon(String code) {
     _navigateTimer?.cancel();
     _navigateTimer = Timer(const Duration(milliseconds: 500), () {
       if (!mounted || _controller.text.length != roomCodeLength) return;
+      _focusNode.unfocus();
       SoundService.instance.playSfx(Sfx.lobbyJoinSuccess);
-      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => LobbyScreen(joinCode: code)));
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => LobbyScreen(joinCode: code)),
+      );
     });
+  }
+
+  void _goBack() {
+    _focusNode.unfocus();
+    Navigator.of(context).pop();
   }
 
   @override
@@ -86,71 +102,104 @@ class _JoinScreenState extends State<JoinScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: CarnivalBackground(
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 22),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 8),
-                CircleBackButton(onTap: () => Navigator.of(context).pop()),
-                const SizedBox(height: 14),
-                Text(context.l10n.joinTitle, style: AppText.baloo(size: 21, weight: FontWeight.w700)),
-                const SizedBox(height: 2),
-                Text(context.l10n.joinSubtitle, style: AppText.nunito(size: 13, weight: FontWeight.w700, color: Palette.textSecondary)),
-                const SizedBox(height: 24),
-                GestureDetector(
-                  onTap: () => _focusNode.requestFocus(),
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          for (var i = 0; i < roomCodeLength; i++) ...[
-                            if (i > 0) const SizedBox(width: 6),
-                            _codeBox(i < _controller.text.length ? _controller.text[i] : '', focused: i == _controller.text.length),
-                          ],
-                        ],
-                      ),
-                      Opacity(
-                        opacity: 0,
-                        child: SizedBox(
-                          width: 1,
-                          child: TextField(
-                            controller: _controller,
-                            focusNode: _focusNode,
-                            autofocus: true,
-                            showCursor: false,
-                            textCapitalization: TextCapitalization.characters,
-                            keyboardType: TextInputType.text,
-                            maxLength: roomCodeLength,
-                            decoration: const InputDecoration(counterText: '', border: InputBorder.none),
-                            inputFormatters: [
-                              FilteringTextInputFormatter.allow(RegExp('[a-zA-Z0-9]')),
-                              _UpperCaseTextFormatter(),
-                              LengthLimitingTextInputFormatter(roomCodeLength),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        _goBack();
+      },
+      child: Scaffold(
+        body: CarnivalBackground(
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 22),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 8),
+                  CircleBackButton(onTap: _goBack),
+                  const SizedBox(height: 14),
+                  Text(
+                    context.l10n.joinTitle,
+                    style: AppText.baloo(size: 21, weight: FontWeight.w700),
                   ),
-                ),
-                const SizedBox(height: 20),
-                Center(
-                  child: GestureDetector(
-                    onTap: _fillDemoCode,
-                    child: Text(
-                      context.l10n.joinDemoFill,
-                      style: AppText.nunito(size: 12, weight: FontWeight.w800, color: Palette.blue).copyWith(decoration: TextDecoration.underline),
+                  const SizedBox(height: 2),
+                  Text(
+                    context.l10n.joinSubtitle,
+                    style: AppText.nunito(
+                      size: 13,
+                      weight: FontWeight.w700,
+                      color: Palette.textSecondary,
                     ),
                   ),
-                ),
-                const Spacer(),
-              ],
+                  const SizedBox(height: 24),
+                  GestureDetector(
+                    onTap: () => _focusNode.requestFocus(),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            for (var i = 0; i < roomCodeLength; i++) ...[
+                              if (i > 0) const SizedBox(width: 6),
+                              _codeBox(
+                                i < _controller.text.length
+                                    ? _controller.text[i]
+                                    : '',
+                                focused: i == _controller.text.length,
+                              ),
+                            ],
+                          ],
+                        ),
+                        Opacity(
+                          opacity: 0,
+                          child: SizedBox(
+                            width: 1,
+                            child: TextField(
+                              controller: _controller,
+                              focusNode: _focusNode,
+                              autofocus: true,
+                              showCursor: false,
+                              textCapitalization: TextCapitalization.characters,
+                              keyboardType: TextInputType.text,
+                              maxLength: roomCodeLength,
+                              decoration: const InputDecoration(
+                                counterText: '',
+                                border: InputBorder.none,
+                              ),
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(
+                                  RegExp('[a-zA-Z0-9]'),
+                                ),
+                                _UpperCaseTextFormatter(),
+                                LengthLimitingTextInputFormatter(
+                                  roomCodeLength,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Center(
+                    child: GestureDetector(
+                      onTap: _fillDemoCode,
+                      child: Text(
+                        context.l10n.joinDemoFill,
+                        style: AppText.nunito(
+                          size: 12,
+                          weight: FontWeight.w800,
+                          color: Palette.blue,
+                        ).copyWith(decoration: TextDecoration.underline),
+                      ),
+                    ),
+                  ),
+                  const Spacer(),
+                ],
+              ),
             ),
           ),
         ),
@@ -165,11 +214,25 @@ class _JoinScreenState extends State<JoinScreen> {
       decoration: BoxDecoration(
         color: Palette.surface,
         borderRadius: BorderRadius.circular(14),
-        border: Border(bottom: BorderSide(color: focused ? Palette.red : Palette.red.withValues(alpha: 0.35), width: 4)),
-        boxShadow: [BoxShadow(color: Palette.textPrimary.withValues(alpha: 0.08), blurRadius: 12, offset: const Offset(0, 4))],
+        border: Border(
+          bottom: BorderSide(
+            color: focused ? Palette.red : Palette.red.withValues(alpha: 0.35),
+            width: 4,
+          ),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Palette.textPrimary.withValues(alpha: 0.08),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       alignment: Alignment.center,
-      child: Text(value, style: AppText.baloo(size: 20, weight: FontWeight.w800)),
+      child: Text(
+        value,
+        style: AppText.baloo(size: 20, weight: FontWeight.w800),
+      ),
     );
   }
 }

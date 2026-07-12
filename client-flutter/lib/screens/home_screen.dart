@@ -12,6 +12,7 @@ import '../widgets/store_tab.dart';
 import '../widgets/user_avatar.dart';
 import '../session/player_session.dart';
 import 'join_screen.dart';
+import 'lan_lobby_screen.dart';
 import 'lobby_screen.dart';
 import 'profile_edit_screen.dart';
 import 'settings_screen.dart';
@@ -183,6 +184,15 @@ class _HomeScreenState extends State<HomeScreen> {
                   icon: Icons.key_rounded,
                   iconColor: Palette.blue,
                   onTap: () => _goToJoin(context),
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: _secondaryCard(
+                  label: context.l10n.homeLanGame,
+                  icon: Icons.wifi_rounded,
+                  iconColor: Palette.green,
+                  onTap: () => _goToLan(context),
                 ),
               ),
             ],
@@ -381,6 +391,11 @@ class _HomeScreenState extends State<HomeScreen> {
   void _goToJoin(BuildContext context) {
     SoundService.instance.playSfx(Sfx.screenTransition);
     Navigator.of(context).push(MaterialPageRoute(builder: (_) => const JoinScreen()));
+  }
+
+  void _goToLan(BuildContext context) {
+    SoundService.instance.playSfx(Sfx.screenTransition);
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LanLobbyScreen()));
   }
 
   Widget _secondaryCard({required String label, required IconData icon, required Color iconColor, required VoidCallback onTap}) {

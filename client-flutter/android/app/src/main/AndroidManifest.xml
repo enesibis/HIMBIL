@@ -1,6 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Stage 3: talks to the Colyseus server (server/rooms/HimbilRoom.ts) over ws(s):// -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Madde #10: sunucusuz LAN modu — aynı Wi-Fi ağındaki host'u UDP
+         broadcast ile keşfetmek ve TCP maç bağlantısı kurmak için. Salt
+         broadcast (multicast değil) kullanıldığından ve SSID okunmadığından
+         CHANGE_WIFI_MULTICAST_STATE/ACCESS_WIFI_STATE gerekmiyor. -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <application
         android:label="Hımbıl"
         android:name="${applicationName}"

@@ -25,6 +25,8 @@ export interface PlayerView {
   connected: boolean;
   /** seat taken over by a server bot after the reconnect grace expired */
   botControlled: boolean;
+  /** connected but has missed several consecutive swap-tick choices in a row (madde #4 AFK warning) */
+  idle: boolean;
 }
 
 export interface YouView {

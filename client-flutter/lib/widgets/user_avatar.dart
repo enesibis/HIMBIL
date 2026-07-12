@@ -77,6 +77,8 @@ class _UserAvatarState extends State<UserAvatar> with SingleTickerProviderStateM
 
   Widget _buildFramed() {
     final avatarSize = widget.size * 0.72;
+    final skin = AvatarFrameSkins.byId(widget.frame);
+    final frameImage = SvgPicture.asset(skin.assetPath, width: widget.size, height: widget.size);
     return SizedBox(
       width: widget.size,
       height: widget.size,
@@ -85,7 +87,9 @@ class _UserAvatarState extends State<UserAvatar> with SingleTickerProviderStateM
         children: [
           SizedBox(width: avatarSize, height: avatarSize, child: _core()),
           IgnorePointer(
-            child: SvgPicture.asset(AvatarFrameSkins.byId(widget.frame).assetPath, width: widget.size, height: widget.size),
+            child: skin.isColorable
+                ? ColorFiltered(colorFilter: ColorFilter.mode(widget.gradient.last, BlendMode.srcIn), child: frameImage)
+                : frameImage,
           ),
         ],
       ),

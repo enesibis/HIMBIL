@@ -3,12 +3,13 @@ import {
   BOT_PILE_ON_CHANCE,
   BOT_PILE_ON_DELAY_MAX_MS,
   BOT_PILE_ON_DELAY_MIN_MS,
-  BOT_SLAM_DELAY_MAX_MS,
-  BOT_SLAM_DELAY_MIN_MS,
+  MAX_REFLEX_DELAY_MS,
   chooseLeastUsefulCard,
+  assignReflexTier,
   decideBotSlamDelayMs,
   decidePileOnDelayMs,
   decidesToPileOn,
+  type BotReflexTier,
 } from "../botPlayer.js";
 
 describe("chooseLeastUsefulCard", () => {
@@ -37,10 +38,28 @@ describe("chooseLeastUsefulCard", () => {
   });
 });
 
-describe("bot timing", () => {
-  it("slam delay stays inside the human-ish window", () => {
-    expect(decideBotSlamDelayMs(() => 0)).toBe(BOT_SLAM_DELAY_MIN_MS);
-    expect(decideBotSlamDelayMs(() => 1)).toBe(BOT_SLAM_DELAY_MAX_MS);
+describe("bot reflex tiers", () => {
+  it("assigns one of the three tiers based on rng", () => {
+    expect(assignReflexTier(() => 0)).toBe("easy");
+    expect(assignReflexTier(() => 0.4)).toBe("medium");
+    expect(assignReflexTier(() => 0.9)).toBe("hard");
+  });
+
+  it("slam delay stays inside each tier's human-ish window", () => {
+    const ranges: Record<BotReflexTier, [number, number]> = {
+      easy: [700, 1200],
+      medium: [350, 800],
+      hard: [150, 500],
+    };
+    for (const tier of Object.keys(ranges) as BotReflexTier[]) {
+      const [min, max] = ranges[tier];
+      expect(decideBotSlamDelayMs(tier, () => 0)).toBe(min);
+      expect(decideBotSlamDelayMs(tier, () => 1)).toBe(max);
+    }
+    // Pile-on's delay floor is meant to sit at/above the slowest possible
+    // quartet-holder delay (the "easy" tier's max) so a pile-on bot never
+    // visually presses before a real holder theoretically could.
+    expect(MAX_REFLEX_DELAY_MS).toBe(ranges.easy[1]);
   });
 
   it("pile-on delay stays inside its window", () => {

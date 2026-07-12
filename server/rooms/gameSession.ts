@@ -3,14 +3,14 @@ import { dealHands } from "../game/deal.js";
 import { resolveSwapTick, type SwapChoice } from "../game/swap.js";
 import { detectQuartet } from "../game/quartet.js";
 import { scoreSlamOrder, submitSlamPress, type SlamPressOutcome } from "../game/scoring.js";
-import { chooseLeastUsefulCard } from "./botPlayer.js";
+import { chooseLeastUsefulCard, assignReflexTier, type BotReflexTier } from "./botPlayer.js";
 import type { Direction, GamePhase, Hand, SlamResult } from "../game/types.js";
 import type { PlayerView, RoomStateView } from "../schema/messages.js";
 
 export const NUM_PLAYERS = 4;
 export const TARGET_SCORE = 300;
-export const SWAP_TICK_MS = 4000;
-export const SLAM_WINDOW_MS = 4000;
+export const SWAP_TICK_MS = 25000;
+export const SLAM_WINDOW_MS = 25000;
 /**
  * Pause between a slam window closing and the next round's first swap tick.
  * Gives every client time to play the ~1.9s slam celebration before new
@@ -20,6 +20,22 @@ export const SLAM_WINDOW_MS = 4000;
  * can't do: one absent player would stall the other three forever).
  */
 export const SCORING_PAUSE_MS = 4000;
+
+/**
+ * AFK handling (madde #4): a *connected* player who repeatedly lets the
+ * swap-tick timeout auto-pick a card for them (as opposed to a dropped
+ * connection, which is handled separately by the reconnect-grace/bot-
+ * takeover path in `HimbilRoom`) gets progressively nudged rather than
+ * silently doing nothing forever. Streak resets to 0 the moment the player
+ * chooses a card in time.
+ */
+/** Consecutive missed ticks before the idle player is warned (`PlayerView.idle`). */
+export const IDLE_WARNING_STREAK = 2;
+/** Consecutive missed ticks from which each additional miss costs points. */
+export const IDLE_PENALTY_STREAK = 3;
+export const IDLE_PENALTY_SCORE = -5;
+/** Consecutive missed ticks after which the seat is handed to the bot, same as an unrecovered disconnect — keeps the other 3 players from being stuck waiting on someone who isn't there. */
+export const IDLE_REMOVAL_STREAK = 8;
 
 /**
  * Match-end token rewards by final placement (1st..4th) — mirrors the
@@ -46,6 +62,10 @@ interface PlayerSlot {
   score: number;
   /** true: koltuk, reconnect grace'i dolan oyuncudan sunucu botuna devredildi. */
   botControlled: boolean;
+  /** Art arda swap-tick timeout'u ile geçen tur sayısı — bkz. IDLE_* sabitleri. */
+  consecutiveTimeouts: number;
+  /** botControlled olduğunda bir kez atanır, maç boyunca sabit kalır (madde #5). */
+  reflexTier: BotReflexTier | null;
 }
 
 /**
@@ -96,7 +116,15 @@ export class HimbilGameSession {
 
   addPlayer(id: string, name: string): boolean {
     if (this.isFull() || this.phase !== "waiting") return false;
-    this.players.push({ id, name, connected: true, score: 0, botControlled: false });
+    this.players.push({
+      id,
+      name,
+      connected: true,
+      score: 0,
+      botControlled: false,
+      consecutiveTimeouts: 0,
+      reflexTier: null,
+    });
     return true;
   }
 
@@ -117,10 +145,16 @@ export class HimbilGameSession {
     if (player === undefined) return;
     player.botControlled = true;
     player.connected = false;
+    player.reflexTier ??= assignReflexTier(this.rng);
   }
 
   isBotControlled(id: string): boolean {
     return this.players.find((p) => p.id === id)?.botControlled === true;
+  }
+
+  /** Bota devredilmiş bir koltuğun maç boyunca sabit refleks katmanı, henüz devredilmemişse null. */
+  reflexTierOf(id: string): BotReflexTier | null {
+    return this.players.find((p) => p.id === id)?.reflexTier ?? null;
   }
 
   /** Slam penceresi açıldığında elinde 4'lü OLAN bot koltukları. */
@@ -174,6 +208,7 @@ export class HimbilGameSession {
 
     const swapChoices: SwapChoice[] = this.players.map((p, i) => {
       const chosen = this.choices.get(p.id) ?? null;
+      if (!p.botControlled) this.updateIdleStreak(p, chosen !== null);
       if (chosen !== null) return { cardId: chosen };
       // Bot koltukları rastgele (timeout) yerine biriktirdiğini koruyan
       // sezgiyle verir; insan koltuklarında timeout kuralı aynen kalır.
@@ -201,6 +236,27 @@ export class HimbilGameSession {
     this.choices.clear();
     this.tickNumber++;
     this.beginSwappingOrSlamWindow(now);
+  }
+
+  /**
+   * Tracks a connected (non-bot-controlled) player's consecutive missed
+   * choices — resets to 0 on a real choice, otherwise warns/penalizes/hands
+   * off the seat at the IDLE_* thresholds. Only called for seats that are
+   * still human-controlled: once a seat is bot-controlled it always "chooses"
+   * (via chooseLeastUsefulCard), so there's nothing to track anymore.
+   */
+  private updateIdleStreak(player: PlayerSlot, chose: boolean): void {
+    if (chose) {
+      player.consecutiveTimeouts = 0;
+      return;
+    }
+    player.consecutiveTimeouts++;
+    if (player.consecutiveTimeouts >= IDLE_PENALTY_STREAK) {
+      this.addScore(player.id, IDLE_PENALTY_SCORE);
+    }
+    if (player.consecutiveTimeouts >= IDLE_REMOVAL_STREAK) {
+      this.setBotControlled(player.id);
+    }
   }
 
   /** Opens the slam window if the current hands already contain a quartet, else (re)starts the swap-tick countdown. */
@@ -316,6 +372,7 @@ export class HimbilGameSession {
       score: p.score,
       connected: p.connected,
       botControlled: p.botControlled,
+      idle: p.consecutiveTimeouts >= IDLE_WARNING_STREAK,
     }));
 
     return {
